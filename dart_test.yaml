@@ -6,3 +6,7 @@
 tags:
   golden:
     description: Renderer golden tests. Ubuntu CI runner only.
+  watcher-live:
+    description: >-
+      Touches the real filesystem and sleeps in real time to observe what the
+      platform watcher reports (spike S5). Excluded from the ordinary suite.

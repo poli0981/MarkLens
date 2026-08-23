@@ -1,0 +1,39 @@
+# Spike S5 only. Records what the `watcher` package reports on ext4/inotify,
+# which is the half of the save-pattern matrix a Windows machine cannot answer
+# and S3's Ubuntu VM has not run yet.
+#
+# Manual dispatch plus this branch's pushes; it is not part of `ci.yml` and
+# does not gate anything.
+name: watch-observation
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ["spike/s5-watcher"]
+
+permissions:
+  contents: read
+
+jobs:
+  observe:
+    name: observe (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        with:
+          flutter-version: "3.47.1"
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - name: Observe save patterns
+        run: flutter test --tags watcher-live test/spike/s5_watch_observation_test.dart
+      - name: Print the report
+        if: always()
+        shell: bash
+        run: cat build/s5_observations.md || echo "(no report produced)"
