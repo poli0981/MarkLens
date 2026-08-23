@@ -1,6 +1,6 @@
 # S4 — Menu bar & shortcuts prototype
 
-**Status:** objective half complete; the "feels right" gate is the maintainer's
+**Status:** complete — the "feels right" gate was accepted as-is
 **Branch:** `spike/s4-menubar`
 **Machine:** Windows 11, Flutter 3.47.1 / Dart 3.13.1
 **Date:** 2026-08-23
@@ -89,10 +89,19 @@ leaking through.
 - The note about building our own widget row is replaced with what we actually
   did and why.
 
-## Open — the subjective gate
+## The subjective gate — passed
 
 Doc 15 makes this the maintainer's call, and it is the one thing a test cannot
-answer:
+answer. The prototype was run on Windows 11 and accepted without changes, so
+the behaviour described above is what M1 builds on: `Alt` opens the File menu,
+accelerators on the three titles, and Flutter's `MenuBar` underneath.
+
+One alternative was raised and declined: dropping the bare-`Alt` behaviour
+entirely and keeping only `Alt+F` / `Alt+V` / `Alt+H`. That would be less
+surprising for anyone expecting Windows' highlight-only state, at the cost of a
+keyboard entry point. Recorded in case it comes back.
+
+To re-run it:
 
 ```bash
 flutter run -d windows

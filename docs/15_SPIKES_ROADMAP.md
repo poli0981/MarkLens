@@ -102,8 +102,9 @@ file/folder dialogs work; watcher fires on ext4; AppImage produced from the
 
 ## S4 — Menu bar + shortcuts prototype
 
-> **Objective half PASSED — 2026-08-23**; the subjective gate is still open and
-> is the maintainer's to close. Results in `docs/spike-results/S4-menubar.md`.
+> **PASSED — 2026-08-23**, subjective gate included: the maintainer tried the
+> prototype and accepted it as-is. Results in
+> `docs/spike-results/S4-menubar.md`.
 >
 > Built on Flutter's Material `MenuBar` rather than hand-rolled: it already is
 > the styled widget row doc 06 wanted, and brings arrow traversal and `Esc`
