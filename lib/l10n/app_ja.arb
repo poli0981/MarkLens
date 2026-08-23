@@ -1,0 +1,15 @@
+{
+  "@@locale": "ja",
+
+  "appTitle": "MarkLens",
+  "menuFile": "ファイル",
+  "menuView": "表示",
+  "menuHelp": "ヘルプ",
+  "menuOpenFiles": "ファイルを開く…",
+  "menuOpenFolder": "フォルダーを開く…",
+  "readerCopyCodeTooltip": "コードをコピー",
+  "sidebarMissingBadge": "見つかりません",
+  "readerRawHtmlTitle": "生の HTML（描画しません）",
+  "readerMdxImportsHidden": "MDX · {count, plural, other{{count} 件の import を非表示}}",
+  "emptyStateDropHint": "Markdown ファイルをここにドロップするか、開いて始めてください。"
+}

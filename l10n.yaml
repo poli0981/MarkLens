@@ -1,0 +1,11 @@
+# docs/09_I18N.md. app_en.arb is the source of truth; vi/ja may trail within a
+# PR train but must be complete before a release tag.
+arb-dir: lib/l10n
+template-arb-file: app_en.arb
+output-dir: lib/l10n/gen
+output-localization-file: app_localizations.dart
+output-class: AppLocalizations
+nullable-getter: false
+# Fail the build on a key that exists in en but not in vi/ja, so a missing
+# translation cannot ship silently.
+untranslated-messages-file: l10n_untranslated.json

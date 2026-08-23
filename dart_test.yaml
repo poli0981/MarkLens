@@ -1,0 +1,8 @@
+# docs/12_TESTING.md. Golden tests render with the bundled fonts and are only
+# stable on the ubuntu CI runner, so they are tagged and excluded elsewhere:
+#
+#   flutter test --exclude-tags golden   # local + windows CI
+#   flutter test                         # ubuntu CI, goldens included
+tags:
+  golden:
+    description: Renderer golden tests. Ubuntu CI runner only.

@@ -1,0 +1,51 @@
+{
+  "@@locale": "en",
+
+  "appTitle": "MarkLens",
+  "@appTitle": {
+    "description": "Application name. Window title and About screen."
+  },
+
+  "menuFile": "File",
+  "@menuFile": { "description": "Menu bar: File menu label." },
+
+  "menuView": "View",
+  "@menuView": { "description": "Menu bar: View menu label." },
+
+  "menuHelp": "Help",
+  "@menuHelp": { "description": "Menu bar: Help menu label." },
+
+  "menuOpenFiles": "Open File(s)…",
+  "@menuOpenFiles": { "description": "File menu: open one or more documents." },
+
+  "menuOpenFolder": "Open Folder…",
+  "@menuOpenFolder": { "description": "File menu: open a folder of documents." },
+
+  "readerCopyCodeTooltip": "Copy code",
+  "@readerCopyCodeTooltip": {
+    "description": "Tooltip on the copy button of a fenced code block."
+  },
+
+  "sidebarMissingBadge": "missing",
+  "@sidebarMissingBadge": {
+    "description": "Sidebar badge on a file that no longer exists on disk."
+  },
+
+  "readerRawHtmlTitle": "Raw HTML (not rendered)",
+  "@readerRawHtmlTitle": {
+    "description": "Title of the collapsed box holding block HTML. MarkLens never renders HTML (docs/04)."
+  },
+
+  "readerMdxImportsHidden": "MDX · {count, plural, =1{1 import hidden} other{{count} imports hidden}}",
+  "@readerMdxImportsHidden": {
+    "description": "Chip in the document header when the MDX sanitizer removed ESM import/export lines.",
+    "placeholders": {
+      "count": { "type": "int", "example": "3" }
+    }
+  },
+
+  "emptyStateDropHint": "Drop a Markdown file here, or open one to begin.",
+  "@emptyStateDropHint": {
+    "description": "First-run empty state, shown when nothing is open."
+  }
+}

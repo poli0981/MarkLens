@@ -1,0 +1,58 @@
+name: marklens
+description: "A fast, lightweight, read-only Markdown viewer."
+publish_to: "none"
+
+# Single source of truth for the app version (docs/11_PACKAGING_UPDATE.md).
+# Surfaced via package_info_plus in About and the update check.
+version: 0.1.0+1
+
+environment:
+  sdk: ^3.13.1
+
+# docs/01_TECH_STACK.md: exact versions, no carets, lockfile committed.
+# A new dependency needs a row in doc 01 AND legal/THIRD_PARTY_NOTICES.md in
+# the same PR, with the license verified (CLAUDE.md rule 10).
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+
+  # ── Markdown: parse (pure Dart, core/) ──────────────────────────────────
+  markdown: 7.3.1
+
+  # ── Markdown: render (widget layer, features/reader/rendering/ only) ────
+  # S1 candidate A. Candidate B (markdown_widget) is added only on the spike
+  # branch so it never reaches a release lockfile by accident.
+  flutter_markdown_plus: 1.0.12
+  # Provisional — five years old, replaced or confirmed at S1 (doc 01).
+  flutter_highlight: 0.7.0
+  flutter_svg: 2.3.0
+
+  # ── State ───────────────────────────────────────────────────────────────
+  riverpod: 3.4.2
+  flutter_riverpod: 3.4.2
+
+  # ── Desktop shell ───────────────────────────────────────────────────────
+  window_manager: 0.5.2
+  desktop_drop: 0.8.0
+  file_picker: 12.0.0
+  url_launcher: 6.3.2
+  path_provider: 2.1.6
+
+  # ── Pure Dart services ──────────────────────────────────────────────────
+  watcher: 1.2.1
+  args: 2.7.0
+  package_info_plus: 10.2.1
+  intl: 0.20.3
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  very_good_analysis: 10.3.0
+
+flutter:
+  uses-material-design: true
+  generate: true
+  # Bundled fonts (Noto Sans / Noto Sans JP / JetBrains Mono) land here at M1.
+  # The Noto Sans JP size question is still open — see docs/01_TECH_STACK.md.
