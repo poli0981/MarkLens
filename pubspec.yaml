@@ -26,8 +26,11 @@ dependencies:
   # features/reader/rendering/ — CLAUDE.md rule 6, enforced by
   # test/architecture/core_purity_test.dart.
   flutter_markdown_plus: 1.0.12
-  # Provisional — five years old, replaced or confirmed at S1 (doc 01).
-  flutter_highlight: 0.7.0
+  # S1c chose the pure-Dart engine over the flutter_highlight widget wrapper:
+  # this project's CodeHighlighter seam returns spans, not a widget, and the
+  # wrapper's only other contribution was themes we would rather derive from
+  # our own doc 06 tokens. One dependency (collection), no platform code.
+  highlight: 0.7.0
   flutter_svg: 2.3.0
 
   # ── State ───────────────────────────────────────────────────────────────

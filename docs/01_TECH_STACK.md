@@ -48,22 +48,27 @@ measured in S1, both covered by tests:
 - **It emits nothing at all for block HTML.** The "Raw HTML (not rendered)" box
   in doc 04 must be produced upstream in `core/markdown/`.
 
-## Highlighting decision (also gated by S1)
+## Highlighting decision — **settled: `highlight 0.7.0`**
 
-`flutter_highlight` is the ecosystem default and its latest release is **five
-years old**, from an **unverified uploader**, wrapping highlight.js grammars
-frozen around 2020 (no Dart 3 syntax, none of the languages added since). That
-is known debt taken deliberately, not an oversight: it is pinned at M0 so the
-scaffold builds, and it sits behind a `CodeHighlighter` interface in
-`features/reader/rendering/` so replacing it touches one file.
+Ratified 2026-08-23 (`docs/spike-results/S1c-highlighter.md`). Note the pin is
+`highlight`, the pure-Dart engine — **not** the `flutter_highlight` widget
+wrapper, which is dropped. The `CodeHighlighter` seam in
+`features/reader/rendering/` returns spans rather than a widget, and the
+wrapper's only other contribution was 90 bundled themes; a scope → `TextStyle`
+map derived from our own doc 06 tokens is more consistent, and doc 13 prefers
+fifty lines of our own code over a utility dependency.
 
-| Option | Verified 2026-08-23 | Notes |
-|---|---|---|
-| `flutter_highlight` **0.7.0** | MIT, published 5 years ago, unverified uploader, ~235k downloads | Incumbent / M0 pin. Thin widget wrapper over the pure-Dart `highlight` package — the token engine could be lifted into a pure layer if wanted. |
-| `re_highlight` **0.0.3** | MIT, verified publisher (Reqable.com), published 2 years ago | Dart port of highlight.js **v11.9.0** — far newer grammars, full test suite ported. But `0.0.x` and low adoption: trading one risk for another. |
-| `syntax_highlight` **0.5.0** | BSD-3, verified publisher (serverpod.dev), 12 months old | TextMate grammars (VS Code style), well maintained — but only ~15 languages, and it pulls `super_clipboard`, which adds a native/Rust build step. Too narrow and too heavy for a general-purpose viewer. |
+| Option | Verdict |
+|---|---|
+| **`highlight` 0.7.0** | MIT, unverified uploader, 5 years old, pure Dart, one dependency (`collection`). **Chosen.** An unknown language passes the code through unstyled — which *is* the `CodeHighlighter` contract, satisfying rule 9 for free — and it tokenises ~1.5× faster (16.7 ms vs 24.7 ms on 13 KB). |
+| `re_highlight` 0.0.3 | MIT, verified publisher, 2 years old, tracks highlight.js v11.9.0. **Rejected.** Its whole premise was fresher grammars, and that did not survive measurement: identical scopes on Dart 3 including `sealed`/`base`/`interface`/`mixin`. It raises a hard `AssertionError` on an unknown language, and it imports `flutter/rendering` — more to break against over years than a pure-Dart tokeniser. |
+| `syntax_highlight` | **Rejected twice over.** 0.5.0 cannot resolve against our pins (the same win32 chain, via `super_native_extensions` → `device_info_plus`); the 0.4.0 that does resolve ships five grammars. |
 
-S1 records the winner, its exact pin, and the language-coverage gap accepted.
+**Accepted gaps** (doc 15 asks for these in writing): no `toml` alias (`ini` is
+the near equivalent and works); grammars frozen around 2020, so `wasm`, `wren`
+and the REPL variants are absent; and an unverified uploader, which choosing
+differently would not have fixed since it is the same uploader. Revisit if a
+maintained port with a verified publisher appears.
 
 ## Dependency table
 
@@ -75,7 +80,7 @@ moves (rule 10).
 |---|---|---|---|
 | flutter_markdown_plus | Markdown → widgets (renderer seam) | BSD-3 | `1.0.12` |
 | markdown (Dart team) | Parser/AST, pure Dart (front-matter-free source) | BSD-3 | `7.3.1` |
-| flutter_highlight | Code-block highlight (bundles highlight.js) | MIT (hl.js BSD-3) | `0.7.0` — provisional, see above |
+| highlight | Code-block tokenising, pure Dart (bundles highlight.js grammars) | MIT (hl.js BSD-3) | `0.7.0` |
 | flutter_svg | SVG images (badges etc.) | **MIT** | `2.3.0` |
 | riverpod / flutter_riverpod | State | MIT | `3.4.2` |
 | window_manager | Window geometry, minimum size, titles | **MIT** | `0.5.2` |

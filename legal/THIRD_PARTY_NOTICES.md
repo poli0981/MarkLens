@@ -10,8 +10,8 @@ whenever a pin moves (CLAUDE.md rule 10). Full license texts live in
 | Flutter SDK | Framework | BSD-3-Clause | 3.47.1 |
 | flutter_markdown_plus | Markdown rendering | BSD-3-Clause | 1.0.12 |
 | markdown (Dart team) | Markdown parsing | BSD-3-Clause | 7.3.1 |
-| flutter_highlight | Syntax highlighting | MIT | 0.7.0 |
-| highlight.js (bundled by the above) | Highlight grammars/themes | BSD-3-Clause | — |
+| highlight | Syntax highlighting (tokeniser, pure Dart) | MIT | 0.7.0 |
+| highlight.js (grammars bundled by the above) | Highlight grammars | BSD-3-Clause | — |
 | flutter_svg | SVG rendering | MIT | 2.3.0 |
 | riverpod / flutter_riverpod | State management | MIT | 3.4.2 |
 | window_manager | Window control | MIT | 0.5.2 |

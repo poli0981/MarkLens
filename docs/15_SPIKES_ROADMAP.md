@@ -5,8 +5,11 @@ branch with a written result note committed to `docs/spike-results/`.
 
 ## S1 — Renderer bake-off *(the decision spike)*
 
-> **RATIFIED — 2026-08-23: `flutter_markdown_plus 1.0.12`**, pinned in doc 01
-> after S2 passed. Only the highlighter decision is still open.
+> **COMPLETE — 2026-08-23.** `flutter_markdown_plus 1.0.12` as the renderer
+> (ratified after S2), and `highlight 0.7.0` as the syntax highlighter — the
+> pure-Dart engine, with the `flutter_highlight` widget wrapper dropped
+> (`docs/spike-results/S1c-highlighter.md`). Both pinned in doc 01, with the
+> accepted language-coverage gaps written down there.
 >
 > **Measurable criteria closed — 2026-08-23.** Fidelity sweep, the three
 > structural questions, and the profile-mode scroll gate are all done; results
@@ -60,12 +63,15 @@ all — so they belong here, not in M2 when it is expensive to be wrong.
    so these three do not automatically hold together. If they cannot all be
    met, say which one gives, and amend the doc that loses.
 
-### S1 also closes the highlighter decision
+### S1 also closes the highlighter decision — **done**
 
-Score `flutter_highlight 0.7.0` (incumbent, five years old), `re_highlight`
-and `syntax_highlight` per doc 01 against the torture corpus' code blocks.
-**Output:** winner + exact pin in doc 01, plus the accepted language-coverage
-gap written down.
+`highlight 0.7.0`, used directly. The premise for looking past the incumbent
+was fresher grammars, and measurement killed it: `re_highlight` produced
+*identical* scopes on Dart 3, including the class modifiers. The incumbent then
+wins on the things that were measurable — an unknown language degrades to plain
+text rather than throwing, ~1.5× faster tokenising, pure Dart with one
+dependency. `syntax_highlight` cannot resolve against our pins at all.
+Full reasoning and the accepted gaps: `docs/spike-results/S1c-highlighter.md`.
 
 ## S2 — Selection & copy quality
 
