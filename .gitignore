@@ -1,0 +1,50 @@
+# ── Miscellaneous ─────────────────────────────────────────────────────────
+*.class
+*.log
+*.swp
+.DS_Store
+.atom/
+.build/
+.buildlog/
+.history
+.svn/
+.swiftpm/
+migrate_working_dir/
+
+# ── IDE ───────────────────────────────────────────────────────────────────
+*.iml
+*.ipr
+*.iws
+.idea/
+# .vscode/ is intentionally NOT ignored: launch configs are worth sharing.
+
+# ── Flutter / Dart / Pub ──────────────────────────────────────────────────
+**/doc/api/
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+/build/
+coverage/
+
+# pubspec.lock is deliberately COMMITTED (docs/01_TECH_STACK.md: exact pins,
+# lockfile committed). Do not add it here.
+
+# ── FVM (optional local toolchain pinning, docs/01) ───────────────────────
+.fvm/
+
+# ── Generated reports ─────────────────────────────────────────────────────
+# gen-l10n writes this list of keys missing from vi/ja. It is a build report,
+# not source. The generated Dart under lib/l10n/gen/ IS committed, so a fresh
+# clone analyzes clean (docs/09_I18N.md).
+l10n_untranslated.json
+
+# ── Symbolication / obfuscation ───────────────────────────────────────────
+app.*.symbols
+app.*.map.json
+
+# ── Maintainer-private ────────────────────────────────────────────────────
+# contact.txt carries the real maintainer contact details and says so itself.
+# It must never reach the remote.
+contact.txt

@@ -1,0 +1,33 @@
+# Normalize to LF in the repository. The dev machine is Windows and the golden
+# / integration runners are Ubuntu; without this, line endings differ between
+# them and goldens flap.
+* text=auto eol=lf
+
+# ── Test fixtures are BYTES, not text ─────────────────────────────────────
+# docs/12_TESTING.md requires fixtures with CRLF line endings and with
+# deliberately malformed UTF-8. If git normalizes those files, the tests that
+# assert on them silently become no-ops while still passing. Treat the whole
+# torture corpus as binary so the bytes on disk are the bytes in the repo.
+test/fixtures/torture/** -text
+
+# ── Binary assets ─────────────────────────────────────────────────────────
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.gif  binary
+*.webp binary
+*.bmp  binary
+*.ico  binary
+*.ttf  binary
+*.otf  binary
+*.woff binary
+*.woff2 binary
+
+# ── Platform scripts keep their native endings ────────────────────────────
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf
+*.sh  text eol=lf
+
+# ── Language stats: keep the vendored license out of the language bar ─────
+LICENSE linguist-vendored
