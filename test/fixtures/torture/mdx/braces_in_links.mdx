@@ -1,0 +1,19 @@
+# Braced expressions
+
+A braced expression in a paragraph: {someValue} renders as literal inline code.
+
+Inside a link: [a {braced} link](https://example.com).
+
+Inside a link target: [text](https://example.com/{id}).
+
+Nested braces: {a && {b: 1}} and {`a template ${literal}`}.
+
+An unbalanced brace: {unclosed
+
+A brace inside inline code: `{not an expression}`.
+
+In a table cell:
+
+| Expression | Result |
+|---|---|
+| {count} | literal |

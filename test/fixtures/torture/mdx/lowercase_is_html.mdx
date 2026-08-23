@@ -1,0 +1,16 @@
+# Lowercase tags are HTML, not components
+
+Per the locked heuristic (docs/04), a component tag starts with `[A-Z]` or
+contains a dot. These are HTML and follow the HTML policy instead:
+
+<div class="wrapper">
+  <p>block html</p>
+</div>
+
+Inline: <span>text</span>, <br>, <kbd>Ctrl</kbd>.
+
+These are components:
+
+<Div />
+
+<my.component prop="dotted lowercase still counts" />

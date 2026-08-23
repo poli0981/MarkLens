@@ -3,12 +3,16 @@
 # them and goldens flap.
 * text=auto eol=lf
 
-# ── Test fixtures are BYTES, not text ─────────────────────────────────────
-# docs/12_TESTING.md requires fixtures with CRLF line endings and with
-# deliberately malformed UTF-8. If git normalizes those files, the tests that
-# assert on them silently become no-ops while still passing. Treat the whole
-# torture corpus as binary so the bytes on disk are the bytes in the repo.
-test/fixtures/torture/** -text
+# ── Byte-exact test fixtures ──────────────────────────────────────────────
+# docs/12_TESTING.md requires fixtures with CRLF line endings, a UTF-8 BOM and
+# deliberately malformed UTF-8. If git normalizes those, the tests asserting on
+# them silently become no-ops while still passing — so this one directory is
+# opaque to git and the bytes on disk are the bytes in the repo.
+#
+# Scoped to bytes/ rather than the whole corpus on purpose: the GFM and MDX
+# pages are ordinary text, and marking them binary would cost their diffs for
+# no benefit.
+test/fixtures/torture/bytes/** -text
 
 # ── Binary assets ─────────────────────────────────────────────────────────
 *.png  binary

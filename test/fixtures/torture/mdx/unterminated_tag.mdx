@@ -1,0 +1,11 @@
+# Unterminated tags
+
+<Callout type="warning">
+  This component is never closed. The scanner must bail out and emit the
+  region as a fenced `mdx` code block rather than guessing where it ends.
+
+## A heading that appears to be inside the unclosed component
+
+More text that follows.
+
+<Another attr="value"

@@ -1,0 +1,22 @@
+# Code fences containing what looks like JSX
+
+The scanner operates outside fenced code and inline code only (docs/04). None
+of the following may be transformed:
+
+```jsx
+<Callout type="warning">
+  <Nested />
+</Callout>
+```
+
+```
+<Unterminated
+```
+
+Inline code with a component in it: `<Callout />` and `{expression}`.
+
+    <IndentedCodeBlock />
+
+Now a real one, outside any fence:
+
+<Callout type="real">Transform this one.</Callout>

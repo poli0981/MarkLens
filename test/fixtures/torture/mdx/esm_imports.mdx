@@ -1,0 +1,12 @@
+import Callout from '../components/Callout'
+import { Tabs, Tab } from '@site/src/components/Tabs'
+export const meta = { title: 'ESM lines' }
+
+# ESM lines are removed from the flow
+
+The header must show a chip reading "MDX · 3 imports hidden" (docs/04
+transform 1). None of the statements above may appear as body text.
+
+export default function Layout({ children }) {
+  return <main>{children}</main>
+}
