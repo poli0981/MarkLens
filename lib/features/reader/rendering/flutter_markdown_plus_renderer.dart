@@ -3,6 +3,24 @@ import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
 import 'package:marklens/core/models/doc_model.dart';
 import 'package:marklens/features/reader/rendering/markdown_renderer.dart';
 
+/// How the reader lays its block widgets out.
+///
+/// S2 exists because these two are not interchangeable: a lazily built child
+/// that has not been built cannot be selected, so whole-document selection
+/// (`docs/06_UI_UX.md`) and block-laziness (`docs/04_MARKDOWN_PIPELINE.md`)
+/// pull against each other. This enum is what lets the spike measure both
+/// rather than argue about them.
+enum ReaderLayout {
+  /// `ListView.builder` — only the blocks near the viewport are built.
+  lazyList,
+
+  /// Every block built up front inside a scroll view.
+  ///
+  /// Costs first paint, but the whole document exists in the widget tree and
+  /// is therefore selectable.
+  eagerColumn,
+}
+
 /// S1 candidate A — `flutter_markdown_plus`.
 ///
 /// The interesting part is [_BlockListMarkdown]. `MarkdownWidget` hands its
@@ -13,7 +31,11 @@ import 'package:marklens/features/reader/rendering/markdown_renderer.dart';
 /// document still resolve.
 class FlutterMarkdownPlusRenderer implements MarkdownRenderer {
   /// Creates the candidate A renderer.
-  const FlutterMarkdownPlusRenderer({this.controller, this.onBlockCount});
+  const FlutterMarkdownPlusRenderer({
+    this.controller,
+    this.onBlockCount,
+    this.layout = ReaderLayout.lazyList,
+  });
 
   /// Scroll controller for the block list.
   final ScrollController? controller;
@@ -24,33 +46,66 @@ class FlutterMarkdownPlusRenderer implements MarkdownRenderer {
   /// renderer actually draws.
   final void Function(int count)? onBlockCount;
 
+  /// Whether blocks are built lazily or all at once. See [ReaderLayout].
+  final ReaderLayout layout;
+
   @override
   Widget build(BuildContext context, DocModel doc) => _BlockListMarkdown(
     data: doc.sanitizedSource,
     controller: controller,
     onBlockCount: onBlockCount,
+    layout: layout,
+  );
+}
+
+/// Candidate A in its own `selectable` mode, for comparison against wrapping
+/// our block list in a `SelectionArea` (doc 15, S2).
+class NativeSelectableMarkdown extends StatelessWidget {
+  /// Creates the native-selection variant.
+  const NativeSelectableMarkdown({required this.doc, super.key});
+
+  /// The document to render.
+  final DocModel doc;
+
+  @override
+  Widget build(BuildContext context) => Markdown(
+    data: doc.sanitizedSource,
+    selectable: true,
+    imageBuilder: _placeholderImage,
   );
 }
 
 class _BlockListMarkdown extends MarkdownWidget {
   const _BlockListMarkdown({
     required super.data,
+    required this.layout,
     this.controller,
     this.onBlockCount,
   }) : super(imageBuilder: _placeholderImage, extensionSet: null);
 
   final ScrollController? controller;
   final void Function(int count)? onBlockCount;
+  final ReaderLayout layout;
 
   @override
   Widget build(BuildContext context, List<Widget>? children) {
     final blocks = children ?? const <Widget>[];
     onBlockCount?.call(blocks.length);
-    return ListView.builder(
-      controller: controller,
-      itemCount: blocks.length,
-      itemBuilder: (context, index) => blocks[index],
-    );
+
+    return switch (layout) {
+      ReaderLayout.lazyList => ListView.builder(
+        controller: controller,
+        itemCount: blocks.length,
+        itemBuilder: (context, index) => blocks[index],
+      ),
+      ReaderLayout.eagerColumn => SingleChildScrollView(
+        controller: controller,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: blocks,
+        ),
+      ),
+    };
   }
 }
 
