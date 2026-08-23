@@ -45,6 +45,7 @@ dependencies:
   args: 2.7.0
   package_info_plus: 10.2.1
   intl: 0.20.3
+  markdown_widget: ^2.3.2+8
 
 dev_dependencies:
   flutter_test:
