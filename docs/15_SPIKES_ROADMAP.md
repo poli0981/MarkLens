@@ -102,6 +102,21 @@ file/folder dialogs work; watcher fires on ext4; AppImage produced from the
 
 ## S4 — Menu bar + shortcuts prototype
 
+> **Objective half PASSED — 2026-08-23**; the subjective gate is still open and
+> is the maintainer's to close. Results in `docs/spike-results/S4-menubar.md`.
+>
+> Built on Flutter's Material `MenuBar` rather than hand-rolled: it already is
+> the styled widget row doc 06 wanted, and brings arrow traversal and `Esc`
+> with it. Two constraints found: a bare `Alt` cannot be a `Shortcuts` entry
+> (`SingleActivator` refuses modifier triggers), and the bar cannot be
+> *focused* while closed (`ExcludeFocus`), so **`Alt` opens the File menu**
+> rather than highlighting it — doc 06 amended. `Alt+F`/`Alt+V`/`Alt+H` work
+> through accelerator labels carried in the translated strings.
+>
+> **No shortcut conflicts on Windows or Linux**, proven by firing every
+> activator while a `TextField` holds focus. The `Control`+A/B/E/F/N/T
+> collisions exist only on macOS, a v1 non-goal.
+
 Build the custom menu bar skeleton with 5 real items and the doc 06
 shortcut set.
 **Pass:** full keyboard traversal (Alt, arrows, Esc), no shortcut conflicts

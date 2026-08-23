@@ -106,22 +106,22 @@ abstract class AppLocalizations {
   /// **'MarkLens'**
   String get appTitle;
 
-  /// Menu bar: File menu label.
+  /// Menu bar: File menu label. The '&' marks the Alt accelerator letter and is stripped before display (MenuAcceleratorLabel).
   ///
   /// In en, this message translates to:
-  /// **'File'**
+  /// **'&File'**
   String get menuFile;
 
-  /// Menu bar: View menu label.
+  /// Menu bar: View menu label. '&' marks the Alt accelerator letter.
   ///
   /// In en, this message translates to:
-  /// **'View'**
+  /// **'&View'**
   String get menuView;
 
-  /// Menu bar: Help menu label.
+  /// Menu bar: Help menu label. '&' marks the Alt accelerator letter.
   ///
   /// In en, this message translates to:
-  /// **'Help'**
+  /// **'&Help'**
   String get menuHelp;
 
   /// File menu: open one or more documents.
@@ -165,6 +165,144 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Drop a Markdown file here, or open one to begin.'**
   String get emptyStateDropHint;
+
+  /// File menu: submenu of recently opened documents.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Recent'**
+  String get menuOpenRecent;
+
+  /// Placeholder inside the Open Recent submenu when it is empty.
+  ///
+  /// In en, this message translates to:
+  /// **'No recent documents'**
+  String get menuOpenRecentEmpty;
+
+  /// File menu: re-read the active document from disk.
+  ///
+  /// In en, this message translates to:
+  /// **'Reload'**
+  String get menuReload;
+
+  /// File menu: copy the whole Markdown source to the clipboard (docs/06).
+  ///
+  /// In en, this message translates to:
+  /// **'Copy entire document'**
+  String get menuCopyDocument;
+
+  /// File menu: close the active tab.
+  ///
+  /// In en, this message translates to:
+  /// **'Close Tab'**
+  String get menuCloseTab;
+
+  /// File menu: close every open tab.
+  ///
+  /// In en, this message translates to:
+  /// **'Close All'**
+  String get menuCloseAll;
+
+  /// File menu: open the settings screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings…'**
+  String get menuSettings;
+
+  /// File menu: quit MarkLens.
+  ///
+  /// In en, this message translates to:
+  /// **'Exit'**
+  String get menuExit;
+
+  /// View menu: show or hide the file sidebar.
+  ///
+  /// In en, this message translates to:
+  /// **'Toggle Sidebar'**
+  String get menuToggleSidebar;
+
+  /// View menu: show or hide the outline panel.
+  ///
+  /// In en, this message translates to:
+  /// **'Toggle Outline'**
+  String get menuToggleOutline;
+
+  /// View menu: increase the reading zoom.
+  ///
+  /// In en, this message translates to:
+  /// **'Zoom In'**
+  String get menuZoomIn;
+
+  /// View menu: decrease the reading zoom.
+  ///
+  /// In en, this message translates to:
+  /// **'Zoom Out'**
+  String get menuZoomOut;
+
+  /// View menu: return the reading zoom to 100%.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset Zoom'**
+  String get menuZoomReset;
+
+  /// View menu: submenu choosing the colour theme.
+  ///
+  /// In en, this message translates to:
+  /// **'Theme'**
+  String get menuTheme;
+
+  /// Theme submenu: follow the operating system setting.
+  ///
+  /// In en, this message translates to:
+  /// **'System'**
+  String get menuThemeSystem;
+
+  /// Theme submenu: always light.
+  ///
+  /// In en, this message translates to:
+  /// **'Light'**
+  String get menuThemeLight;
+
+  /// Theme submenu: always dark.
+  ///
+  /// In en, this message translates to:
+  /// **'Dark'**
+  String get menuThemeDark;
+
+  /// View menu: enter or leave full screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Full Screen'**
+  String get menuFullScreen;
+
+  /// Help menu: ask GitHub whether a newer release exists.
+  ///
+  /// In en, this message translates to:
+  /// **'Check for Updates…'**
+  String get menuCheckUpdates;
+
+  /// Help menu: show the bundled dependency licences.
+  ///
+  /// In en, this message translates to:
+  /// **'Third-party Licenses'**
+  String get menuThirdPartyLicenses;
+
+  /// Help menu: write the in-memory log to a file the user picks.
+  ///
+  /// In en, this message translates to:
+  /// **'Export Diagnostic Log…'**
+  String get menuExportLog;
+
+  /// Help menu: version and project information.
+  ///
+  /// In en, this message translates to:
+  /// **'About MarkLens'**
+  String get menuAbout;
+
+  /// Snackbar shown when a prototype menu item has no behaviour yet.
+  ///
+  /// In en, this message translates to:
+  /// **'{item} is not wired up yet'**
+  String menuNotImplemented(String item);
 }
 
 class _AppLocalizationsDelegate

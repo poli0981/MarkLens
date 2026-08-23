@@ -13,13 +13,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appTitle => 'MarkLens';
 
   @override
-  String get menuFile => 'File';
+  String get menuFile => '&File';
 
   @override
-  String get menuView => 'View';
+  String get menuView => '&View';
 
   @override
-  String get menuHelp => 'Help';
+  String get menuHelp => '&Help';
 
   @override
   String get menuOpenFiles => 'Open File(s)…';
@@ -50,4 +50,75 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get emptyStateDropHint =>
       'Drop a Markdown file here, or open one to begin.';
+
+  @override
+  String get menuOpenRecent => 'Open Recent';
+
+  @override
+  String get menuOpenRecentEmpty => 'No recent documents';
+
+  @override
+  String get menuReload => 'Reload';
+
+  @override
+  String get menuCopyDocument => 'Copy entire document';
+
+  @override
+  String get menuCloseTab => 'Close Tab';
+
+  @override
+  String get menuCloseAll => 'Close All';
+
+  @override
+  String get menuSettings => 'Settings…';
+
+  @override
+  String get menuExit => 'Exit';
+
+  @override
+  String get menuToggleSidebar => 'Toggle Sidebar';
+
+  @override
+  String get menuToggleOutline => 'Toggle Outline';
+
+  @override
+  String get menuZoomIn => 'Zoom In';
+
+  @override
+  String get menuZoomOut => 'Zoom Out';
+
+  @override
+  String get menuZoomReset => 'Reset Zoom';
+
+  @override
+  String get menuTheme => 'Theme';
+
+  @override
+  String get menuThemeSystem => 'System';
+
+  @override
+  String get menuThemeLight => 'Light';
+
+  @override
+  String get menuThemeDark => 'Dark';
+
+  @override
+  String get menuFullScreen => 'Full Screen';
+
+  @override
+  String get menuCheckUpdates => 'Check for Updates…';
+
+  @override
+  String get menuThirdPartyLicenses => 'Third-party Licenses';
+
+  @override
+  String get menuExportLog => 'Export Diagnostic Log…';
+
+  @override
+  String get menuAbout => 'About MarkLens';
+
+  @override
+  String menuNotImplemented(String item) {
+    return '$item is not wired up yet';
+  }
 }

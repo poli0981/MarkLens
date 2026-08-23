@@ -30,10 +30,21 @@ column centers at `reading.contentMaxWidth` for comfortable line length.
 - **Help** — Check for Updates… · Third-party Licenses ·
   Export Diagnostic Log… · About MarkLens
 
-`PlatformMenuBar` is macOS-only, so the bar is our own widget row — styled
-to the app theme, fully keyboard-navigable (`Alt` focuses it, arrows move,
-`Esc` closes). That's consistent with a custom-styled app and identical on
-both OSes.
+`PlatformMenuBar` hands the menu to the platform and is not what we want, so
+the bar is a widget row styled to the app theme and identical on both OSes.
+Built on Flutter's Material `MenuBar`, which already is that row and brings
+arrow traversal, `Esc` dismissal and shortcut labels with it (spike S4).
+
+**Keyboard:** `Alt` on its own **opens the File menu**, and `Alt` again closes
+it and hands focus back to the reader. `Alt+F` / `Alt+V` / `Alt+H` open a menu
+directly, with the accelerator letter underlined while `Alt` is held; that
+letter is part of the *translated* label, because it has to differ per
+language. Arrows move between and within menus, `Esc` closes.
+
+S4 originally specified `Alt` as *focusing* the bar without opening it, the way
+Windows does. Flutter's `MenuBar` excludes itself from the focus tree while
+every menu is closed, so that state is unreachable without giving up `MenuBar`
+entirely — measured in `docs/spike-results/S4-menubar.md`.
 
 ## Shortcuts (full inventory — no others in v1)
 
@@ -50,7 +61,8 @@ both OSes.
 | Ctrl+B / Ctrl+U | Toggle sidebar / outline |
 | Ctrl+, | Settings |
 | F11 / Esc | Full screen / leave, close bars |
-| Alt | Focus menu bar |
+| Alt | Open the File menu (again to close) |
+| Alt+F · Alt+V · Alt+H | Open File · View · Help directly |
 
 ## Sidebar
 

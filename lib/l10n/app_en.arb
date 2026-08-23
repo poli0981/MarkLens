@@ -1,51 +1,151 @@
 {
   "@@locale": "en",
-
   "appTitle": "MarkLens",
   "@appTitle": {
     "description": "Application name. Window title and About screen."
   },
-
-  "menuFile": "File",
-  "@menuFile": { "description": "Menu bar: File menu label." },
-
-  "menuView": "View",
-  "@menuView": { "description": "Menu bar: View menu label." },
-
-  "menuHelp": "Help",
-  "@menuHelp": { "description": "Menu bar: Help menu label." },
-
+  "menuFile": "&File",
+  "@menuFile": {
+    "description": "Menu bar: File menu label. The '&' marks the Alt accelerator letter and is stripped before display (MenuAcceleratorLabel)."
+  },
+  "menuView": "&View",
+  "@menuView": {
+    "description": "Menu bar: View menu label. '&' marks the Alt accelerator letter."
+  },
+  "menuHelp": "&Help",
+  "@menuHelp": {
+    "description": "Menu bar: Help menu label. '&' marks the Alt accelerator letter."
+  },
   "menuOpenFiles": "Open File(s)…",
-  "@menuOpenFiles": { "description": "File menu: open one or more documents." },
-
+  "@menuOpenFiles": {
+    "description": "File menu: open one or more documents."
+  },
   "menuOpenFolder": "Open Folder…",
-  "@menuOpenFolder": { "description": "File menu: open a folder of documents." },
-
+  "@menuOpenFolder": {
+    "description": "File menu: open a folder of documents."
+  },
   "readerCopyCodeTooltip": "Copy code",
   "@readerCopyCodeTooltip": {
     "description": "Tooltip on the copy button of a fenced code block."
   },
-
   "sidebarMissingBadge": "missing",
   "@sidebarMissingBadge": {
     "description": "Sidebar badge on a file that no longer exists on disk."
   },
-
   "readerRawHtmlTitle": "Raw HTML (not rendered)",
   "@readerRawHtmlTitle": {
     "description": "Title of the collapsed box holding block HTML. MarkLens never renders HTML (docs/04)."
   },
-
   "readerMdxImportsHidden": "MDX · {count, plural, =1{1 import hidden} other{{count} imports hidden}}",
   "@readerMdxImportsHidden": {
     "description": "Chip in the document header when the MDX sanitizer removed ESM import/export lines.",
     "placeholders": {
-      "count": { "type": "int", "example": "3" }
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
     }
   },
-
   "emptyStateDropHint": "Drop a Markdown file here, or open one to begin.",
   "@emptyStateDropHint": {
     "description": "First-run empty state, shown when nothing is open."
+  },
+  "menuOpenRecent": "Open Recent",
+  "@menuOpenRecent": {
+    "description": "File menu: submenu of recently opened documents."
+  },
+  "menuOpenRecentEmpty": "No recent documents",
+  "@menuOpenRecentEmpty": {
+    "description": "Placeholder inside the Open Recent submenu when it is empty."
+  },
+  "menuReload": "Reload",
+  "@menuReload": {
+    "description": "File menu: re-read the active document from disk."
+  },
+  "menuCopyDocument": "Copy entire document",
+  "@menuCopyDocument": {
+    "description": "File menu: copy the whole Markdown source to the clipboard (docs/06)."
+  },
+  "menuCloseTab": "Close Tab",
+  "@menuCloseTab": {
+    "description": "File menu: close the active tab."
+  },
+  "menuCloseAll": "Close All",
+  "@menuCloseAll": {
+    "description": "File menu: close every open tab."
+  },
+  "menuSettings": "Settings…",
+  "@menuSettings": {
+    "description": "File menu: open the settings screen."
+  },
+  "menuExit": "Exit",
+  "@menuExit": {
+    "description": "File menu: quit MarkLens."
+  },
+  "menuToggleSidebar": "Toggle Sidebar",
+  "@menuToggleSidebar": {
+    "description": "View menu: show or hide the file sidebar."
+  },
+  "menuToggleOutline": "Toggle Outline",
+  "@menuToggleOutline": {
+    "description": "View menu: show or hide the outline panel."
+  },
+  "menuZoomIn": "Zoom In",
+  "@menuZoomIn": {
+    "description": "View menu: increase the reading zoom."
+  },
+  "menuZoomOut": "Zoom Out",
+  "@menuZoomOut": {
+    "description": "View menu: decrease the reading zoom."
+  },
+  "menuZoomReset": "Reset Zoom",
+  "@menuZoomReset": {
+    "description": "View menu: return the reading zoom to 100%."
+  },
+  "menuTheme": "Theme",
+  "@menuTheme": {
+    "description": "View menu: submenu choosing the colour theme."
+  },
+  "menuThemeSystem": "System",
+  "@menuThemeSystem": {
+    "description": "Theme submenu: follow the operating system setting."
+  },
+  "menuThemeLight": "Light",
+  "@menuThemeLight": {
+    "description": "Theme submenu: always light."
+  },
+  "menuThemeDark": "Dark",
+  "@menuThemeDark": {
+    "description": "Theme submenu: always dark."
+  },
+  "menuFullScreen": "Full Screen",
+  "@menuFullScreen": {
+    "description": "View menu: enter or leave full screen."
+  },
+  "menuCheckUpdates": "Check for Updates…",
+  "@menuCheckUpdates": {
+    "description": "Help menu: ask GitHub whether a newer release exists."
+  },
+  "menuThirdPartyLicenses": "Third-party Licenses",
+  "@menuThirdPartyLicenses": {
+    "description": "Help menu: show the bundled dependency licences."
+  },
+  "menuExportLog": "Export Diagnostic Log…",
+  "@menuExportLog": {
+    "description": "Help menu: write the in-memory log to a file the user picks."
+  },
+  "menuAbout": "About MarkLens",
+  "@menuAbout": {
+    "description": "Help menu: version and project information."
+  },
+  "menuNotImplemented": "{item} is not wired up yet",
+  "@menuNotImplemented": {
+    "description": "Snackbar shown when a prototype menu item has no behaviour yet.",
+    "placeholders": {
+      "item": {
+        "type": "String",
+        "example": "Open Folder…"
+      }
+    }
   }
 }
