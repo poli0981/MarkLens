@@ -22,8 +22,8 @@ column centers at `reading.contentMaxWidth` for comfortable line length.
 ## Menu map
 
 - **File** — Open File(s)… `Ctrl+O` · Open Folder… `Ctrl+Shift+O` ·
-  Open Recent ▸ · Reload `Ctrl+R` · Close Tab `Ctrl+W` · Close All ·
-  Settings… `Ctrl+,` · Exit
+  Open Recent ▸ · Reload `Ctrl+R` · Copy entire document `Ctrl+Shift+C` ·
+  Close Tab `Ctrl+W` · Close All · Settings… `Ctrl+,` · Exit
 - **View** — Toggle Sidebar `Ctrl+B` · Toggle Outline `Ctrl+U` ·
   Zoom In/Out/Reset `Ctrl+= / Ctrl+- / Ctrl+0` · Theme ▸ System/Light/Dark ·
   Full Screen `F11`
@@ -43,6 +43,7 @@ both OSes.
 | Ctrl+P | Quick switcher (fuzzy over open set + recent) |
 | Ctrl+F / Ctrl+Shift+F | Find in file / across open files |
 | Ctrl+R | Reload active file |
+| Ctrl+Shift+C | Copy entire document (Markdown source) |
 | Ctrl+W / Ctrl+Shift+T | Close tab / reopen closed tab |
 | Ctrl+Tab / Ctrl+Shift+Tab | Next / previous tab (MRU order) |
 | Ctrl+= · Ctrl+- · Ctrl+0 | Zoom in · out · reset (50–300%) |
@@ -67,8 +68,24 @@ inactive. Middle-click closes.
 
 ## Reader
 
-Whole document wrapped in `SelectionArea` — cross-block select/copy is a
-release gate (Spike S2). Code blocks: language label + copy button + hover
+The reader is wrapped in `SelectionArea`, and cross-block select/copy is a
+release gate (Spike S2 — passes). Selecting across a heading, paragraph, code
+block and table cell yields clean text, with Vietnamese diacritics, Japanese
+and code indentation intact. Dragging past the viewport edge auto-scrolls and
+keeps extending the selection into blocks built during the drag.
+
+**`Ctrl+A` reaches only what is rendered, and that is deliberate.** Blocks are
+built lazily (doc 04), so a block that has not been built cannot be selected.
+Building the whole document up front to make it selectable was measured and
+rejected: 527 ms to first paint on a *typical* 100 KB document against a
+150 ms budget, and outright process death at 1 MB
+(`docs/spike-results/S2-selection.md`). Instead, **File → Copy entire document
+(`Ctrl+Shift+C`)** copies `DocModel.sanitizedSource` straight from the model —
+exact by construction, and indifferent to what has been built. Note it copies
+the **Markdown source**, which differs deliberately from the rendered text a
+drag-selection produces.
+
+Code blocks: language label + copy button + hover
 scrollbar for long lines. Task-list checkboxes render but are inert
 (read-only tooltip on click). Front-matter panel per doc 04. Smooth
 programmatic scrolls (outline/anchor jumps) with a brief highlight pulse on

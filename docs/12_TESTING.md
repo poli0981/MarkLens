@@ -18,7 +18,10 @@
    - SearchService: hit mapping, cancellation, isolate round-trip.
 2. **Widget tests**: sidebar virtualization + badges, tab MRU cycling,
    find bar counter/cycling, quick-switcher scoring, front-matter panel
-   states, placeholder cards, menu keyboard navigation.
+   states, placeholder cards, menu keyboard navigation, and **selection
+   quality** (`test/features/reader_selection_test.dart`) — cross-block copy,
+   Vietnamese and Japanese, code indentation, and auto-scroll drag. That last
+   group is a release gate (doc 15, S2).
 3. **Golden tests** (renderer output): torture pages rendered with the
    bundled fonts. **Run on the ubuntu CI runner only** — bundled fonts make
    goldens stable there. Mechanics: the tag is declared in `dart_test.yaml`,
@@ -40,12 +43,13 @@
    asserts on it. Never in CI — shared runners are too noisy for frame timing
    to mean anything. This is a pre-release check on the reference machine.
 
-   The harness currently lives on `spike/s1-renderer-bakeoff`, because it has
-   to name a concrete renderer and S1 has not ratified one yet
-   (`docs/spike-results/S1-renderer-bakeoff.md`). It graduates to `main`
-   alongside the renderer at M1. It is written to fail loudly rather than
-   quietly when the scroll it is measuring did not actually happen — the spike
-   note records why that mattered.
+   ```bash
+   flutter drive --profile --driver=test_driver/perf_driver.dart      --target=integration_test/perf_gate_test.dart -d windows
+   ```
+
+   It is written to fail loudly rather than quietly when the scroll it is
+   measuring did not actually happen; `docs/spike-results/S1-renderer-bakeoff.md`
+   records why that mattered.
 
 ## Torture corpus (`test/fixtures/torture/`)
 

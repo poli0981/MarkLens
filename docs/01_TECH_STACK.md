@@ -17,20 +17,36 @@
   API differs materially from the v2 that most tutorials and answers assume.
   Write against v3 idioms.
 
-## Renderer decision (gated by Spike S1)
+## Renderer decision — **settled: `flutter_markdown_plus 1.0.12`**
 
-Both candidates are Flutter *widget* packages, so neither may be imported from
-`core/` (rule 3). They sit behind the `MarkdownRenderer` interface in
-`features/reader/rendering/`; `core/markdown/` produces the pure-Dart
-`DocModel` they consume. See doc 02 for the seam and doc 04 for the pipeline.
+Ratified 2026-08-23 after S1 and S2
+(`docs/spike-results/S1-renderer-bakeoff.md`, `S2-selection.md`).
+
+It is a Flutter *widget* package, so it may not be imported from `core/`
+(rule 3). It sits behind the `MarkdownRenderer` interface in
+`features/reader/rendering/`, which is the only place it is imported;
+`core/markdown/` produces the pure-Dart `DocModel` it consumes. See doc 02 for
+the seam and doc 04 for the pipeline.
+
+### Why, and what it costs
+
+Both candidates cleared every measurable gate — the fps floor by roughly an
+order of magnitude, and the selection quality bar identically. Performance was
+therefore not a tiebreaker, and the decision came down to maintenance.
 
 | Candidate | Verified 2026-08-23 | Notes |
 |---|---|---|
 | `flutter_markdown_plus` **1.0.12** | BSD-3-Clause. Verified publisher (Foresight Mobile). Latest release ~6 weeks old. Depends only on `markdown ^7.3.1`, `meta`, `path`. | **Default favourite.** Actively maintained continuation of Google's discontinued `flutter_markdown`. GFM by default, no inline-HTML rendering (fits our policy), `MarkdownStyleSheet` + `builders` + `extensionSet` + `onTapLink` hooks, `selectable` option and documented `SelectionArea` compatibility. |
-| `markdown_widget` **2.3.2+8** | MIT (was *verify* — now confirmed). Verified publisher (morn.fun). **Last release ~16 months ago.** Pulls in `flutter_highlight ^0.7.0`, `url_launcher`, `visibility_detector`, `scroll_to_index`. | **Candidate B, materially weaker.** Has TOC + lazy block-list rendering, which is genuinely relevant to doc 04. But the maintenance gap and the heavier dependency tree both count against it. Score it honestly; do not pick it on features alone. |
+| `markdown_widget` **2.3.2+8** | MIT, verified publisher (morn.fun), but **sixteen months without a release**, and it pulls `flutter_highlight ^0.7.0` as a *hard* dependency plus `url_launcher`, `visibility_detector` and `scroll_to_index`. | **Rejected.** It measured slightly better (1:1 block list, ~17% faster first paint), but the margin is invisible against a budget both clear by 10x, and the maintenance gap is structural. Not shipped, so it is not in `legal/THIRD_PARTY_NOTICES.md`. |
 
-S1 measures fidelity + scroll performance on the torture corpus (doc 12) and
-selection quality (S2); the winner is recorded here with its exact pin.
+Two behaviours of the winner are load-bearing and easy to break — both
+measured in S1, both covered by tests:
+
+- **Its child list is `2N-1`**, with a `SizedBox` spacer between every pair of
+  real blocks. Filtering spacers out by type is unsafe: an empty heading is a
+  real block that also renders as a `SizedBox`. Only `children[2i]` is correct.
+- **It emits nothing at all for block HTML.** The "Raw HTML (not rendered)" box
+  in doc 04 must be produced upstream in `core/markdown/`.
 
 ## Highlighting decision (also gated by S1)
 
@@ -57,7 +73,7 @@ moves (rule 10).
 
 | Package | Role | License | Pin |
 |---|---|---|---|
-| flutter_markdown_plus *or* markdown_widget | Markdown → widgets (renderer seam) | BSD-3 / MIT | S1 (`1.0.12` provisional) |
+| flutter_markdown_plus | Markdown → widgets (renderer seam) | BSD-3 | `1.0.12` |
 | markdown (Dart team) | Parser/AST, pure Dart (front-matter-free source) | BSD-3 | `7.3.1` |
 | flutter_highlight | Code-block highlight (bundles highlight.js) | MIT (hl.js BSD-3) | `0.7.0` — provisional, see above |
 | flutter_svg | SVG images (badges etc.) | **MIT** | `2.3.0` |

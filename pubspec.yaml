@@ -22,8 +22,9 @@ dependencies:
   markdown: 7.3.1
 
   # ── Markdown: render (widget layer, features/reader/rendering/ only) ────
-  # S1 candidate A. Candidate B (markdown_widget) is added only on the spike
-  # branch so it never reaches a release lockfile by accident.
+  # Ratified by S1 + S2 (docs/01_TECH_STACK.md). Imported ONLY from
+  # features/reader/rendering/ — CLAUDE.md rule 6, enforced by
+  # test/architecture/core_purity_test.dart.
   flutter_markdown_plus: 1.0.12
   # Provisional — five years old, replaced or confirmed at S1 (doc 01).
   flutter_highlight: 0.7.0
@@ -48,6 +49,12 @@ dependencies:
 
 dev_dependencies:
   flutter_test:
+    sdk: flutter
+  # The charter's fps and first-paint gates need real frames, which widget
+  # tests cannot give — they drive a fake clock (docs/12_TESTING.md item 6).
+  integration_test:
+    sdk: flutter
+  flutter_driver:
     sdk: flutter
   very_good_analysis: 10.3.0
 

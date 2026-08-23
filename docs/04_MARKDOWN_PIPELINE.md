@@ -143,13 +143,15 @@ Note what "block-lazy" does and does not mean here: block *layout* is lazy,
 block *widget construction* is eager and O(document) in both renderers. A 1 MB
 document produces 13k–26k block widgets before the first frame.
 
-**S1 confirmed the three-way conflict** between block-laziness, whole-document
-`SelectionArea` (doc 06, release gate S2) and 55 fps on 1 MB (doc 00): a
-lazily built child that has not been built cannot be selected, and with 200
-paragraphs in an 800×600 viewport the last one is simply absent from the
-widget tree. These three cannot all hold as written. **S2 decides which one
-gives, and amends the doc that loses.** See
-`docs/spike-results/S1-renderer-bakeoff.md`.
+S1 found a three-way conflict between block-laziness, whole-document
+`SelectionArea` (doc 06) and 55 fps on 1 MB (doc 00), since a child that has
+not been built cannot be selected. **S2 resolved it: laziness and 55 fps win.**
+
+Building every block up front costs 527 ms to first paint on a *typical*
+100 KB document — three and a half times the charter budget — and kills the
+process at 1 MB. Whole-document selection was replaced by File → Copy entire
+document, which reads the `DocModel` rather than the widget tree (doc 06). See
+`docs/spike-results/S2-selection.md`.
 Documents > 10 MB open with a "large file" banner; > 50 MB are refused with
 a friendly dialog (charter: viewer, not log reader). The 1 MB torture file
 must hold ≥ 55 fps scrolling (doc 00).

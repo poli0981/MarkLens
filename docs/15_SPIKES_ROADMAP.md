@@ -5,6 +5,9 @@ branch with a written result note committed to `docs/spike-results/`.
 
 ## S1 — Renderer bake-off *(the decision spike)*
 
+> **RATIFIED — 2026-08-23: `flutter_markdown_plus 1.0.12`**, pinned in doc 01
+> after S2 passed. Only the highlighter decision is still open.
+>
 > **Measurable criteria closed — 2026-08-23.** Fidelity sweep, the three
 > structural questions, and the profile-mode scroll gate are all done; results
 > in `docs/spike-results/S1-renderer-bakeoff.md`.
@@ -65,6 +68,17 @@ and `syntax_highlight` per doc 01 against the torture corpus' code blocks.
 gap written down.
 
 ## S2 — Selection & copy quality
+
+> **PASSED — 2026-08-23.** Results in `docs/spike-results/S2-selection.md`.
+> Cross-block copy is clean, Vietnamese and Japanese survive, and code-block
+> indentation is preserved, so the S1 choice stands.
+>
+> One requirement did not survive contact: whole-document `SelectionArea`
+> needs every block built, which costs 527 ms to first paint at 100 KB and
+> kills the app at 1 MB. **Laziness and 55 fps win**; doc 06 now specifies
+> File → Copy entire document (`Ctrl+Shift+C`) instead, reading the `DocModel`
+> rather than the widget tree. Drag selection with auto-scroll already covers
+> ordinary passage selection — 50 contiguous paragraphs where 22 were built.
 
 Wrap the S1 winner's output in `SelectionArea`; also test its native
 `selectable` mode.
