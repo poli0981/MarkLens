@@ -74,6 +74,14 @@ MarkLens has no HTML engine, deliberately (rules 2, 10).
 
 No exceptions, no tag allowlist creep.
 
+**Implementation note (S1).** `flutter_markdown_plus` emits *nothing at all*
+for block HTML — the content disappears rather than being escaped, which is
+worse than either rendering or escaping it, because the reader gets no sign
+anything was there. The collapsed box therefore cannot be built by styling the
+renderer's output; block HTML has to be rewritten into a fenced code block in
+`core/markdown/` before the renderer ever sees it. See
+`docs/spike-results/S1-renderer-bakeoff.md`.
+
 ## MDX placeholder spec (render, not run)
 
 Goal: an `.mdx` file is *readable*, its structure visible, and nothing ever
@@ -125,10 +133,23 @@ slugs get `-1`, `-2`… Used by the outline, `#anchor` links, and cross-file
 
 ## Large documents
 
-Rendering is block-lazy (the renderer builds a lazy list of block widgets).
-**Unresolved at spec time:** block-laziness, whole-document `SelectionArea`
-(doc 06 / spike S2) and cross-block constructs like reference links and
-footnotes pull against each other. S1 settles it — see doc 15.
+Rendering builds one widget per top-level block, from a **single
+whole-document parse**. Never per-block parsing: S1 measured that an isolated
+paragraph renders `[the reference][ref]` as literal brackets, because the
+definition lives in another block. Both candidate renderers hand back exactly
+this block list from one parse, so per-block scroll targets cost nothing.
+
+Note what "block-lazy" does and does not mean here: block *layout* is lazy,
+block *widget construction* is eager and O(document) in both renderers. A 1 MB
+document produces 13k–26k block widgets before the first frame.
+
+**S1 confirmed the three-way conflict** between block-laziness, whole-document
+`SelectionArea` (doc 06, release gate S2) and 55 fps on 1 MB (doc 00): a
+lazily built child that has not been built cannot be selected, and with 200
+paragraphs in an 800×600 viewport the last one is simply absent from the
+widget tree. These three cannot all hold as written. **S2 decides which one
+gives, and amends the doc that loses.** See
+`docs/spike-results/S1-renderer-bakeoff.md`.
 Documents > 10 MB open with a "large file" banner; > 50 MB are refused with
 a friendly dialog (charter: viewer, not log reader). The 1 MB torture file
 must hold ≥ 55 fps scrolling (doc 00).
