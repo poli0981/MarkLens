@@ -33,6 +33,18 @@
    assert session restored.
 5. **Architecture tests**: import-boundary scan (doc 02) + the
    no-stray-write-mode grep (doc 10).
+6. **Performance gate** (`integration_test/s1_scroll_perf_test.dart`): the
+   charter's scroll and first-paint budgets, measured on real frames.
+
+   ```bash
+   flutter drive --profile --driver=test_driver/perf_driver.dart      --target=integration_test/s1_scroll_perf_test.dart -d windows
+   ```
+
+   **Profile mode only** — debug numbers are meaningless, and the binding
+   asserts on it. Not run in CI: shared runners are too noisy for frame timing
+   to mean anything. It is a pre-release check on the reference machine, and
+   it fails loudly rather than quietly if the scroll it is measuring did not
+   happen (see the spike note for how that was learned).
 
 ## Torture corpus (`test/fixtures/torture/`)
 

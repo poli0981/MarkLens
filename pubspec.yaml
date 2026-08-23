@@ -50,6 +50,12 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  # S1 perf harness: the >= 55 fps scroll gate (docs/00_CHARTER.md) needs real
+  # frames, which widget tests cannot give — they drive a fake clock.
+  integration_test:
+    sdk: flutter
+  flutter_driver:
+    sdk: flutter
   very_good_analysis: 10.3.0
 
 flutter:

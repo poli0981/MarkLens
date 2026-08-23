@@ -5,13 +5,20 @@ branch with a written result note committed to `docs/spike-results/`.
 
 ## S1 — Renderer bake-off *(the decision spike)*
 
-> **Partially complete — 2026-08-23.** The three structural questions below are
-> answered and the fidelity sweep is done; results in
-> `docs/spike-results/S1-renderer-bakeoff.md`. Still open: the ≥ 55 fps gate
-> (needs a profile-mode run — widget tests drive a fake clock), the doc 06
-> styling-token check, and the highlighter decision. **No pin has moved in
-> doc 01 yet**, because the fps gate is the criterion this spike makes
-> non-negotiable and it is exactly the one still unmeasured.
+> **Measurable criteria closed — 2026-08-23.** Fidelity sweep, the three
+> structural questions, and the profile-mode scroll gate are all done; results
+> in `docs/spike-results/S1-renderer-bakeoff.md`.
+>
+> **Both candidates pass the fps gate by roughly an order of magnitude** (zero
+> missed frames; p99 frame build ~2.4 ms against an 18.18 ms budget), and first
+> paint on a typical 100 KB document is 70 ms against the 150 ms budget. So
+> performance does not discriminate between them, and the recommendation —
+> candidate A, on maintenance grounds — rests on the non-performance findings.
+>
+> Still open: the doc 06 styling-token check (blocked until M1 defines the
+> tokens) and the highlighter decision. **No pin has moved in doc 01**, because
+> S2 below is a "fail here = revisit S1" gate and Q3 has already shown
+> selection over a lazy list does not work as specified.
 
 Render the torture corpus (doc 12) with `flutter_markdown_plus` and
 `markdown_widget`.
