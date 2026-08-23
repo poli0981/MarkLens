@@ -2,10 +2,11 @@ import 'package:flutter/painting.dart';
 
 /// Colours a fenced code block.
 ///
-/// Kept behind an interface because the pin is provisional: the incumbent
-/// `flutter_highlight` has not shipped in five years, and spike S1 chooses
-/// between it, `re_highlight` and `syntax_highlight`
-/// (`docs/01_TECH_STACK.md`). Replacing it should touch one file.
+/// Kept behind an interface because the engine is the most replaceable thing
+/// in the reader: `highlight 0.7.0` won S1c on measurement, but it has not
+/// shipped in five years and comes from an unverified uploader
+/// (`docs/spike-results/S1c-highlighter.md`). Swapping it should touch one
+/// file — `highlight_js_code_highlighter.dart` — and nothing else.
 abstract class CodeHighlighter {
   /// Returns the spans for [code], highlighted for [language].
   ///
