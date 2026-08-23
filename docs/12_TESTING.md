@@ -28,9 +28,14 @@
    each golden file starts with `@Tags(['golden'])`, and the split is
 
    ```bash
-   flutter test --exclude-tags golden   # local + windows CI job
-   flutter test                         # ubuntu CI job, goldens included
+   flutter test --exclude-tags "golden || watcher-live"   # local + windows CI
+   flutter test --exclude-tags watcher-live               # ubuntu CI, goldens in
    ```
+
+   `watcher-live` is the second excluded tag: those tests touch the real
+   filesystem and sleep in real time to observe what the platform watcher
+   reports (spike S5). They run from the dedicated `watch-observation`
+   workflow, or locally with `--tags watcher-live`.
 4. **Integration smoke** (`integration_test`, both OS runners): launch →
    open fixture folder → activate file → assert rendered text → restart →
    assert session restored.

@@ -1,15 +1,16 @@
-# Spike S5 only. Records what the `watcher` package reports on ext4/inotify,
-# which is the half of the save-pattern matrix a Windows machine cannot answer
-# and S3's Ubuntu VM has not run yet.
+# Records what the `watcher` package reports for each editor save pattern, on
+# both platforms. Born of spike S5, kept because the answer depends on the
+# platform and the package rather than on our code — ext4/inotify in particular
+# is the half a Windows machine cannot answer.
 #
-# Manual dispatch plus this branch's pushes; it is not part of `ci.yml` and
-# does not gate anything.
+# Not part of `ci.yml`; it gates nothing.
 name: watch-observation
 
+# Manual only. Watcher behaviour changes with the platform and the package,
+# not with our commits, so this is a tool to re-run when either moves rather
+# than a gate on every push.
 on:
   workflow_dispatch:
-  push:
-    branches: ["spike/s5-watcher"]
 
 permissions:
   contents: read
@@ -32,7 +33,7 @@ jobs:
           cache: true
       - run: flutter pub get
       - name: Observe save patterns
-        run: flutter test --tags watcher-live test/spike/s5_watch_observation_test.dart
+        run: flutter test --tags watcher-live test/platform/watch_observation_test.dart
       - name: Print the report
         if: always()
         shell: bash

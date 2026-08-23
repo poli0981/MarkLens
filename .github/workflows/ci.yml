@@ -67,7 +67,11 @@ jobs:
       # Goldens are stable only on the ubuntu runner with the bundled fonts,
       # so they are excluded everywhere else (docs/12_TESTING.md).
       - name: Unit, widget and architecture tests
-        run: flutter test --exclude-tags golden --coverage
+        # watcher-live touches the real filesystem and sleeps in real time to
+        # observe platform watcher behaviour (spike S5). Shared runners are the
+        # wrong place for that; the dedicated watch-observation workflow runs it
+        # deliberately instead.
+        run: flutter test --exclude-tags "golden || watcher-live" --coverage
       - name: Upload coverage
         if: matrix.os == 'ubuntu-latest'
         uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
@@ -100,7 +104,7 @@ jobs:
           fi
       - name: Run goldens
         if: steps.detect.outputs.present == 'true'
-        run: flutter test --tags golden
+        run: flutter test --tags golden --exclude-tags watcher-live
 
   build-smoke:
     name: build-smoke (${{ matrix.os }})

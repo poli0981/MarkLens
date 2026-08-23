@@ -126,6 +126,25 @@ decides.
 
 ## S5 — Watcher save-pattern matrix
 
+> **PASSED on both platforms — 2026-08-23.** Results in
+> `docs/spike-results/S5-watcher.md`. Six save patterns reproduced as real
+> filesystem operations and observed against the real watcher on Windows/NTFS
+> and Ubuntu/ext4 (via a one-off CI job, since S3's VM is deferred). Every one
+> normalizes to a single `changed` within 30 ms; the only `missing` is a real
+> deletion.
+>
+> **Classification is by whether the path exists when the debounce window
+> closes, never by event kinds** — the first event of "delete + recreate" is
+> byte-identical to a real deletion. doc 03 and doc 07 amended.
+>
+> **One finding changes the design:** `FileWatcher` on Windows is silently
+> `PollingFileWatcher` on a one-second timer — 1000 ms against the 500 ms
+> budget below. Ad-hoc files are watched through their parent directory
+> instead: 7 ms. doc 07 amended.
+>
+> Still open, and a confirmation rather than a risk: *which* editor uses
+> *which* pattern. All six normalize identically, so any answer passes.
+
 Save files from VS Code, Notepad++ and vim on Windows/NTFS; VS Code and vim
 on Ubuntu/ext4, against the WatchService normalizer.
 **Pass:** every save lands as a single `changed` within 500 ms, or the miss

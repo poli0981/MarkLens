@@ -50,13 +50,14 @@ activate(path)
 ## Watch → reload
 
 ```
-fs event → debounce 200 ms → classify:
-  modified (incl. editor atomic save seen as delete+create or rename):
+fs event → debounce 200 ms → classify BY WHETHER THE PATH NOW EXISTS
+                              (never by the event kinds — S5):
+  exists (incl. editor atomic save seen as delete+create or rename):
       invalidate cache entry
       if active tab → re-parse; keep position by nearest-heading anchor,
                       falling back to scroll ratio
       else → mark tab "stale" (re-parse on next activation)
-  deleted/renamed-away → entry stays, badge "missing"; reappears → badge clears
+  gone → entry stays, badge "missing"; reappears → badge clears
 window focus regained → cheap mtime sweep over open set (covers watcher gaps)
 ```
 

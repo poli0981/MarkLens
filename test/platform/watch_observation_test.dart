@@ -22,7 +22,7 @@ import 'package:watcher/watcher.dart';
 /// is excluded from the ordinary suite.
 ///
 /// ```bash
-/// flutter test --tags watcher-live test/spike/s5_watch_observation_test.dart
+/// flutter test --tags watcher-live test/platform/watch_observation_test.dart
 /// ```
 void main() {
   late Directory root;
@@ -215,6 +215,50 @@ void main() {
         ..writeln();
 
       expect(latency, isNot(-1), reason: 'no event arrived within 5 seconds');
+    });
+
+    test('watching the parent directory instead, same ad-hoc file', () async {
+      // The proposed fix for the Windows polling latency: an ad-hoc file is
+      // watched through its parent directory and filtered by path, rather than
+      // with FileWatcher. This measures whether that actually is faster here.
+      final watcher = DirectoryWatcher(root.path);
+      final firstEvent = Completer<int>();
+      final clock = Stopwatch();
+      final sub = watcher.events.listen((event) {
+        if (event.path == doc.path && !firstEvent.isCompleted) {
+          firstEvent.complete(clock.elapsedMilliseconds);
+        }
+      });
+      await watcher.ready;
+
+      clock.start();
+      await doc.writeAsString('# Parent-watched');
+
+      final latency = await firstEvent.future.timeout(
+        const Duration(seconds: 5),
+        onTimeout: () => -1,
+      );
+      await sub.cancel();
+
+      report
+        ..writeln(
+          '### Parent-directory watch of an ad-hoc file '
+          '(${Platform.operatingSystem})',
+        )
+        ..writeln()
+        ..writeln('- implementation: ${watcher.runtimeType}')
+        ..writeln('- first event after: $latency ms')
+        ..writeln('- doc 15 budget: 500 ms')
+        ..writeln();
+
+      expect(latency, isNot(-1), reason: 'no event arrived within 5 seconds');
+      expect(
+        latency,
+        lessThan(500),
+        reason:
+            'if this is also over budget, ad-hoc files need the focus-sweep '
+            'fallback rather than a watcher at all',
+      );
     });
   });
 }
