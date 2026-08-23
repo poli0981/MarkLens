@@ -1,7 +1,13 @@
 # 15 · P0 spikes & roadmap
 
-Feature work does not start until S1–S5 pass. Each spike is a throwaway
-branch with a written result note committed to `docs/spike-results/`.
+Feature work does not start until the spikes that *gate design decisions*
+pass. Each spike is a throwaway branch with a written result note committed to
+`docs/spike-results/`.
+
+**As of 2026-08-23: S1, S2, S4 and S5 have passed and M0 is closed.** S3 is
+deliberately deferred — see below. Every decision they settled is recorded in
+doc 01 (pins), doc 03 and doc 07 (watching), doc 04 (pipeline) and doc 06
+(selection, menu bar).
 
 ## S1 — Renderer bake-off *(the decision spike)*
 
@@ -95,6 +101,17 @@ formatting exactly. **Fail here = revisit S1 choice before anything else.**
 
 ## S3 — Ubuntu clean-VM run
 
+> **DEFERRED by decision — 2026-08-23.** Not a gate on M1. A clean-VM run is
+> most informative against an app that actually opens documents, and it is
+> cheap to schedule once rather than repeatedly against a shell. It moves to
+> the M4 release checklist, where it already appears.
+>
+> Two of the things S3 would have caught are already answered without a VM:
+> `build-smoke (ubuntu-latest)` compiles the Linux build on every push, and S5
+> captured real ext4/inotify watcher behaviour from a CI runner
+> (`docs/spike-results/S5-watcher.md`). What remains genuinely VM-only is font
+> rendering for VI/JA, the file dialogs, and the AppImage.
+
 Fresh Ubuntu 24.04 VM (and a 22.04 check for the floor).
 **Pass:** debug build launches; bundled Noto fonts render VI/JA correctly;
 file/folder dialogs work; watcher fires on ext4; AppImage produced from the
@@ -155,7 +172,7 @@ false `missing` badges during atomic saves.
 
 | Milestone | Contents | Est. |
 |---|---|---|
-| **M0** | Spikes S1–S5, pin toolchain + deps (doc 01), scaffold repo + CI stub | 1 wk |
+| **M0** ✅ | Spikes S1, S2, S4, S5 (S3 deferred), pins locked in doc 01, repo + CI scaffolded with the boundary tests | done 2026-08-23 |
 | **M1 — usable daily** | Open file/folder, sidebar + tabs, pipeline + reader, session restore, single instance + CLI | 2 wk |
 | **M2 — comfortable** | Watch/auto-reload, outline, Ctrl+F, zoom, themes, front-matter panel | 1.5 wk |
 | **M3 — complete** | Cross-file search + Ctrl+P, MDX placeholders, link routing, file association, Settings UI, i18n vi/ja | 1.5 wk |
@@ -163,6 +180,37 @@ false `missing` badges during atomic saves.
 
 ~7 focused weeks; solo-dev buffer applies. M1 is the "start living in it"
 gate — daily use from M1 onward is the real QA.
+
+## M1 build order
+
+Dependency order, not preference. What already exists after M0: the renderer
+and highlighter behind their seams, the menu bar and the full shortcut set, the
+watch normalizer, GitHub heading slugs, UTF-8 decoding, and the torture corpus
+with its tests.
+
+1. **Finish `core/markdown/`.** `FrontMatterSplitter`, `BlockIndexer` and the
+   parse stage (AST → outline + slugs) are still documented stubs. Start here:
+   they are pure Dart, the torture corpus and its fixtures already exist, and
+   doc 04 says the pipeline is the product. Includes the **block-HTML
+   pre-pass** S1 found necessary — the renderer drops `<div>` blocks entirely,
+   so the "Raw HTML (not rendered)" box has to be built upstream of it.
+2. **`core/files/file_service.dart`** — open/scan, extension registry, the
+   1,000-entry cap, natural sort, symlink-dir skip (doc 07). Everything that
+   opens anything needs it.
+3. **`core/cache/doc_cache.dart`** — LRU of `DocModel`, keyed on
+   `path + mtime + settingsRevision`.
+4. **`core/session/` and `core/settings/`** — versioned JSON, atomic writes,
+   corruption recovery (doc 05). Both take the config `Directory` as a
+   constructor argument; `app/providers.dart` resolves it.
+5. **The reader feature** — `DocModel` through `MarkdownRenderer`, front-matter
+   panel, notice bar.
+6. **Sidebar and tabs**, talking to each other only through
+   `app/providers.dart`.
+7. **`core/single_instance.dart` + CLI args** in `main.dart`, then session
+   restore end to end — the last piece, because it needs all of the above.
+
+The M1 gate is the charter's: cold start to restored session under 1.5 s, and
+the maintainer using it daily.
 
 ## Release checklist (every tag)
 
