@@ -28,6 +28,9 @@ dependencies:
   flutter_markdown_plus: 1.0.12
   # Provisional — five years old, replaced or confirmed at S1 (doc 01).
   flutter_highlight: 0.7.0
+  # The pure-Dart engine behind flutter_highlight, used directly by the S1c
+  # probe: the widget wrapper is the stale part, the tokenizer is separable.
+  highlight: 0.7.0
   flutter_svg: 2.3.0
 
   # ── State ───────────────────────────────────────────────────────────────
@@ -46,6 +49,8 @@ dependencies:
   args: 2.7.0
   package_info_plus: 10.2.1
   intl: 0.20.3
+  re_highlight: ^0.0.3
+  syntax_highlight: ^0.4.0
 
 dev_dependencies:
   flutter_test:
