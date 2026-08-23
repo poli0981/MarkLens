@@ -14,7 +14,7 @@ main()
  ├─ window_manager.restore(geometry)
  └─ runApp
       ├─ sidebar renders from METADATA ONLY (no parsing)
-      ├─ active tab → MarkdownPipeline.parse → render
+      ├─ active tab → MarkdownPipeline.parse → DocModel → renderer.build
       └─ WatchService.start(open roots + ad-hoc files)
 ```
 
@@ -35,13 +35,15 @@ paths → FileService
 
 ```
 activate(path)
-  DocCache.hit(path, mtime)? → render cached
-  else read bytes → MarkdownPipeline:
+  DocCache.hit(path, mtime)? → reuse the cached DocModel
+  else read bytes → MarkdownPipeline (core/, pure Dart):
        decode UTF-8 (BOM-aware; lossy + notice on invalid)
     → FrontMatterSplitter          # leading --- block → panel model
     → if .mdx: MdxSanitizer        # doc 04 placeholder transform
-    → MarkdownRenderer.parse       # AST/widgets + outline extraction
+    → markdown parse               # AST → outline + slugs + block index
+    → DocModel                     # pure data; the pipeline stops here
     → DocCache.put (LRU evict > 40)
+  DocModel → MarkdownRenderer.build (features/reader/rendering) → widgets
   restore scroll (session ratio) → render
 ```
 
@@ -83,7 +85,7 @@ anything else          → notice "link type not supported" (never shell-out)
 
 ```
 launch → setting on? → last check > 24 h?
-  → GET api.github.com/repos/poli0981/marklens/releases/latest
+  → GET api.github.com/repos/poli0981/MarkLens/releases/latest
   → semver(tag) > semver(self) → passive banner → click opens release page
 network failure → silent (log ring buffer only)
 ```

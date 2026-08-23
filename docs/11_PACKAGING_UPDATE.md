@@ -51,7 +51,7 @@ update check.
 ## Update check (no auto-update)
 
 - `UpdateService` (doc 03): at most once per 24 h, setting-controlled,
-  HTTPS `GET api.github.com/repos/poli0981/marklens/releases/latest`.
+  HTTPS `GET api.github.com/repos/poli0981/MarkLens/releases/latest`.
 - Strip `v`, compare SemVer against self; newer → passive banner
   "MarkLens x.y.z is available" → click opens the release page in the
   browser. No downloading, no self-replacement — packaging stays simple and

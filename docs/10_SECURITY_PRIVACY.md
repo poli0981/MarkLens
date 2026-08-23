@@ -30,11 +30,18 @@
      document names — this is precisely a tracking-beacon vector, which is
      why the default is off and the placeholder shows the URL.
    Nothing else. No telemetry, no crash reporting, no analytics, ever.
+
+   Enforced by `test/architecture/no_network_test.dart`, which fails on
+   `HttpClient`, `package:http`, `Socket.connect`, `Image.network`,
+   `NetworkImage` or `SvgPicture.network` outside `core/update/` and the
+   remote-image path. This matters concretely: `flutter_svg` pulls `http`
+   transitively (doc 01), so a network-capable API is sitting in the binary
+   one autocomplete away from being used by accident.
 5. **Read-only enforcement.** The only `File`/`IOSink` writes in the
    codebase live in SessionStore/SettingsStore (config dir) and the
-   user-pointed log export. A repo grep test asserts no other write-mode
-   file opens exist; a manual Process Monitor (Windows) / `strace` (Linux)
-   pass is on the release checklist.
+   user-pointed log export. `test/architecture/no_write_test.dart` asserts no
+   other write-mode file opens exist; a manual Process Monitor (Windows) /
+   `strace` (Linux) pass is on the release checklist.
 6. **Crash-resistance.** Torture corpus (doc 12) includes malformed UTF-8,
    pathological nesting, gigantic tables, adversarial MDX. Parser exceptions
    degrade to plain text (rule 9).

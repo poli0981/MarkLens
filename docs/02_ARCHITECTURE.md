@@ -26,49 +26,94 @@ lib/
     menu/                    # menu bar widgets: File / View / Help
     shortcuts.dart           # Intents + Actions bindings (doc 06)
     theme/                   # tokens, light/dark ThemeData
-  core/
+  core/                      # PURE DART — no package:flutter, ever (rule 3)
     models/                  # OpenedFile, DocModel, Outline, SessionState,
                              # AppSettings, WatchEvent, SearchHit
     files/file_service.dart  # open/scan, extension registry, cap, natural sort
     markdown/
-      pipeline.dart          # FrontMatterSplitter → MdxSanitizer → renderer
-      renderer.dart          # abstract MarkdownRenderer (S1 winner behind it)
+      pipeline.dart          # decode → FrontMatterSplitter → MdxSanitizer
+                             #   → parse → DocModel  (stops *before* widgets)
+      front_matter.dart      # leading --- block → panel model
       mdx_sanitizer.dart     # tolerant JSX → placeholder transform
-    session/session_store.dart
-    settings/settings_store.dart
+      slug.dart              # GitHub heading-slug algorithm (doc 04)
+      block_index.dart       # top-level block line ranges (search/anchor map)
+    session/session_store.dart    # both stores take the config Directory as a
+    settings/settings_store.dart  #   ctor argument — never call path_provider
     watch/watch_service.dart
     search/search_service.dart   # isolate-backed cross-file search
-    update/update_service.dart   # GitHub Releases tag check
-    cache/doc_cache.dart         # LRU of rendered documents
+    update/update_service.dart   # GitHub Releases tag check (dart:io HttpClient)
+    cache/doc_cache.dart         # LRU of parsed DocModels — never widgets
     single_instance.dart         # lock file + localhost socket arg-forwarding
   features/
-    sidebar/  tabs/  reader/  outline/  search/  settings_ui/  about/
+    sidebar/  tabs/  outline/  search/  settings_ui/  about/
+    reader/
+      rendering/
+        markdown_renderer.dart  # abstract MarkdownRenderer (S1 winner behind it)
+        code_highlighter.dart   # abstract CodeHighlighter (S1 decision)
   l10n/                      # app_en.arb  app_vi.arb  app_ja.arb
 test/
-  core/  features/  architecture/  fixtures/torture/
+  core/  features/  fixtures/torture/
+  architecture/              # core_purity · feature_isolation
+                             # no_write · no_network
 ```
 
 ## Boundary rules (enforced by `test/architecture/`)
 
 | From | May import | Never imports |
 |---|---|---|
-| `core/` | `dart:*`, pinned pure-Dart packages | `package:flutter`, `app/`, `features/` |
+| `core/` | `dart:*`, pure-Dart packages only (`markdown`, `watcher`, `args`, `meta`, `path`, `riverpod`) | `package:flutter`, any Flutter plugin, `app/`, `features/` |
 | `features/X` | `core/`, `app/providers.dart`, Flutter | any other `features/Y` directly |
+| `features/reader/rendering/` | additionally: the S1 renderer package + the highlighter package | — (and nothing else may import those two) |
 | `app/` | everything | — |
 
 Cross-feature communication goes through providers declared in
 `app/providers.dart` only. This keeps sidebar/tabs/reader decoupled and makes
 each feature testable alone.
 
+The `core/` row is an **allowlist**, not a denylist: `core_purity_test.dart`
+fails on any import that is not explicitly permitted, so a newly added package
+has to be argued for rather than silently inherited.
+
+## The seam: why the renderer is not in `core/`
+
+Rule 3 (core is pure Dart) and rule 6 (one renderer interface) used to point at
+the same directory, which cannot work — every Markdown renderer package,
+`flutter_highlight`, `flutter_svg` and `path_provider` all import
+`package:flutter`. Rule 3 wins, because it is the invariant an automated test
+can actually hold, and the swappability rule 6 is really after is about having
+*one* import site, not about which folder it lives in.
+
+So the pipeline is cut in half:
+
+```
+core/markdown/            (pure Dart, unit-testable without a Flutter binding)
+  bytes → decode → front-matter split → [mdx sanitize]
+        → markdown.Document parse → outline + slugs + block index
+        → DocModel { frontMatter, sanitizedSource, blocks, outline, notices }
+
+features/reader/rendering/   (widget layer — the only place renderer packages exist)
+  MarkdownRenderer.build(DocModel, RenderStyle) → Widget
+  CodeHighlighter.spans(code, lang)             → List<InlineSpan>
+```
+
+**Known, deliberate cost:** the source is parsed twice — once by us for the
+outline, heading anchors and search-hit mapping, once by the renderer package
+for the widgets. On a 100 KB document that is a few milliseconds against a
+150 ms budget (doc 00), and it is exactly what keeps the S1 choice reversible.
+Do not "optimise" it away without re-reading this paragraph.
+
 ## Key components
 
 - **FileService** — validates paths, scans folders (doc 07), owns the
   extension registry and the 1,000-entry soft cap.
-- **MarkdownPipeline** — the only path from bytes to widgets (doc 04). The
-  renderer package is imported *only* inside `core/markdown/`.
+- **MarkdownPipeline** — the only path from bytes to a `DocModel` (doc 04),
+  pure Dart end to end. The renderer package is imported *only* inside
+  `features/reader/rendering/`.
 - **DocCache** — LRU keyed by `path + mtime + settingsRevision`; default
-  capacity 40 rendered documents; invalidated by watch events and by
-  render-affecting setting changes.
+  capacity 40 parsed `DocModel`s; invalidated by watch events and by
+  parse-affecting setting changes. It caches **parse output, not widgets** —
+  Flutter element trees do not survive a tab switch anyway, and parsing is the
+  expensive half.
 - **SessionStore / SettingsStore** — versioned JSON, atomic writes (doc 05).
 - **WatchService** — wraps `watcher`, debounces, normalizes editor
   atomic-save patterns into plain "changed" events (doc 07).

@@ -1,12 +1,18 @@
 # 04 · Markdown pipeline
 
-The pipeline is the product. Every stage is defensive (rule 9) and every
-stage is pure Dart (rule 3).
+The pipeline is the product. Every stage is defensive (rule 9), and every
+stage that lives in `core/markdown/` is pure Dart (rule 3): the pipeline ends
+at a `DocModel`. Turning that into widgets is the reader's job — see doc 02,
+"The seam".
 
 ## Stages
 
 ```
-bytes → decode → front-matter split → [mdx sanitize] → parse → widgets+outline
+  core/markdown/  (pure Dart)                    │  features/reader/rendering/
+  ───────────────────────────────────────────────┼───────────────────────────
+  bytes → decode → front-matter split            │
+        → [mdx sanitize] → parse → DocModel  ────┼──→ MarkdownRenderer.build
+                    (outline · slugs · blocks)   │          → widgets
 ```
 
 1. **Decode.** UTF-8, BOM stripped. Invalid sequences decode lossily
@@ -16,8 +22,31 @@ bytes → decode → front-matter split → [mdx sanitize] → parse → widgets
    expanded / hidden). YAML that fails to parse as simple `key: value` lines
    is shown raw inside the panel — never fed to the renderer, never fatal.
 3. **MDX sanitize** (`.mdx` only — by extension, no sniffing). See below.
-4. **Parse + build.** Through `MarkdownRenderer` (S1 winner). Outline is
-   extracted from the heading nodes in the same pass.
+4. **Parse.** Through the pure-Dart `markdown` package (Dart team). One pass
+   yields the AST, the heading **outline** with its slugs, and the **block
+   index** — the source line range of every top-level block.
+5. **Build.** `MarkdownRenderer.build(DocModel, style)` in
+   `features/reader/rendering/` — the only site in the codebase that imports a
+   renderer package.
+
+### Why the block index exists
+
+`markdown`'s `Element` carries no source position: it exposes
+`tag / attributes / children / textContent / generatedId / footnoteLabel` and
+nothing about where in the file it came from. But doc 08 needs every search hit
+to map to a block so the reader can scroll to it, and `#anchor` links need the
+same mapping. So the pipeline builds that index itself, fence-aware, while it
+has the source in hand. It is ours, so it stays correct regardless of which
+renderer S1 picks.
+
+### Why the source is parsed twice
+
+`core/markdown/` parses for the outline, slugs and block index; the renderer
+package parses `sanitizedSource` again for the widgets. On a 100 KB document
+that is a few milliseconds against the 150 ms first-paint budget (doc 00), and
+it is precisely what keeps the S1 decision reversible — the renderer is handed
+a string and a model, never our internal AST. Do not collapse the two passes
+without re-reading this.
 
 ## Flavor target: GitHub Flavored Markdown
 
@@ -97,6 +126,9 @@ slugs get `-1`, `-2`… Used by the outline, `#anchor` links, and cross-file
 ## Large documents
 
 Rendering is block-lazy (the renderer builds a lazy list of block widgets).
+**Unresolved at spec time:** block-laziness, whole-document `SelectionArea`
+(doc 06 / spike S2) and cross-block constructs like reference links and
+footnotes pull against each other. S1 settles it — see doc 15.
 Documents > 10 MB open with a "large file" banner; > 50 MB are refused with
 a friendly dialog (charter: viewer, not log reader). The 1 MB torture file
 must hold ≥ 55 fps scrolling (doc 00).

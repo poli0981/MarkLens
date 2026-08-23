@@ -1,11 +1,11 @@
 # MarkLens
 
 **Project:** MarkLens — a fast, lightweight, read-only Markdown viewer
-**Repo:** `poli0981/marklens` (proposed — confirm name/slug after GitHub collision check)
+**Repo:** `poli0981/MarkLens`
 **Platforms:** Windows 10+ · Ubuntu 22.04+ (Linux desktop)
-**Stack:** Flutter 3.44.x stable / Dart · **License:** GPL-3.0-only
+**Stack:** Flutter 3.47.1 stable / Dart 3.13.1 · **License:** GPL-3.0-only
 **Suite version:** 1.0 · **Date:** 2026-08-23
-**Status:** Pre-implementation. P0 spikes (doc 15) must pass before feature work.
+**Status:** M0 — repo scaffolded, architecture boundaries under test. P0 spikes (doc 15) must pass before feature work.
 
 MarkLens opens `.md` / `.mdx` files or whole folders and renders them
 faithfully — nothing more. It is a *viewer*, the way SumatraPDF is a viewer:
@@ -38,7 +38,7 @@ WYSIWYG. See `docs/00_CHARTER.md`.
 ## Build quickstart
 
 ```bash
-flutter --version        # 3.44.x stable (pin exact via FVM at M0)
+flutter --version        # 3.47.1 stable — exact pin in docs/01_TECH_STACK.md
 flutter pub get
 flutter analyze && dart format --set-exit-if-changed .
 flutter test
@@ -74,8 +74,7 @@ not on the Windows dev machine.
 
 ## License
 
-GPL-3.0-only. Add the full license text as `LICENSE` at the repo root
-(manual step — copy verbatim from gnu.org).
+GPL-3.0-only. Full license text is in `LICENSE` at the repo root.
 
 ---
 

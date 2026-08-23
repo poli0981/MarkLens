@@ -29,12 +29,13 @@ jobs:
   flutter-ci:
     uses: poli0981/.github/.github/workflows/reusable-flutter-ci.yml@<pin>
     with:
-      flutter-version: "3.44.x"   # exact pin recorded in doc 01
+      flutter-version: "3.47.1"   # exact pin recorded in doc 01
 ```
 
-Reusable-side jobs: `analyze` (analyze + format check) → `test`
-(unit/widget + architecture tests, coverage artifact, thresholds from
-doc 12) → `golden` (ubuntu only, `--tags=golden`) → `build-smoke`
+Reusable-side jobs: `analyze` (analyze + format check + a `gen-l10n`
+no-diff check) → `test` (unit/widget + architecture tests, coverage artifact,
+thresholds from doc 12; windows runs `--exclude-tags golden`) → `golden`
+(ubuntu only) → `build-smoke`
 (matrix: `windows-latest`, `ubuntu-latest`; debug build boots). Timeouts on
 every job; Flutter/pub caches keyed on the lockfile.
 

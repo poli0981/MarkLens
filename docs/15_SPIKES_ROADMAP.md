@@ -12,7 +12,42 @@ lists, fenced code, images, footnote behavior recorded either way); 1 MB
 document scrolls ≥ 55 fps average on the dev machine; styling hooks
 sufficient for the doc 06 theme tokens. **Output:** winner + exact pin
 recorded in doc 01, wrapper notes for `MarkdownRenderer`.
-Also verify `markdown_widget` maintenance status/license before scoring it.
+
+Maintenance and licensing for both candidates were verified 2026-08-23 and are
+recorded in doc 01 — `markdown_widget` has not shipped in ~16 months and drags
+in four extra packages. Do not re-derive that; score fidelity and performance.
+
+### S1 must also answer three structural questions
+
+These surfaced from reading docs 04, 06 and 08 against each other. No document
+answers them, and they decide whether the specified behaviour is buildable at
+all — so they belong here, not in M2 when it is expensive to be wrong.
+
+1. **Does the block index survive contact with the renderer?**
+   `markdown`'s `Element` carries no source position (doc 04), so the pipeline
+   builds its own top-level block index. S1 confirms that index actually lines
+   up with the widgets the renderer produces — otherwise doc 08's
+   "hit → block → scroll" and `#anchor` jumps have nothing to aim at.
+2. **One widget for the whole document, or one widget per block?**
+   Per-block gives block-laziness (doc 04), scroll-to-block (doc 08) and
+   anchor jumps (doc 06) almost for free — but each block then parses in
+   isolation, which breaks reference links (`[text][ref]`) and footnotes whose
+   definitions live in another block. Measure both; record which cross-block
+   constructs break and whether the renderer exposes a way to pre-seed link
+   references.
+3. **`SelectionArea` versus a lazy list.**
+   Doc 06 wants the whole document inside one `SelectionArea` and S2 makes
+   that a release gate; doc 04 wants lazy block building; doc 00 wants 55 fps
+   on 1 MB. A lazily-built child that has not been built cannot be selected,
+   so these three do not automatically hold together. If they cannot all be
+   met, say which one gives, and amend the doc that loses.
+
+### S1 also closes the highlighter decision
+
+Score `flutter_highlight 0.7.0` (incumbent, five years old), `re_highlight`
+and `syntax_highlight` per doc 01 against the torture corpus' code blocks.
+**Output:** winner + exact pin in doc 01, plus the accepted language-coverage
+gap written down.
 
 ## S2 — Selection & copy quality
 

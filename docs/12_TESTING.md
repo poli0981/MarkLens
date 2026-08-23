@@ -21,7 +21,13 @@
    states, placeholder cards, menu keyboard navigation.
 3. **Golden tests** (renderer output): torture pages rendered with the
    bundled fonts. **Run on the ubuntu CI runner only** — bundled fonts make
-   goldens stable there; local Windows runs skip them (`--tags=golden`).
+   goldens stable there. Mechanics: the tag is declared in `dart_test.yaml`,
+   each golden file starts with `@Tags(['golden'])`, and the split is
+
+   ```bash
+   flutter test --exclude-tags golden   # local + windows CI job
+   flutter test                         # ubuntu CI job, goldens included
+   ```
 4. **Integration smoke** (`integration_test`, both OS runners): launch →
    open fixture folder → activate file → assert rendered text → restart →
    assert session restored.
@@ -38,9 +44,14 @@ badge row.
 
 ## Coverage & gates
 
-Core ≥ **85%** lines, overall ≥ **70%** — enforced in CI (doc 14), reported
-as an artifact. Goldens and integration smoke are release-blocking; unit
-failures block every PR.
+Core ≥ **85%** lines, overall ≥ **70%**, reported as a CI artifact
+(doc 14). Goldens and integration smoke are release-blocking; unit failures
+block every PR.
+
+The numeric gate switches on at **M1**. Through M0 the tree is mostly
+interface stubs, where a line-coverage percentage measures nothing worth
+blocking a PR over — but coverage is still uploaded every run, so the number
+is visible the whole way rather than appearing from nowhere at M1.
 
 ## Definition of Done (per feature)
 

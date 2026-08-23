@@ -6,6 +6,12 @@
 `session.json`, `settings.json`. These two files are the app's entire disk
 footprint besides its installation (rule 1).
 
+`path_provider` is a Flutter plugin, so it is resolved **once** during
+bootstrap in `main.dart` and the resulting `Directory` is injected into
+`SessionStore` and `SettingsStore` (rule 3 — neither store may import it).
+Useful side effect: both stores take a temp directory in tests without any
+mocking, which is exactly what doc 12 asks of them.
+
 ## Write discipline
 
 - Atomic: write `<name>.json.tmp` → fsync → rename over the original.

@@ -22,13 +22,15 @@ specification; this file is the law layer on top of it.
    setting-controlled, the latter off by default. No telemetry, no analytics,
    no "phone home", ever.
 6. **All rendering flows through the `MarkdownRenderer` interface** in
-   `core/markdown/`. Renderer packages are imported nowhere else, so the S1
-   spike decision stays swappable.
+   `features/reader/rendering/`. Renderer packages are imported nowhere else,
+   so the S1 spike decision stays swappable. The parse half of the pipeline
+   lives in `core/markdown/` and stays pure Dart per rule 3 — it ends at a
+   `DocModel`, never at widgets. Rule 3 wins any conflict with this rule.
 7. **Persistence writes are debounced and atomic** (write temp → rename).
    Never write on every scroll tick or keystroke.
 8. **Parse lazily.** Only the active document is parsed on activation; the
-   rendered-document cache is LRU (default 40). Never eagerly parse the whole
-   open set.
+   parsed-document cache (`DocModel`, pure Dart) is LRU (default 40). Never
+   eagerly parse the whole open set, and never cache widgets.
 9. **Untrusted input never crashes the app.** Any parse/render failure
    degrades to a plain-text view with a notice bar. Fuzz-minded: assume every
    input file is adversarial.
