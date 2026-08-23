@@ -33,6 +33,19 @@
    assert session restored.
 5. **Architecture tests**: import-boundary scan (doc 02) + the
    no-stray-write-mode grep (doc 10).
+6. **Performance gate** — the charter's scroll and first-paint budgets,
+   measured on real frames via `integration_test` + `flutter drive --profile`.
+
+   **Profile mode only**: debug numbers are meaningless and the binding
+   asserts on it. Never in CI — shared runners are too noisy for frame timing
+   to mean anything. This is a pre-release check on the reference machine.
+
+   The harness currently lives on `spike/s1-renderer-bakeoff`, because it has
+   to name a concrete renderer and S1 has not ratified one yet
+   (`docs/spike-results/S1-renderer-bakeoff.md`). It graduates to `main`
+   alongside the renderer at M1. It is written to fail loudly rather than
+   quietly when the scroll it is measuring did not actually happen — the spike
+   note records why that mattered.
 
 ## Torture corpus (`test/fixtures/torture/`)
 

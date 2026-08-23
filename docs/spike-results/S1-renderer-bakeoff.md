@@ -1,6 +1,6 @@
 # S1 — Renderer bake-off
 
-**Status:** partial — structural questions answered, release gates still open
+**Status:** measurable criteria closed — both candidates pass; the pin waits on S2
 **Branch:** `spike/s1-renderer-bakeoff`
 **Machine:** Windows 11, Flutter 3.47.1 / Dart 3.13.1
 **Date:** 2026-08-23
@@ -17,6 +17,7 @@ Three probes on the torture corpus, all committed on the spike branch:
 | `test/spike/s1_fidelity_probe_test.dart` | Renders all 23 corpus pages through both candidates, censuses the widget tree, writes `build/s1_fidelity_probe.md` |
 | `test/spike/s1_structure_probe_test.dart` | Answers the three structural questions with assertions |
 | `test/spike/s1_perf_probe_test.dart` | Times parse and first paint on 1 MB and 100 KB, writes `build/s1_perf_probe.md` |
+| `integration_test/s1_scroll_perf_test.dart` + `test_driver/perf_driver.dart` | The real thing: profile-mode scroll gate, writes `build/s1_scroll_gate.md` |
 
 Both candidates were implemented against the real `MarkdownRenderer` interface
 (`lib/features/reader/rendering/`). **That is itself a result:** the seam from
@@ -132,32 +133,95 @@ Two things worth keeping:
   scrolling starts, which is what makes Q3's laziness question load-bearing
   rather than academic.
 
+## Result 6 — the scroll gate: both pass, comfortably
+
+Profile mode, Windows 11, 1 MB document, scrolling 160,000 px sampled at four
+depths (0%, 25%, 50%, 75% of the scroll extent) so the measurement is not just
+the top of the file. Gate: 18.18 ms/frame.
+
+| | A | B |
+|---|--:|--:|
+| avg frame build | 1.45 ms | 1.25 ms |
+| avg frame raster | 1.13 ms | 0.98 ms |
+| p90 build | 1.89 ms | 1.74 ms |
+| p99 build | 2.38 ms | 2.37 ms |
+| missed build budget | **0** | **0** |
+| missed raster budget | **0** | **0** |
+| verdict | **PASS** | **PASS** |
+
+Even the 99th-percentile frame is roughly eight times inside budget. The
+"687 fps / 800 fps" the driver prints is `1000 / worst-average-phase`, not a
+real frame rate — what it means is that per-frame work while scrolling is
+around 1.5 ms, with the rest of the budget unused.
+
+**First paint, typical 100 KB document: 70 ms against a 150 ms budget — PASS**
+(`docs/00_CHARTER.md`).
+
+First paint on the 1 MB document is 508 ms (A) / 587 ms (B). No charter
+criterion covers it, and it is the number worth watching: the eager widget
+construction from Result 4 shows up here, not in scrolling.
+
+### What it took to make this measurement trustworthy
+
+Recorded because every one of these produced a confident, wrong number first:
+
+1. **`tester.fling` scrolled the list by zero pixels** — and the run still
+   reported "PASS (1078.3 fps)", measured entirely on a stationary list.
+   Scrolling is now driven through the `ScrollController`, and the test
+   asserts on pixels actually travelled.
+2. **`pumpAndSettle()` defaults to 100 ms steps**, coarse enough that a
+   two-second animation leaves about twenty frames in the trace.
+3. **`traceAction` defaults to every timeline stream**, which fills the VM's
+   ring buffer with GC and compiler noise; the summary saw 21 of 1356 rendered
+   frames. Restricted to `Dart` and `Embedder` — and the names are the VM
+   service's, so lowercase is rejected outright.
+4. **The timeline buffer is sized in bytes, not seconds.** Lengthening the
+   trace does not capture more frames, it just moves the window: 12-segment and
+   24-segment runs both captured 253 frames. The driver now reports
+   `captured_span_ms` (4.2 s of a ~20 s run) so this is visible rather than
+   mysterious.
+
+The harness is only worth having because it now fails loudly instead of
+passing quietly.
+
 ## Still open
 
-1. **The ≥ 55 fps scroll gate.** Not measurable in widget tests — they drive a
-   fake clock, so there are no real frames to time. Needs a profile-mode run
-   (`flutter drive --profile`) on the reference machine.
-2. **Styling hooks against the doc 06 theme tokens.** A exposes
+1. **Styling hooks against the doc 06 theme tokens.** A exposes
    `MarkdownStyleSheet`, B exposes `MarkdownConfig` with per-element configs;
    both look sufficient on inspection, but neither has been driven from the
-   real token set, which does not exist yet.
-3. **The highlighter decision** (`flutter_highlight` vs `re_highlight` vs
+   real token set — which does not exist yet, because doc 06 defers it to M1.
+   This S1 criterion cannot fully close before then.
+2. **The highlighter decision** (`flutter_highlight` vs `re_highlight` vs
    `syntax_highlight`) — not started.
-4. **S2 selection quality**, which Q3 above has already complicated.
+3. **S2 selection quality**, which Q3 above has already complicated.
 
-## Reading so far — not yet a verdict
+## Recommendation: candidate A, for the maintainer to ratify
 
-On the measurements taken, **B is ahead on structure and cost** (1:1 block
-list, half the widgets, ~17% faster first paint) and **A is ahead on
-maintenance** (six-week-old release from a verified publisher, versus sixteen
-months and four extra transitive packages, one of which is the five-year-old
-`flutter_highlight` as a *hard* dependency rather than a choice we control).
+Performance is **not** a tiebreaker. Both candidates clear the scroll gate by
+roughly an order of magnitude, both hit zero missed frames, and B's advantage
+(1.25 ms vs 1.45 ms average build) is invisible to a reader. A difference that
+large a margin inside budget should not decide a dependency that has to last
+years.
 
-Doc 01 called A the default favourite on pedigree. The measurements do not
-contradict that, but they do make it a closer call than the table implied, and
-A's silent HTML deletion plus its spacer-interleaved block list are concrete
-costs that were not visible before this spike.
+What is left is maintenance, and there the gap is structural rather than
+marginal:
 
-**No pin is being changed in `docs/01_TECH_STACK.md` yet.** The fps gate is the
-one criterion doc 15 makes non-negotiable, and it is exactly the criterion still
-unmeasured.
+- **A**: BSD-3, verified publisher, released six weeks ago, three pure-Dart
+  dependencies.
+- **B**: MIT, verified publisher, but sixteen months without a release, and it
+  pulls `flutter_highlight ^0.7.0` as a **hard** dependency — the same
+  five-year-old package doc 01 flags as our most fragile pin, except through B
+  we would not control the choice at all. Plus `url_launcher`,
+  `visibility_detector` and `scroll_to_index`, each another thing to audit.
+
+A's two real costs are both bounded and have known mitigations:
+
+| Cost | Mitigation |
+|---|---|
+| Spacer-interleaved block list (`children[2i]`) | Index arithmetic, covered by a regression test that fails if the spacing behaviour changes |
+| Silently drops block HTML | Rewrite block HTML into a fenced code block in `core/markdown/` before the renderer sees it — which doc 04 now specifies, and which we would want under B too, since our HTML box is our own design either way |
+
+**The pin in `docs/01_TECH_STACK.md` still should not move yet.** Doc 15 makes
+S2 a "fail here = revisit S1 choice" gate, and Q3 above has already shown that
+selection over a lazy list does not work as specified. Ratify A after S2
+settles what selection actually looks like — not before.
