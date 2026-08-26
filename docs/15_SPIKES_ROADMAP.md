@@ -263,10 +263,28 @@ the maintainer using it daily.
 
 **Verified end to end with the real binary, 2026-08-26:** a second launch
 naming a file exits 0 while the first stays up, the running window opens that
-file and records it, and a relaunch restores it. What is *not* verified from a
-coding session is how any of it looks — MarkLens is a native window and cannot
-be screenshotted from one. The 1.5 s number and the daily use are the
-maintainer's to confirm.
+file and records it, and a relaunch restores it.
+
+### What the first visual pass found
+
+The maintainer ran it and it starts fast. Three things no test caught, because
+every one of them is about layout or copy rather than behaviour — worth
+recording as the shape of what tests here do *not* cover:
+
+1. **The menu bar is centred, and should be left-aligned.** `AppShell`'s
+   `Column` has no `crossAxisAlignment`, so it defaults to `center`, and
+   `AppMenuBar` sizes to its content rather than filling. Doc 06's layout
+   diagram puts it at the left.
+2. **The status bar is still the S4 prototype line** — `zoom … · sidebar … ·
+   outline … · theme …` — where doc 06 specifies `path · position % · word
+   count · notices`. A live deviation from doc 06 sitting in `main`. Position
+   and word count both need work the reader does not do yet; path and notices
+   are available today.
+3. **A sidebar row truncates its file name too early** (`README....` with room
+   to spare). The name and its folder detail are both `Flexible`, so they split
+   the row evenly instead of the name taking what it needs first.
+
+These are the first work of M2, ahead of the watcher.
 
 ## Release checklist (every tag)
 
