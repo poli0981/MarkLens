@@ -8,10 +8,12 @@ import 'package:marklens/app/providers.dart';
 import 'package:marklens/app/shortcuts.dart';
 import 'package:marklens/app/theme/app_theme.dart';
 import 'package:marklens/core/files/extension_registry.dart';
+import 'package:marklens/core/storage/json_store.dart';
 import 'package:marklens/features/reader/reader_view.dart';
 import 'package:marklens/features/sidebar/sidebar_tree.dart';
 import 'package:marklens/features/tabs/tab_strip.dart';
 import 'package:marklens/l10n/gen/app_localizations.dart';
+import 'package:window_manager/window_manager.dart';
 
 /// The application shell.
 ///
@@ -50,7 +52,7 @@ class AppShell extends ConsumerStatefulWidget {
   ConsumerState<AppShell> createState() => _AppShellState();
 }
 
-class _AppShellState extends ConsumerState<AppShell> {
+class _AppShellState extends ConsumerState<AppShell> with WindowListener {
   /// Opens the File menu on a bare `Alt`.
   ///
   /// Flutter's `MenuBar` excludes itself from focus while closed
@@ -64,8 +66,84 @@ class _AppShellState extends ConsumerState<AppShell> {
   /// Where focus returns when the menu bar is dismissed.
   final FocusNode _body = FocusNode(debugLabel: 'reader');
 
+  StreamSubscription<List<String>>? _forwarded;
+
+  @override
+  void initState() {
+    super.initState();
+    // The cold-start order of docs/03: session first, then anything the
+    // command line named, so a launch that opens a file lands on that file
+    // rather than on whatever was open last time.
+    WidgetsBinding.instance.addPostFrameCallback((_) => _coldStart());
+  }
+
+  Future<void> _coldStart() async {
+    final session = ref.read(sessionLinkProvider);
+    final outcome = session.restore();
+
+    final window = ref.read(windowLinkProvider);
+    await window.restore(ref.read(windowGeometryProvider));
+    await window.attach(this);
+
+    final launchPaths = ref.read(launchPathsProvider);
+    if (launchPaths.isNotEmpty) {
+      ref.read(openSetProvider.notifier).openPaths(launchPaths);
+    }
+
+    // A second launch hands its arguments over rather than starting a rival
+    // window (docs/03). They are treated exactly like command-line paths.
+    _forwarded = ref.read(forwardedPathsProvider).listen(_onForwarded);
+
+    if (!mounted) {
+      return;
+    }
+    if (outcome == JsonLoadOutcome.corrupt ||
+        outcome == JsonLoadOutcome.futureVersion) {
+      _notify(AppLocalizations.of(context).sessionNotRestored);
+    }
+    session.save();
+  }
+
+  void _onForwarded(List<String> paths) {
+    ref.read(openSetProvider.notifier).openPaths(paths);
+    unawaited(ref.read(windowLinkProvider).focus());
+  }
+
+  @override
+  void onWindowMoved() => unawaited(_recordGeometry());
+
+  @override
+  void onWindowResized() => unawaited(_recordGeometry());
+
+  @override
+  void onWindowMaximize() => unawaited(_recordGeometry());
+
+  @override
+  void onWindowUnmaximize() => unawaited(_recordGeometry());
+
+  @override
+  void onWindowClose() => unawaited(_shutDown());
+
+  Future<void> _recordGeometry() async {
+    final geometry = await ref.read(windowLinkProvider).current();
+    if (geometry == null || !mounted) {
+      return;
+    }
+    ref.read(windowGeometryProvider.notifier).geometry = geometry;
+    ref.read(sessionLinkProvider).save();
+  }
+
+  /// Writes the session and lets go of the lock before the window goes.
+  Future<void> _shutDown() async {
+    await _recordGeometry();
+    ref.read(sessionLinkProvider).flush();
+    await ref.read(singleInstanceProvider).release();
+    await ref.read(windowLinkProvider).detachAndClose(this);
+  }
+
   @override
   void dispose() {
+    unawaited(_forwarded?.cancel());
     _body.dispose();
     super.dispose();
   }
@@ -207,6 +285,15 @@ class _AppShellState extends ConsumerState<AppShell> {
     final l10n = AppLocalizations.of(context);
     final chrome = ref.watch(chromeProvider);
     final controller = ref.read(chromeProvider.notifier);
+
+    // The session-save triggers of docs/03: a tab opening, closing or
+    // switching, a pin, a scroll settling, a panel toggling. Every one of them
+    // shows up as a change to one of these two, and the store coalesces a
+    // second of them into a single write (rule 7), so listening broadly here
+    // costs nothing and forgetting a trigger costs the session.
+    ref
+      ..listen(openSetProvider, (_, _) => ref.read(sessionLinkProvider).save())
+      ..listen(chromeProvider, (_, _) => ref.read(sessionLinkProvider).save());
 
     return Shortcuts(
       shortcuts: appShortcuts,

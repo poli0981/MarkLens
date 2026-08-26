@@ -1,9 +1,12 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:marklens/app/app.dart';
-import 'package:marklens/app/chrome.dart';
+import 'package:marklens/app/providers.dart';
+import 'package:marklens/core/session/session_store.dart';
 import 'package:marklens/l10n/gen/app_localizations.dart';
 
 /// Spike S4's objective half: the menu bar is reachable, traversable and
@@ -16,7 +19,30 @@ void main() {
     WidgetTester tester, {
     Locale locale = const Locale('en'),
   }) async {
-    final container = ProviderContainer();
+    // The shell restores a session on its first frame, so it needs somewhere
+    // to restore from. A temp directory keeps that real without touching the
+    // developer's own config.
+    final config = Directory.systemTemp.createTempSync('marklens_menu_');
+    addTearDown(() {
+      if (config.existsSync()) {
+        config.deleteSync(recursive: true);
+      }
+    });
+    final container = ProviderContainer(
+      overrides: [
+        configDirectoryProvider.overrideWithValue(config),
+        windowLinkProvider.overrideWithValue(const NoWindowLink()),
+        // Cold start records a session, and its one-second debounce would
+        // still be pending when the test ends. The default is asserted in
+        // session_store_test; here it only has to be short.
+        sessionStoreProvider.overrideWithValue(
+          SessionStore(
+            directory: config,
+            debounce: const Duration(milliseconds: 10),
+          ),
+        ),
+      ],
+    );
     addTearDown(container.dispose);
 
     tester.view
@@ -36,6 +62,8 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
+    // Let the cold-start save land rather than leaving its timer pending.
+    await tester.pump(const Duration(milliseconds: 50));
     return container;
   }
 
@@ -176,6 +204,8 @@ void main() {
 
       controller.zoomBy(0);
       expect(container.read(chromeProvider).zoom, 1.0);
+      // Chrome changes schedule a session write; let it land.
+      await tester.pump(const Duration(milliseconds: 50));
     });
 
     testWidgets('full screen hides the menu bar', (tester) async {

@@ -417,6 +417,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Cancel'**
   String get commonCancel;
+
+  /// Snackbar when session.json was corrupt or written by a newer version (docs/05).
+  ///
+  /// In en, this message translates to:
+  /// **'The previous session could not be read. It has been kept alongside a fresh one.'**
+  String get sessionNotRestored;
 }
 
 class _AppLocalizationsDelegate

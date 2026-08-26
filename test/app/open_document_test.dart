@@ -17,6 +17,7 @@ import 'package:marklens/app/app.dart';
 import 'package:marklens/app/open_files.dart';
 import 'package:marklens/app/providers.dart';
 import 'package:marklens/core/files/extension_registry.dart';
+import 'package:marklens/core/session/session_store.dart';
 
 /// Returns whatever it was told to, without touching a platform dialog.
 class _StubPrompt implements FilePickerPrompt {
@@ -76,11 +77,23 @@ void main() {
         overrides: [
           configDirectoryProvider.overrideWithValue(root),
           filePickerPromptProvider.overrideWithValue(prompt),
+          windowLinkProvider.overrideWithValue(const NoWindowLink()),
+          // Cold start records a session, and its one-second debounce would
+          // still be pending when the test ends. The default is asserted in
+          // session_store_test; here it only has to be short.
+          sessionStoreProvider.overrideWithValue(
+            SessionStore(
+              directory: root,
+              debounce: const Duration(milliseconds: 10),
+            ),
+          ),
         ],
         child: const MarkLensApp(),
       ),
     );
     await tester.pumpAndSettle();
+    // Let the cold-start save land rather than leaving its timer pending.
+    await tester.pump(const Duration(milliseconds: 50));
     return containerOf(tester);
   }
 
@@ -216,6 +229,9 @@ void main() {
             'the same bytes with the same mtime is the same document; parsing '
             'it twice is the work the cache exists to avoid',
       );
+      // Changing the open set schedules a session write; let it land rather
+      // than leaving its timer pending.
+      await tester.pump(const Duration(milliseconds: 50));
     });
 
     testWidgets('reload ignores the cache and picks up the new bytes', (

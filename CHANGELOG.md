@@ -66,6 +66,11 @@ All notable changes to MarkLens are documented here. Format follows
 - **Sidebar and tabs**: an open set with pinning, MRU cycling, reopen, the
   missing badge and the changed-on-disk dot. Opening a folder groups its files
   under a header and asks before opening more than the cap allows.
+- **Single instance, CLI arguments and session restore**, which closes M1.
+  `marklens README.md` while MarkLens is running adds a tab to the window that
+  is already open rather than starting a second copy; `--help` and `--version`
+  print and exit; what was open comes back on the next launch, with its pins
+  and its scroll positions.
 
 ### Changed
 - The parsed-document cache key is `identity + mtime + size +

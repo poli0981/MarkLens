@@ -6,7 +6,9 @@
 main()
  ├─ parse CLI args (files/folders)
  ├─ SingleInstance.acquire()
- │    └─ already running? → forward args over localhost socket → exit(0)
+ │    └─ already running? → forward args over loopback socket → exit(0)
+ │       (exit, not return: on Windows the native runner has already made a
+ │        window and started its message loop before Dart main runs)
  ├─ SettingsStore.load()          # settings.json (or defaults)
  ├─ SessionStore.load()           # session.json (or empty)
  ├─ FileService.validate(session.files)   # mark missing, keep entries
@@ -66,6 +68,11 @@ window focus regained → cheap mtime sweep over open set (covers watcher gaps)
 ```
 triggers: tab open/close/switch · scroll settle (≥ 400 ms idle) ·
           window move/resize end · pin/unpin · app exit
+
+The shell listens to the open set and the chrome as a whole rather than hooking
+each trigger, because the cost of a missed hook is a lost session and the cost
+of an extra call is nothing — the store coalesces a second of them into one
+write.
 → debounce 1,000 ms → serialize SessionState
 → write session.json.tmp → fsync → rename over session.json
 ```

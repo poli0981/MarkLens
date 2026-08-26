@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter_test/flutter_test.dart';
 
 import 'source_scan.dart';
@@ -28,6 +30,12 @@ const List<String> networkAllowedPrefixes = <String>[
   'lib/core/update/',
   // Remote images: off by default, host chosen by the document (docs/04).
   'lib/features/reader/images/',
+  // The single-instance arg forwarder. Not network egress: it binds 127.0.0.1
+  // on an ephemeral port and hands a list of paths to the already-running
+  // window (docs/02_ARCHITECTURE.md, docs/03_DATA_FLOW.md). Named here rather
+  // than handled by widening the token list, which is what the guard test
+  // below asked for.
+  'lib/core/single_instance.dart',
 ];
 
 void main() {
@@ -58,13 +66,38 @@ void main() {
       }
     });
 
-    test('single_instance may still use a localhost socket', () {
-      // Documented exception in spirit rather than in code: the second-launch
-      // arg forwarder binds 127.0.0.1 (docs/02_ARCHITECTURE.md). It is not
-      // network egress, but it does use socket APIs — when it lands, add
-      // ServerSocket/Socket handling here deliberately rather than by
-      // widening the token list.
-      expect(networkApis, isNot(contains('ServerSocket')));
+    test('the socket exception is one named file, not a widened list', () {
+      // The forwarder landed at M1. It is allowed by path so the exception is
+      // visible and bounded; the token list stayed exactly as strict, so
+      // nothing else in lib/ can open a socket by accident.
+      expect(
+        networkAllowedPrefixes,
+        contains('lib/core/single_instance.dart'),
+      );
+      expect(networkApis, contains('Socket.connect'));
+      expect(
+        networkApis,
+        isNot(contains('ServerSocket')),
+        reason:
+            'binding a listener is not egress, and forbidding it would only '
+            'push the exception wider',
+      );
+    });
+
+    test('and it binds loopback, which is the reason it is allowed', () {
+      final source = File('lib/core/single_instance.dart').readAsStringSync();
+      expect(
+        source,
+        contains('InternetAddress.loopbackIPv4'),
+        reason:
+            'the whole justification is that nothing is reachable from '
+            'another machine',
+      );
+      expect(
+        source,
+        isNot(contains('InternetAddress.anyIPv4')),
+        reason: 'binding 0.0.0.0 would make this a real listener on a network',
+      );
     });
   });
 

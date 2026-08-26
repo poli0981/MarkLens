@@ -11,11 +11,13 @@ import 'dart:io';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:marklens/app/open_files.dart';
+import 'package:marklens/app/window_link.dart';
 import 'package:marklens/core/cache/doc_cache.dart';
 import 'package:marklens/core/files/file_service.dart';
 import 'package:marklens/core/markdown/pipeline.dart';
 import 'package:marklens/core/session/session_store.dart';
 import 'package:marklens/core/settings/settings_store.dart';
+import 'package:marklens/core/single_instance.dart';
 import 'package:path_provider/path_provider.dart';
 
 export 'package:marklens/app/chrome.dart'
@@ -24,6 +26,15 @@ export 'package:marklens/app/documents.dart'
     show ActiveDocument, ActiveDocumentController, activeDocumentProvider;
 export 'package:marklens/app/open_set.dart'
     show OpenSetController, openSetProvider;
+export 'package:marklens/app/session_link.dart'
+    show SessionLink, sessionLinkProvider;
+export 'package:marklens/app/window_link.dart'
+    show
+        NoWindowLink,
+        PlatformWindowLink,
+        WindowGeometryController,
+        WindowLink,
+        windowGeometryProvider;
 
 /// The app's own config directory — `session.json` and `settings.json` live
 /// here, and it is the only place MarkLens ever writes (CLAUDE.md rule 1).
@@ -68,6 +79,42 @@ final Provider<FileService> fileServiceProvider = Provider<FileService>(
 /// The LRU of parsed documents (CLAUDE.md rule 8).
 final Provider<DocCache> docCacheProvider = Provider<DocCache>(
   (ref) => DocCache(),
+);
+
+/// Coordinates second launches (`docs/03_DATA_FLOW.md`).
+///
+/// Overridden in `main()` with the instance that already acquired the lock, so
+/// the app never has two of them; a test that does not care overrides it with
+/// one pointed at a temp directory.
+final Provider<SingleInstance> singleInstanceProvider =
+    Provider<SingleInstance>(
+      (ref) => SingleInstance(directory: ref.watch(configDirectoryProvider)),
+    );
+
+/// Paths handed over by later launches (`docs/03_DATA_FLOW.md`).
+///
+/// A provider of its own rather than a reach into [singleInstanceProvider], so
+/// a widget test can push paths through the shell without binding a real
+/// socket — real I/O inside `testWidgets` stalls against the test binding's
+/// clock. The socket itself is covered by `test/core/single_instance_test.dart`,
+/// where it belongs.
+final Provider<Stream<List<String>>> forwardedPathsProvider =
+    Provider<Stream<List<String>>>(
+      (ref) => ref.watch(singleInstanceProvider).forwardedPaths,
+    );
+
+/// Everything MarkLens asks of the real window.
+///
+/// Overridden with `NoWindowLink` in widget tests: `window_manager` has no
+/// platform channel there, and some of its calls return a future that never
+/// completes rather than failing.
+final Provider<WindowLink> windowLinkProvider = Provider<WindowLink>(
+  (ref) => const PlatformWindowLink(),
+);
+
+/// Files and folders named on the command line at this launch.
+final Provider<List<String>> launchPathsProvider = Provider<List<String>>(
+  (ref) => const <String>[],
 );
 
 /// Asks the user for documents to open.

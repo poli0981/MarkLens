@@ -52,5 +52,6 @@
   "openFolderCapTitle": "このフォルダーには {count} 件を超える文書があります",
   "openFolderCapBody": "MarkLens は先頭の {count} 件を開けます。すべて開くとサイドバーとセッションが見合わないほど遅くなります。",
   "openFolderCapAccept": "先頭の {count} 件を開く",
-  "commonCancel": "キャンセル"
+  "commonCancel": "キャンセル",
+  "sessionNotRestored": "前回のセッションを読み取れませんでした。新しいセッションの横に保存してあります。"
 }

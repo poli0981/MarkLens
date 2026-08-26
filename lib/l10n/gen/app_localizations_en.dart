@@ -199,4 +199,8 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get commonCancel => 'Cancel';
+
+  @override
+  String get sessionNotRestored =>
+      'The previous session could not be read. It has been kept alongside a fresh one.';
 }

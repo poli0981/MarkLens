@@ -253,5 +253,9 @@
   "commonCancel": "Cancel",
   "@commonCancel": {
     "description": "Generic cancel button."
+  },
+  "sessionNotRestored": "The previous session could not be read. It has been kept alongside a fresh one.",
+  "@sessionNotRestored": {
+    "description": "Snackbar when session.json was corrupt or written by a newer version (docs/05)."
   }
 }

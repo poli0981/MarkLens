@@ -246,13 +246,27 @@ with its tests.
    `app/providers.dart` now re-exports the app-level state a feature is
    allowed to see, so `features/` still has exactly one door into `app/`
    while the state stays in the file it belongs to.
-7. **`core/single_instance.dart` + CLI args** in `main.dart`, then session
-   restore end to end — the last piece, because it needs all of the above.
-   Note `no_network_test` deliberately leaves `ServerSocket` off its forbidden
-   list, reserving the localhost forwarding socket for exactly this.
+7. **`core/single_instance.dart` + CLI args** ✅ **Done**, and with it session
+   restore end to end. `no_network_test` had reserved this: its socket
+   exception is now one named file rather than a widened token list, and it is
+   asserted to bind loopback.
+
+   Two things only a real binary could show. `main` has to `exit()` rather than
+   return — the Windows runner creates its window and starts a message loop
+   before Dart runs, so `--version` printed and then sat there as a blank
+   window. And the session had no save trigger for the open set: a forwarded
+   path reached the window and never reached `session.json`. Both are fixed and
+   both now have tests.
 
 The M1 gate is the charter's: cold start to restored session under 1.5 s, and
 the maintainer using it daily.
+
+**Verified end to end with the real binary, 2026-08-26:** a second launch
+naming a file exits 0 while the first stays up, the running window opens that
+file and records it, and a relaunch restores it. What is *not* verified from a
+coding session is how any of it looks — MarkLens is a native window and cannot
+be screenshotted from one. The 1.5 s number and the daily use are the
+maintainer's to confirm.
 
 ## Release checklist (every tag)
 

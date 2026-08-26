@@ -25,6 +25,11 @@ lib/
     providers.dart           # composition root: core services → providers
     menu/                    # menu bar widgets: File / View / Help
     shortcuts.dart           # Intents + Actions bindings (doc 06)
+    open_set.dart            # which documents are open, active, pinned
+    documents.dart           # the active document, parsed on activation
+    session_link.dart        # session.json <-> the running app
+    window_link.dart         # the seam over window_manager, stubbed in tests
+    open_files.dart          # the seam over file_picker, stubbed in tests
     theme/                   # tokens, light/dark ThemeData
   core/                      # PURE DART — no package:flutter, ever (rule 3)
     models/                  # OpenedFile, OpenSet, DocModel, Outline,
@@ -58,7 +63,8 @@ lib/
     search/search_service.dart   # isolate-backed cross-file search
     update/update_service.dart   # GitHub Releases tag check (dart:io HttpClient)
     cache/doc_cache.dart         # LRU of parsed DocModels — never widgets
-    single_instance.dart         # lock file + localhost socket arg-forwarding
+    cli/launch_arguments.dart    # paths, --help, --version; never throws
+    single_instance.dart         # lock file + loopback socket arg-forwarding
   features/
     sidebar/  tabs/  outline/  search/  settings_ui/  about/
     reader/

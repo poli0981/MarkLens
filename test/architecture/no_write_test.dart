@@ -36,6 +36,11 @@ const List<String> writeAllowedPrefixes = <String>[
   // session.json / settings.json, atomic writes (docs/05).
   'lib/core/session/',
   'lib/core/settings/',
+  // instance.lock: which port the running window listens on, so a second
+  // launch can hand its arguments over (docs/02, docs/03). Same config
+  // directory, injected the same way, and asserted by
+  // test/core/single_instance_test.dart to write nothing outside it.
+  'lib/core/single_instance.dart',
   // Help → Export diagnostic log: the one user-pointed write outside the
   // config dir (docs/02_ARCHITECTURE.md, "Logging").
   'lib/features/about/',

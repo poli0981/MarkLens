@@ -14,6 +14,7 @@ class ChromeState {
   const ChromeState({
     this.sidebarVisible = true,
     this.outlineVisible = true,
+    this.sidebarWidth = 280,
     this.zoom = 1,
     this.themeMode = ThemeMode.system,
     this.fullScreen = false,
@@ -24,6 +25,9 @@ class ChromeState {
 
   /// Whether the outline panel is showing.
   final bool outlineVisible;
+
+  /// Sidebar width in logical pixels, persisted in the session (doc 05).
+  final double sidebarWidth;
 
   /// Reading zoom, clamped to 50%–300% (`docs/06_UI_UX.md`).
   final double zoom;
@@ -38,12 +42,14 @@ class ChromeState {
   ChromeState copyWith({
     bool? sidebarVisible,
     bool? outlineVisible,
+    double? sidebarWidth,
     double? zoom,
     ThemeMode? themeMode,
     bool? fullScreen,
   }) => ChromeState(
     sidebarVisible: sidebarVisible ?? this.sidebarVisible,
     outlineVisible: outlineVisible ?? this.outlineVisible,
+    sidebarWidth: sidebarWidth ?? this.sidebarWidth,
     zoom: zoom ?? this.zoom,
     themeMode: themeMode ?? this.themeMode,
     fullScreen: fullScreen ?? this.fullScreen,
@@ -75,6 +81,16 @@ class ChromeController extends Notifier<ChromeState> {
   /// Enters or leaves full screen.
   void toggleFullScreen() =>
       state = state.copyWith(fullScreen: !state.fullScreen);
+
+  /// Puts back what the session remembered.
+  ///
+  /// Only the parts the session stores. Zoom, theme and full screen are
+  /// settings or per-launch state, not session geometry (`docs/05`).
+  void restore({required double sidebarWidth, required bool outlineVisible}) =>
+      state = state.copyWith(
+        sidebarWidth: sidebarWidth,
+        outlineVisible: outlineVisible,
+      );
 
   /// Sets the colour theme.
   void setThemeMode(ThemeMode mode) => state = state.copyWith(themeMode: mode);

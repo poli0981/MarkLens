@@ -194,4 +194,7 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get commonCancel => 'キャンセル';
+
+  @override
+  String get sessionNotRestored => '前回のセッションを読み取れませんでした。新しいセッションの横に保存してあります。';
 }

@@ -197,4 +197,8 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get commonCancel => 'Hủy';
+
+  @override
+  String get sessionNotRestored =>
+      'Không đọc được phiên làm việc trước. Nó đã được giữ lại bên cạnh một phiên mới.';
 }
