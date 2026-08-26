@@ -10,9 +10,18 @@ rendering doesn't).
 
 ## Folder scan
 
-- Breadth-first from each root; hidden entries (`.`-prefixed, and
-  hidden-attribute on Windows) skipped; **symlinked directories skipped**
-  (cycle safety) — symlinked files followed.
+- Breadth-first from each root; hidden entries skipped;
+  **symlinked directories skipped** (cycle safety) — symlinked files followed.
+  A symlink pointing at nothing, and a directory that cannot be read, are
+  skipped rather than raised: one odd entry must not fail a folder.
+
+  **Accepted gap: the Windows hidden attribute is not honoured** — only
+  `.`-prefixed names are. `FileStat` exposes mode, type, size and three
+  timestamps and nothing about attributes, so reading it would take a `win32`
+  dependency, which `core/` may not have (rule 3). In practice the entries this
+  misses are `desktop.ini` and similar, which the extension registry already
+  drops. Revisit if a real Markdown file with the hidden attribute ever shows
+  up in someone's docs folder.
 - Natural sort within each directory (`2.md` < `10.md`), directories first.
 - Running total across all roots checked against `files.fileCap`
   (default 1,000, soft): on exceed → dialog "Open first N / Cancel". Never
@@ -26,11 +35,21 @@ disappears keeps its entry with a `missing` badge; if it reappears (watch
 event or focus sweep), the badge clears and mtime is re-read. Entries leave
 the session only when the user closes them.
 
+`OpenedFile` carries **two** paths, because they answer different questions.
+`identity` is `resolveSymbolicLinksSync` — symlinks followed and, on Windows,
+the casing the filesystem actually holds — and is what the open set dedupes
+on, what the session stores and part of the document cache key. `path` is the
+absolute path in its on-disk casing, and is what is shown and opened: a
+case-folded path in the sidebar would lower-case the folder names the user
+chose.
+
 ## Change detection
 
 `mtime + size` tuple per entry, refreshed on watch events and on the
-window-focus sweep (doc 03). The rendered-doc cache key includes mtime, so
-staleness is structural, not best-effort.
+window-focus sweep (doc 03). **The whole tuple is in the parsed-document cache
+key**, so staleness is structural, not best-effort — mtime alone would
+reintroduce the same-tick rewrite the pair exists to catch. Note "parsed", not
+"rendered": the cache holds `DocModel`s and never widgets (rule 8).
 
 ## Watcher
 

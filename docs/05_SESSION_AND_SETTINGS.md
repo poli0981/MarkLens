@@ -14,12 +14,26 @@ mocking, which is exactly what doc 12 asks of them.
 
 ## Write discipline
 
-- Atomic: write `<name>.json.tmp` → fsync → rename over the original.
+- Atomic: write `<name>.json.tmp` → fsync → rename over the original. Both
+  files go through one implementation, `core/storage/json_store.dart`, which
+  is why that directory appears in the write allowlist of
+  `test/architecture/no_write_test.dart` — it is the implementation of the
+  config-directory write, not an exception to it, and a test asserts it
+  touches nothing outside the `Directory` it was handed.
 - Session writes debounce 1,000 ms (triggers in doc 03); settings write on
-  change.
-- Corruption on load: rename the bad file to `<name>.corrupt-<epoch>`, start
-  from defaults/empty, show a one-time snackbar. Never crash, never silently
-  delete the evidence.
+  change. Disposing the session store flushes what is pending, so quitting
+  never loses the last second.
+- Corruption on load: rename the bad file to `<name>.json.corrupt-<epoch>`,
+  start from defaults/empty, show a one-time snackbar. Never crash, never
+  silently delete the evidence.
+- **Reading is total.** Every field that is missing, of the wrong type or out
+  of range falls back to its default rather than failing the load, and a
+  session entry that cannot be understood is dropped while the rest restore:
+  losing one tab beats losing the session (rule 9). Two cases are discarded
+  rather than repaired — a window geometry that is partial or smaller than
+  200×200, because opening at the default beats opening one pixel tall or on
+  a monitor that is no longer attached; and an `activePath` naming a document
+  that is not in the open set, which would point the reader at nothing.
 
 ## session.json (schema v1)
 
@@ -79,7 +93,23 @@ Notes:
 Enums: `language` = system|en|vi|ja · `theme` = system|light|dark ·
 `frontMatter` = collapsed|expanded|hidden. Ranges enforced on load:
 `fontScale` 0.5–3.0, `contentMaxWidth` 560–1200 (or 0 = full width),
-`fileCap` 100–2000.
+`fileCap` 100–2000, `recentLimit` 0–200, `sidebarWidth` 120–800.
+
+The last two are additions, not part of the original schema. `recentLimit`
+needed a bound because the recent list lives in `session.json` and an
+unbounded limit lets that file grow without end; `sidebarWidth` needed one
+because a restored session should never open a sidebar too narrow to read or
+wide enough to hide the document. An empty `files.extensions` list also falls
+back to the default set rather than being honoured — it would open nothing at
+all, which is never what anyone meant.
+
+**None of these settings changes parse output**, which is why the parsed-doc
+cache key's `settingsRevision` component (doc 02) stays at zero in v1:
+`reading.frontMatter` selects how the panel displays a block the splitter
+lifts out either way, `network.allowRemoteImages` is resolved when an image
+loads, and `files.extensions` decides what opens rather than how it parses.
+The component is kept so that a future setting which *does* change a
+`DocModel` cannot be added without meeting this paragraph.
 
 ## Migration policy
 

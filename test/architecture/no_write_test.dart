@@ -27,6 +27,12 @@ const List<String> writeApis = <String>[
 
 /// Directories permitted to write. Everything else in `lib/` may not.
 const List<String> writeAllowedPrefixes = <String>[
+  // The atomic write itself: temp file, flush, rename. Both config files go
+  // through it, so the discipline in docs/05 is implemented once rather than
+  // copied twice. It is the implementation of the config-directory write, not
+  // an exception to it — and it writes only inside the Directory it is handed,
+  // which test/core/json_store_test.dart asserts rather than assumes.
+  'lib/core/storage/',
   // session.json / settings.json, atomic writes (docs/05).
   'lib/core/session/',
   'lib/core/settings/',
@@ -55,7 +61,8 @@ void main() {
               '${file.path} uses $found.\n'
               'MarkLens never writes user files (CLAUDE.md rule 1). If this is '
               'a legitimate config-directory write, it belongs in '
-              'core/session/ or core/settings/; if it is the log export, it '
+              'core/storage/, core/session/ or core/settings/; if it is the '
+              'log export, it '
               'belongs in features/about/. Widening this allowlist needs a '
               'reason in the PR description.',
         );

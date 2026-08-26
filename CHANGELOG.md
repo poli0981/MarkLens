@@ -43,7 +43,26 @@ All notable changes to MarkLens are documented here. Format follows
 - ARB strings (en/vi/ja) for every `DocNoticeKind`, held to the enum by an
   exhaustive switch so a new kind without a translation fails to compile.
 
+- `FileService`: breadth-first folder scan with the extension registry, natural
+  sort, the soft 1,000-entry cap that reports rather than truncating, symlinked
+  directories skipped for cycle safety, and an isolate entry point for big
+  trees. `OpenedFile` carries both a display path and a canonical identity,
+  because the sidebar needs the casing the user chose and the open set needs a
+  key that a symlink cannot duplicate.
+- `DocCache`: LRU of parsed documents, forty by default, keyed on
+  `identity + mtime + size + settingsRevision`.
+- `SettingsStore` and `SessionStore` over one atomic `JsonStore` — temp file,
+  flush, rename — with corruption quarantined rather than deleted, a newer
+  schema backed up rather than read, and session writes debounced to one
+  second so a scroll never reaches the disk.
+- Core services wired into `app/providers.dart`.
+
 ### Changed
+- The parsed-document cache key is `identity + mtime + size +
+  settingsRevision`. Doc 02, doc 03 and doc 07 each specified a different key;
+  this is the reconciliation, and all four docs now say the same thing. Size is
+  in it because doc 07's own tuple exists to catch a rewrite inside one
+  timestamp tick, which mtime alone would miss.
 - `DocModel.blocks` may now be empty. "Every document has at least one block"
   was not true: an empty file, a file of blank lines and a file of nothing but
   link-reference definitions all render as nothing, and the block list has to

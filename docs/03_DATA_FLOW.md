@@ -35,7 +35,7 @@ paths → FileService
 
 ```
 activate(path)
-  DocCache.hit(path, mtime)? → reuse the cached DocModel
+  DocCache.get(identity, mtime, size)? → reuse the cached DocModel
   else read bytes → MarkdownPipeline (core/, pure Dart):
        decode UTF-8 (BOM-aware; lossy + notice on invalid)
     → FrontMatterSplitter          # leading --- block → panel model

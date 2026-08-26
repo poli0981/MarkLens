@@ -29,7 +29,11 @@ lib/
   core/                      # PURE DART — no package:flutter, ever (rule 3)
     models/                  # OpenedFile, DocModel, Outline, SessionState,
                              # AppSettings, WatchEvent, SearchHit
-    files/file_service.dart  # open/scan, extension registry, cap, natural sort
+    files/
+      file_service.dart      # breadth-first scan, soft cap, identity, the
+                             #   mtime+size tuple; read-only throughout
+      extension_registry.dart # which files are ours, and basename/extension
+      natural_sort.dart      # 2.md before 10.md, and a total order
     markdown/
       pipeline.dart          # decode → FrontMatterSplitter → MdxSanitizer
                              #   → RawBlockRewriter → parse → DocModel
@@ -47,6 +51,7 @@ lib/
       slug.dart              # GitHub heading-slug algorithm (doc 04)
       block_index.dart       # top-level blocks, 1:1 with renderer children
       outline_builder.dart   # headings → Outline, slugged
+    storage/json_store.dart       # the one atomic write: temp, flush, rename
     session/session_store.dart    # both stores take the config Directory as a
     settings/settings_store.dart  #   ctor argument — never call path_provider
     watch/watch_service.dart
@@ -119,7 +124,8 @@ Do not "optimise" it away without re-reading this paragraph.
 - **MarkdownPipeline** — the only path from bytes to a `DocModel` (doc 04),
   pure Dart end to end. The renderer package is imported *only* inside
   `features/reader/rendering/`.
-- **DocCache** — LRU keyed by `path + mtime + settingsRevision`; default
+- **DocCache** — LRU keyed by `identity + mtime + size + settingsRevision`;
+  default
   capacity 40 parsed `DocModel`s; invalidated by watch events and by
   parse-affecting setting changes. It caches **parse output, not widgets** —
   Flutter element trees do not survive a tab switch anyway, and parsing is the

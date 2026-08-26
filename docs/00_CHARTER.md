@@ -49,8 +49,9 @@ Ubuntu 24.04 VM)
 - Cold start → previous session visible: **< 1.5 s**.
 - Open + render a typical 100 KB document: **< 150 ms** to first paint.
 - 1 MB torture document scrolls at **≥ 55 fps** average.
-- RAM steady-state with 1,000 entries open (metadata) + 40 cached rendered
-  docs: **< 400 MB**.
+- RAM steady-state with 1,000 entries open (metadata) + 40 cached **parsed**
+  docs: **< 400 MB**. (Parsed, not rendered: the cache holds `DocModel`s and
+  never widgets — rule 8.)
 - Zero writes outside the app config directory (verified by test + manual
   procmon/strace pass before each release).
 

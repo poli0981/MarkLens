@@ -215,7 +215,7 @@ with its tests.
    1,000-entry cap, natural sort, symlink-dir skip (doc 07). Everything that
    opens anything needs it.
 3. **`core/cache/doc_cache.dart`** — LRU of `DocModel`, keyed on
-   `path + mtime + settingsRevision`.
+   `identity + mtime + size + settingsRevision`.
 4. **`core/session/` and `core/settings/`** — versioned JSON, atomic writes,
    corruption recovery (doc 05). Both take the config `Directory` as a
    constructor argument; `app/providers.dart` resolves it.

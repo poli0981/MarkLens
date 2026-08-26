@@ -1,6 +1,11 @@
 import 'dart:io';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:marklens/core/cache/doc_cache.dart';
+import 'package:marklens/core/files/file_service.dart';
+import 'package:marklens/core/markdown/pipeline.dart';
+import 'package:marklens/core/session/session_store.dart';
+import 'package:marklens/core/settings/settings_store.dart';
 import 'package:path_provider/path_provider.dart';
 
 /// Composition root: core services are constructed here and exposed as
@@ -20,6 +25,42 @@ final Provider<Directory> configDirectoryProvider = Provider<Directory>(
     'configDirectoryProvider must be overridden in main() or in a test',
   ),
 );
+
+/// Reads and writes `settings.json` (`docs/05_SESSION_AND_SETTINGS.md`).
+final Provider<SettingsStore> settingsStoreProvider = Provider<SettingsStore>(
+  (ref) => SettingsStore(directory: ref.watch(configDirectoryProvider)),
+);
+
+/// Reads and writes `session.json`, debounced (rule 7).
+///
+/// Disposed with the scope, which flushes whatever write was still pending —
+/// quitting must not lose the last second of a session.
+final Provider<SessionStore> sessionStoreProvider = Provider<SessionStore>((
+  ref,
+) {
+  final store = SessionStore(directory: ref.watch(configDirectoryProvider));
+  ref.onDispose(store.dispose);
+  return store;
+});
+
+/// Finds the documents MarkLens will open (`docs/07_FILES_AND_WATCH.md`).
+///
+/// Constructed with the defaults for now. Rebuilding it from
+/// `files.extensions` and `files.fileCap` belongs with the Settings UI, where
+/// there is something that can change them (M3, doc 15).
+final Provider<FileService> fileServiceProvider = Provider<FileService>(
+  (ref) => const FileService(),
+);
+
+/// The LRU of parsed documents (CLAUDE.md rule 8).
+final Provider<DocCache> docCacheProvider = Provider<DocCache>(
+  (ref) => DocCache(),
+);
+
+/// The one path from a file's bytes to a `DocModel`
+/// (`docs/04_MARKDOWN_PIPELINE.md`).
+final Provider<MarkdownPipeline> markdownPipelineProvider =
+    Provider<MarkdownPipeline>((ref) => const MarkdownPipeline());
 
 /// Resolves the config directory without creating it.
 ///
