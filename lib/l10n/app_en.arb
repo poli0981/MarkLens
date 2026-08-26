@@ -167,5 +167,45 @@
   "readerNoticeLargeDocument": "This is a large document. Some features may be slower than usual.",
   "@readerNoticeLargeDocument": {
     "description": "Notice bar for DocNoticeKind.largeDocument, over the 10 MB threshold (docs/04)."
+  },
+  "readerCopied": "Copied",
+  "@readerCopied": {
+    "description": "Tooltip on the code copy button just after it was used."
+  },
+  "readerExpand": "Expand",
+  "@readerExpand": {
+    "description": "Tooltip on the control that opens the collapsed raw-HTML box."
+  },
+  "readerCollapse": "Collapse",
+  "@readerCollapse": {
+    "description": "Tooltip on the control that closes the raw-HTML box."
+  },
+  "readerFrontMatterTitle": "Front matter",
+  "@readerFrontMatterTitle": {
+    "description": "Header of the collapsible panel holding a document's leading --- block (docs/04)."
+  },
+  "readerNoticeDismiss": "Dismiss",
+  "@readerNoticeDismiss": {
+    "description": "Tooltip on the notice bar's close button."
+  },
+  "readerNoticeMore": "{count, plural, =1{1 more notice} other{{count} more notices}}",
+  "@readerNoticeMore": {
+    "description": "Shown beside a notice when a document raised more than one.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "2"
+      }
+    }
+  },
+  "readerOpenFailed": "{name} could not be opened.",
+  "@readerOpenFailed": {
+    "description": "Snackbar when a chosen file cannot be read at all.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "README.md"
+      }
+    }
   }
 }

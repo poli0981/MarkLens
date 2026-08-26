@@ -38,5 +38,12 @@
   "readerNoticeFrontMatterUnparsed": "front matter が単純なキー値形式ではないため、記述どおりに表示しています。",
   "readerNoticeMdxBailOut": "解釈できない MDX があるため、ソースとして表示しています。",
   "readerNoticePlainTextFallback": "この文書を解析できなかったため、プレーンテキストとして表示しています。",
-  "readerNoticeLargeDocument": "大きな文書です。一部の機能が通常より遅くなる場合があります。"
+  "readerNoticeLargeDocument": "大きな文書です。一部の機能が通常より遅くなる場合があります。",
+  "readerCopied": "コピーしました",
+  "readerExpand": "展開",
+  "readerCollapse": "折りたたむ",
+  "readerFrontMatterTitle": "front matter",
+  "readerNoticeDismiss": "閉じる",
+  "readerNoticeMore": "{count, plural, other{他に {count} 件の通知}}",
+  "readerOpenFailed": "{name} を開けませんでした。"
 }

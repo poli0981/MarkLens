@@ -35,17 +35,32 @@ void main() {
       }
     });
 
-    test('no feature imports app/ except providers.dart', () {
+    test('no feature imports app/ except the composition root and the '
+        'theme', () {
+      // Two entries, and the difference between them matters. providers.dart
+      // is the composition root: app-level *wiring*. app/theme/ is app-level
+      // *data* — the eight doc 06 tokens, which every feature draws from and
+      // reads through Theme.of(context). Doc 02's own target tree puts the
+      // theme under app/, so a rule that allowed only providers.dart would
+      // make its own layout unbuildable.
+      //
+      // What the rule is actually for is untouched: a feature still cannot
+      // reach into another feature, and still cannot reach into app
+      // behaviour.
+      const allowed = <String>{
+        'package:marklens/app/providers.dart',
+        'package:marklens/app/theme/reader_tokens.dart',
+      };
       for (final file in sources) {
         for (final uri in file.imports) {
           const prefix = 'package:marklens/app/';
           if (!uri.startsWith(prefix)) continue;
           expect(
-            uri,
-            'package:marklens/app/providers.dart',
+            allowed,
+            contains(uri),
             reason:
-                '${file.path} imports $uri. Features see app/ only '
-                'through its composition root.',
+                '${file.path} imports $uri. Features see app/ only through '
+                'its composition root and its theme tokens.',
           );
         }
       }

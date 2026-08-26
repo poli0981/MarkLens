@@ -2,14 +2,25 @@ import 'package:markdown/markdown.dart' as md;
 import 'package:marklens/core/markdown/recording_syntaxes.dart';
 import 'package:marklens/core/markdown/source_lines.dart';
 
-/// The info string the rewriter puts on the fences it emits.
+/// The marker that tells the reader a `pre` block was rescued rather than
+/// written.
 ///
-/// The first word is the language, so the block still highlights as HTML; the
-/// rest becomes `pre.attributes['data-metadata']` in the AST, which is how the
-/// reader tells a rewritten block from a code block the author actually wrote
-/// and shows it as the "Raw HTML (not rendered)" box instead
-/// (`docs/04_MARKDOWN_PIPELINE.md`, ARB key `readerRawHtmlTitle`).
-const String rawBlockFenceInfo = 'html marklens-raw';
+/// It arrives as `pre.attributes['data-metadata']`, because the parser splits
+/// a fence's info string into a language and everything after it. The reader
+/// draws a "Raw HTML (not rendered)" box when it sees this and an ordinary
+/// code block when it does not (`docs/04_MARKDOWN_PIPELINE.md`, ARB key
+/// `readerRawHtmlTitle`).
+const String rawBlockMetadata = 'marklens-raw';
+
+/// The language the rescued block is highlighted as.
+const String rawBlockLanguage = 'html';
+
+/// The whole info string the rewriter puts on the fences it emits.
+///
+/// The first word keeps the body highlighting as HTML; the rest is the marker.
+/// Built from the two constants above so the writer and the reader cannot
+/// drift apart.
+const String rawBlockFenceInfo = '$rawBlockLanguage $rawBlockMetadata';
 
 /// The result of rewriting a document's block HTML.
 typedef RawBlockRewrite = ({String source, int rewritten});

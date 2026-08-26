@@ -333,6 +333,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'This is a large document. Some features may be slower than usual.'**
   String get readerNoticeLargeDocument;
+
+  /// Tooltip on the code copy button just after it was used.
+  ///
+  /// In en, this message translates to:
+  /// **'Copied'**
+  String get readerCopied;
+
+  /// Tooltip on the control that opens the collapsed raw-HTML box.
+  ///
+  /// In en, this message translates to:
+  /// **'Expand'**
+  String get readerExpand;
+
+  /// Tooltip on the control that closes the raw-HTML box.
+  ///
+  /// In en, this message translates to:
+  /// **'Collapse'**
+  String get readerCollapse;
+
+  /// Header of the collapsible panel holding a document's leading --- block (docs/04).
+  ///
+  /// In en, this message translates to:
+  /// **'Front matter'**
+  String get readerFrontMatterTitle;
+
+  /// Tooltip on the notice bar's close button.
+  ///
+  /// In en, this message translates to:
+  /// **'Dismiss'**
+  String get readerNoticeDismiss;
+
+  /// Shown beside a notice when a document raised more than one.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 more notice} other{{count} more notices}}'**
+  String readerNoticeMore(int count);
+
+  /// Snackbar when a chosen file cannot be read at all.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} could not be opened.'**
+  String readerOpenFailed(String name);
 }
 
 class _AppLocalizationsDelegate

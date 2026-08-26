@@ -141,4 +141,35 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get readerNoticeLargeDocument =>
       'This is a large document. Some features may be slower than usual.';
+
+  @override
+  String get readerCopied => 'Copied';
+
+  @override
+  String get readerExpand => 'Expand';
+
+  @override
+  String get readerCollapse => 'Collapse';
+
+  @override
+  String get readerFrontMatterTitle => 'Front matter';
+
+  @override
+  String get readerNoticeDismiss => 'Dismiss';
+
+  @override
+  String readerNoticeMore(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count more notices',
+      one: '1 more notice',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String readerOpenFailed(String name) {
+    return '$name could not be opened.';
+  }
 }

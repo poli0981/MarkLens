@@ -77,7 +77,7 @@ test/
 | From | May import | Never imports |
 |---|---|---|
 | `core/` | `dart:*`, pure-Dart packages only (`markdown`, `watcher`, `args`, `meta`, `path`, `riverpod`) | `package:flutter`, any Flutter plugin, `app/`, `features/` |
-| `features/X` | `core/`, `app/providers.dart`, Flutter | any other `features/Y` directly |
+| `features/X` | `core/`, `app/providers.dart`, `app/theme/reader_tokens.dart`, Flutter | any other `features/Y` directly |
 | `features/reader/rendering/` | additionally: the S1 renderer package + the highlighter package | — (and nothing else may import those two) |
 | `app/` | everything | — |
 

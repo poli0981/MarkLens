@@ -7,6 +7,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:marklens/core/markdown/pipeline.dart';
 import 'package:marklens/core/models/doc_model.dart';
 import 'package:marklens/features/reader/rendering/flutter_markdown_plus_renderer.dart';
+import 'package:marklens/l10n/gen/app_localizations.dart';
 
 /// Selection and copy quality — a release gate
 /// (`docs/15_SPIKES_ROADMAP.md` S2, `docs/12_TESTING.md`).
@@ -207,6 +208,11 @@ Future<void> _pump(
 
   await tester.pumpWidget(
     MaterialApp(
+      // The same delegates the real app installs: widgets that phrase a
+      // notice or a tooltip need them, and a harness without them is not
+      // testing what ships.
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
       home: Scaffold(
         body: SelectionArea(
           child: Builder(

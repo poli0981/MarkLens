@@ -126,6 +126,21 @@ class FileService {
     );
   }
 
+  /// Reads a document's bytes, or `null` if it cannot be read.
+  ///
+  /// Bytes rather than a string: decoding is the pipeline's first stage, and
+  /// it has to see the BOM and the invalid sequences to report them
+  /// (`docs/04_MARKDOWN_PIPELINE.md`). A file that vanished between being
+  /// listed and being opened returns `null` rather than throwing — on a
+  /// watched folder that is an ordinary race, not an error.
+  List<int>? readBytes(String path) {
+    try {
+      return File(path).readAsBytesSync();
+    } on FileSystemException {
+      return null;
+    }
+  }
+
   /// Re-reads [entry] from disk, for the watch handler and the focus sweep.
   ///
   /// A file that has gone keeps its entry and comes back flagged, because

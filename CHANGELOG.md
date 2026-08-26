@@ -56,6 +56,13 @@ All notable changes to MarkLens are documented here. Format follows
   schema backed up rather than read, and session writes debounced to one
   second so a scroll never reaches the disk.
 - Core services wired into `app/providers.dart`.
+- The reader: notice bar, front-matter panel, code blocks with a language
+  label and a copy button, and the collapsed "Raw HTML (not rendered)" box.
+- **File → Open opens a document**, and the app shows it — the shell had no
+  document view until now. Reload and Copy entire document work with it.
+- The eight doc 06 theme tokens, light and dark, with their WCAG contrast
+  asserted by a test rather than judged by eye. This closes the last open
+  criterion of spike S1, which was waiting on them.
 
 ### Changed
 - The parsed-document cache key is `identity + mtime + size +

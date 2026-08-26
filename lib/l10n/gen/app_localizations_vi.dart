@@ -140,4 +140,34 @@ class AppLocalizationsVi extends AppLocalizations {
   @override
   String get readerNoticeLargeDocument =>
       'Đây là tài liệu lớn. Một số tính năng có thể chậm hơn bình thường.';
+
+  @override
+  String get readerCopied => 'Đã sao chép';
+
+  @override
+  String get readerExpand => 'Mở rộng';
+
+  @override
+  String get readerCollapse => 'Thu gọn';
+
+  @override
+  String get readerFrontMatterTitle => 'Front matter';
+
+  @override
+  String get readerNoticeDismiss => 'Đóng';
+
+  @override
+  String readerNoticeMore(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Thêm $count thông báo',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String readerOpenFailed(String name) {
+    return 'Không mở được $name.';
+  }
 }

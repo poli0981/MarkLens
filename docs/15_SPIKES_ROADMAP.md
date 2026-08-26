@@ -27,10 +27,11 @@ doc 01 (pins), doc 03 and doc 07 (watching), doc 04 (pipeline) and doc 06
 > performance does not discriminate between them, and the recommendation —
 > candidate A, on maintenance grounds — rests on the non-performance findings.
 >
-> Still open: the doc 06 styling-token check (blocked until M1 defines the
-> tokens) and the highlighter decision. **No pin has moved in doc 01**, because
-> S2 below is a "fail here = revisit S1" gate and Q3 has already shown
-> selection over a lazy list does not work as specified.
+> **Fully closed 2026-08-26.** The last open criterion was the doc 06
+> styling-token check, which was blocked until M1 defined the tokens. It does
+> now: `ReaderStyle` drives the renderer entirely from the eight tokens, so it
+> picks no colour of its own, and the code-scope map is derived from the same
+> set. The highlighter decision closed earlier, in S1c.
 
 Render the torture corpus (doc 12) with `flutter_markdown_plus` and
 `markdown_widget`.
@@ -211,16 +212,32 @@ with its tests.
      renderer's on every fixture, and `test/features/block_alignment_test.dart`
      asserts `children.length == 2N-1` against the real widget — with a
      negative control proving it fails when the pre-pass is switched off.
-2. **`core/files/file_service.dart`** — open/scan, extension registry, the
-   1,000-entry cap, natural sort, symlink-dir skip (doc 07). Everything that
-   opens anything needs it.
-3. **`core/cache/doc_cache.dart`** — LRU of `DocModel`, keyed on
-   `identity + mtime + size + settingsRevision`.
-4. **`core/session/` and `core/settings/`** — versioned JSON, atomic writes,
-   corruption recovery (doc 05). Both take the config `Directory` as a
-   constructor argument; `app/providers.dart` resolves it.
-5. **The reader feature** — `DocModel` through `MarkdownRenderer`, front-matter
-   panel, notice bar.
+2. **`core/files/file_service.dart`** ✅ **Done.** Scan, registry, soft cap,
+   natural sort, symlinked-directory skip. `OpenedFile` carries two paths —
+   a canonical `identity` and a display `path` — because doc 07 asked for a
+   canonical identity without noticing it was also the string shown to the
+   user. Accepted gap recorded in doc 07: the Windows hidden attribute is not
+   honoured, since `FileStat` exposes no attributes.
+3. **`core/cache/doc_cache.dart`** ✅ **Done.** LRU of `DocModel`, keyed on
+   `identity + mtime + size + settingsRevision`. Docs 02, 03 and 07 each
+   specified a different key; that is now reconciled in all four places.
+   `settingsRevision` is kept and inert — no v1 setting changes parse output.
+4. **`core/session/` and `core/settings/`** ✅ **Done.** Both over one atomic
+   `JsonStore` in `core/storage/`, which is why that directory joins the write
+   allowlist — with a test asserting it touches nothing outside the `Directory`
+   it was handed. Reading is total; corruption and future schemas are
+   quarantined rather than deleted. Two ranges added to doc 05
+   (`recentLimit`, `sidebarWidth`) with the reasons.
+5. **The reader feature** ✅ **Done**, plus File → Open, so the app finally
+   opens and shows a document. Two things doc 06 had left undefined were
+   settled and written back into it: the **theme tokens** (finalized, with
+   their WCAG contrast asserted rather than eyeballed — this also closes S1's
+   last open criterion) and the **notice bar** (a slim dismissible bar above
+   the document, most serious notice first, the rest counted).
+
+   Note the reader also had to take ownership of the document's selection
+   scope. A `SelectionArea` inside the code block would end a drag at the top
+   of that block, which is precisely what S2 made a release gate.
 6. **Sidebar and tabs**, talking to each other only through
    `app/providers.dart`.
 7. **`core/single_instance.dart` + CLI args** in `main.dart`, then session

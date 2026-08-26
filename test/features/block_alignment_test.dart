@@ -21,6 +21,7 @@ import 'package:marklens/core/markdown/pipeline.dart';
 import 'package:marklens/core/markdown/raw_block_rewriter.dart';
 import 'package:marklens/core/models/doc_model.dart';
 import 'package:marklens/features/reader/rendering/flutter_markdown_plus_renderer.dart';
+import 'package:marklens/l10n/gen/app_localizations.dart';
 
 import '../core/corpus.dart';
 
@@ -38,6 +39,11 @@ Future<int> _childCount(WidgetTester tester, DocModel doc) async {
 
   await tester.pumpWidget(
     MaterialApp(
+      // The same delegates the real app installs: widgets that phrase a
+      // notice or a tooltip need them, and a harness without them is not
+      // testing what ships.
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
       home: Scaffold(
         body: Builder(
           builder: (context) => FlutterMarkdownPlusRenderer(
@@ -132,11 +138,16 @@ void main() {
       );
     });
 
-    testWidgets('the rescued HTML actually reaches the screen', (tester) async {
+    testWidgets('the rescued HTML reaches the screen when opened', (
+      tester,
+    ) async {
       // The counts can line up while the box renders empty, so this checks the
-      // thing a person would check by opening the file: is the text there?
-      // It stands in for the manual pass until the reader screen exists — the
-      // app shell has no document view yet (M1 step 5).
+      // thing a person would check by opening the file: is the content there?
+      // It stands in for the manual pass until the reader screen exists.
+      //
+      // Doc 04 calls it a *collapsed* box, so the content is one click away
+      // rather than on screen — the box itself is the signal that something
+      // was there, which is the failure S1 found (content deleted silently).
       final doc = pipeline.parse(
         path: 'callout.md',
         bytes: utf8.encode(
@@ -152,12 +163,26 @@ void main() {
       await _childCount(tester, doc);
 
       expect(
+        find.text('Raw HTML (not rendered)'),
+        findsOneWidget,
+        reason:
+            'the box is the sign that content was there. Finding nothing here '
+            'means it is being deleted again — visible to a test, invisible to '
+            'a reader.',
+      );
+      expect(
+        find.textContaining("alert('this must never run')", findRichText: true),
+        findsNothing,
+        reason: 'collapsed by default (docs/04)',
+      );
+
+      await tester.tap(find.byIcon(Icons.chevron_right));
+      await tester.pump();
+
+      expect(
         find.textContaining("alert('this must never run')", findRichText: true),
         findsWidgets,
-        reason:
-            'the script is shown as inert source. Finding nothing here means '
-            'the content is being deleted again — visible to a test, invisible '
-            'to a reader.',
+        reason: 'expanding shows the source, inert and escaped',
       );
       expect(
         find.textContaining('<div class="callout">', findRichText: true),

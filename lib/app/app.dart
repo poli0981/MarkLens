@@ -1,17 +1,23 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:marklens/app/chrome.dart';
+import 'package:marklens/app/documents.dart';
 import 'package:marklens/app/menu/app_menu_bar.dart';
+import 'package:marklens/app/providers.dart';
 import 'package:marklens/app/shortcuts.dart';
+import 'package:marklens/app/theme/app_theme.dart';
+import 'package:marklens/core/files/extension_registry.dart';
+import 'package:marklens/features/reader/reader_view.dart';
 import 'package:marklens/l10n/gen/app_localizations.dart';
 
 /// The application shell.
 ///
-/// At M0 this is the S4 prototype: the real menu bar and the full doc 06
-/// shortcut set over a placeholder body. Sidebar, tabs, reader and outline
-/// land at M1 — what exists here is enough to judge whether the menu and its
-/// keyboard behaviour feel right, which is S4's gate.
+/// The menu bar and the full doc 06 shortcut set over the reader. File → Open
+/// opens one document; the sidebar and tabs that turn that into an open *set*
+/// are M1 step 6, so the panels beside the reader are still placeholders.
 class MarkLensApp extends ConsumerWidget {
   /// Creates the app shell.
   const MarkLensApp({super.key});
@@ -28,8 +34,8 @@ class MarkLensApp extends ConsumerWidget {
       supportedLocales: AppLocalizations.supportedLocales,
       debugShowCheckedModeBanner: false,
       themeMode: themeMode,
-      theme: ThemeData(brightness: Brightness.light, useMaterial3: true),
-      darkTheme: ThemeData(brightness: Brightness.dark, useMaterial3: true),
+      theme: AppTheme.light,
+      darkTheme: AppTheme.dark,
       home: const AppShell(),
     );
   }
@@ -108,6 +114,44 @@ class _AppShellState extends ConsumerState<AppShell> {
     }
   }
 
+  /// File → Open Files.
+  ///
+  /// Opens the first document chosen. Opening several at once needs tabs,
+  /// which are M1 step 6; until then the rest are ignored rather than
+  /// silently replacing each other.
+  Future<void> _openFiles() async {
+    final files = ref.read(fileServiceProvider);
+    final paths = await ref
+        .read(filePickerPromptProvider)
+        .pickDocuments(files.registry);
+    if (!mounted || paths.isEmpty) {
+      return;
+    }
+
+    ref.read(activeDocumentProvider.notifier).open(paths.first);
+    final failed = ref.read(activeDocumentProvider).failedPath;
+    if (failed != null && mounted) {
+      _notify(
+        AppLocalizations.of(
+          context,
+        ).readerOpenFailed(ExtensionRegistry.basenameOf(failed)),
+      );
+    }
+  }
+
+  /// File → Copy entire document.
+  ///
+  /// Copies `rawSource` — the file as decoded, front matter included — rather
+  /// than the string handed to the renderer, which has the front matter lifted
+  /// out and block HTML rewritten (`docs/06_UI_UX.md`).
+  Future<void> _copyDocument() async {
+    final doc = ref.read(activeDocumentProvider).doc;
+    if (doc == null) {
+      return;
+    }
+    await Clipboard.setData(ClipboardData(text: doc.rawSource));
+  }
+
   void _notify(String message) {
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
@@ -157,10 +201,25 @@ class _AppShellState extends ConsumerState<AppShell> {
           // The rest of the doc 06 inventory is bound but not yet implemented.
           // Binding them now is the point: S4 is checking that the whole set
           // reaches its actions, not that the actions do anything.
-          OpenFilesIntent: _todo(l10n.menuOpenFiles),
+          OpenFilesIntent: CallbackAction<OpenFilesIntent>(
+            onInvoke: (_) {
+              unawaited(_openFiles());
+              return null;
+            },
+          ),
           OpenFolderIntent: _todo(l10n.menuOpenFolder),
-          ReloadDocumentIntent: _todo(l10n.menuReload),
-          CopyDocumentIntent: _todo(l10n.menuCopyDocument),
+          ReloadDocumentIntent: CallbackAction<ReloadDocumentIntent>(
+            onInvoke: (_) {
+              ref.read(activeDocumentProvider.notifier).reload();
+              return null;
+            },
+          ),
+          CopyDocumentIntent: CallbackAction<CopyDocumentIntent>(
+            onInvoke: (_) {
+              unawaited(_copyDocument());
+              return null;
+            },
+          ),
           CloseTabIntent: _todo(l10n.menuCloseTab),
           ReopenTabIntent: _todo(l10n.menuCloseTab),
           CycleTabIntent: _todo(l10n.menuFile),
@@ -185,13 +244,7 @@ class _AppShellState extends ConsumerState<AppShell> {
                       Expanded(
                         child: Focus(
                           focusNode: _body,
-                          child: Center(
-                            child: Text(
-                              l10n.emptyStateDropHint,
-                              textAlign: TextAlign.center,
-                              textScaler: TextScaler.linear(chrome.zoom),
-                            ),
-                          ),
+                          child: _Body(zoom: chrome.zoom),
                         ),
                       ),
                       if (chrome.outlineVisible)
@@ -214,6 +267,30 @@ class _AppShellState extends ConsumerState<AppShell> {
       return null;
     },
   );
+}
+
+/// The reading surface, or the empty state when nothing is open.
+class _Body extends ConsumerWidget {
+  const _Body({required this.zoom});
+
+  final double zoom;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final active = ref.watch(activeDocumentProvider);
+    final doc = active.doc;
+
+    if (doc == null) {
+      return Center(
+        child: Text(
+          AppLocalizations.of(context).emptyStateDropHint,
+          textAlign: TextAlign.center,
+          textScaler: TextScaler.linear(zoom),
+        ),
+      );
+    }
+    return ReaderView(doc: doc, zoom: zoom);
+  }
 }
 
 class _Panel extends StatelessWidget {

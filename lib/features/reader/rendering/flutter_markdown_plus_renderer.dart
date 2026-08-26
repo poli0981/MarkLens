@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
+import 'package:marklens/app/theme/reader_tokens.dart';
 import 'package:marklens/core/markdown/markdown_flavor.dart';
 import 'package:marklens/core/models/doc_model.dart';
+import 'package:marklens/features/reader/rendering/code_block_builder.dart';
+import 'package:marklens/features/reader/rendering/code_highlighter.dart';
+import 'package:marklens/features/reader/rendering/highlight_js_code_highlighter.dart';
 import 'package:marklens/features/reader/rendering/markdown_renderer.dart';
+import 'package:marklens/features/reader/rendering/reader_style.dart';
 
 /// The reader, built on `flutter_markdown_plus` — the S1 winner
 /// (`docs/spike-results/S1-renderer-bakeoff.md`).
@@ -28,7 +33,11 @@ import 'package:marklens/features/reader/rendering/markdown_renderer.dart';
 ///   block to us and zero children to the renderer.
 class FlutterMarkdownPlusRenderer implements MarkdownRenderer {
   /// Creates the reader renderer.
-  const FlutterMarkdownPlusRenderer({this.controller, this.onBlockCount});
+  const FlutterMarkdownPlusRenderer({
+    this.controller,
+    this.onBlockCount,
+    this.highlighter,
+  });
 
   /// Scroll controller for the block list.
   final ScrollController? controller;
@@ -38,12 +47,31 @@ class FlutterMarkdownPlusRenderer implements MarkdownRenderer {
   /// Used by the performance gate and the block-mapping regression tests.
   final void Function(int count)? onBlockCount;
 
+  /// Colours fenced code.
+  ///
+  /// Built from the theme tokens when omitted, which is the normal case; a
+  /// test can inject one to render without depending on a grammar.
+  final CodeHighlighter? highlighter;
+
   @override
   Widget build(BuildContext context, DocModel doc) => _BlockListMarkdown(
     data: doc.sanitizedSource,
     controller: controller,
     onBlockCount: onBlockCount,
+    styleSheet: ReaderStyle.of(context),
+    codeBlocks: CodeBlockBuilder(
+      highlighter: highlighter ?? _highlighterFor(context),
+    ),
   );
+
+  /// The default highlighter: scopes painted from the doc 06 tokens.
+  static CodeHighlighter _highlighterFor(BuildContext context) {
+    final tokens = ReaderTokens.of(context);
+    return HighlightJsCodeHighlighter(
+      theme: ReaderCodeTheme.of(tokens),
+      baseStyle: TextStyle(color: tokens.fg),
+    );
+  }
 }
 
 class _BlockListMarkdown extends MarkdownWidget {
@@ -52,9 +80,16 @@ class _BlockListMarkdown extends MarkdownWidget {
   // more than a const constructor on one private widget.
   _BlockListMarkdown({
     required super.data,
+    required CodeBlockBuilder codeBlocks,
+    required super.styleSheet,
     this.controller,
     this.onBlockCount,
   }) : super(
+         // Every `pre` is drawn by our own builder: fenced code gets a
+         // language label and a copy button, and a block the raw-HTML rewrite
+         // produced gets the collapsed "Raw HTML (not rendered)" box instead
+         // (`docs/04_MARKDOWN_PIPELINE.md`).
+         builders: <String, MarkdownElementBuilder>{'pre': codeBlocks},
          imageBuilder: _placeholderImage,
          // Named, not left to the package's `?? gitHubFlavored` fallback: the
          // pipeline parses the same source with the same set to build the

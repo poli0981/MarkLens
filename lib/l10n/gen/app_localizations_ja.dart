@@ -137,4 +137,34 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get readerNoticeLargeDocument => '大きな文書です。一部の機能が通常より遅くなる場合があります。';
+
+  @override
+  String get readerCopied => 'コピーしました';
+
+  @override
+  String get readerExpand => '展開';
+
+  @override
+  String get readerCollapse => '折りたたむ';
+
+  @override
+  String get readerFrontMatterTitle => 'front matter';
+
+  @override
+  String get readerNoticeDismiss => '閉じる';
+
+  @override
+  String readerNoticeMore(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '他に $count 件の通知',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String readerOpenFailed(String name) {
+    return '$name を開けませんでした。';
+  }
 }

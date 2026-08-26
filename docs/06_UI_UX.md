@@ -104,7 +104,13 @@ is the file as decoded, BOM stripped. A file that was not valid UTF-8 copies
 with U+FFFD where the bad bytes were, which is what the reader is showing.
 
 Code blocks: language label + copy button + hover
-scrollbar for long lines. Task-list checkboxes render but are inert
+scrollbar for long lines; long lines scroll rather than wrap, because wrapping
+code changes what it says. A block the raw-HTML rewrite produced (doc 04) uses
+the same frame but opens **collapsed** and is titled "Raw HTML (not rendered)"
+— the box itself is the signal that something was there, which is the failure
+S1 found. A code block the author wrote is never collapsible: hiding content
+behind a click is not a reader's job. Task-list checkboxes render but are
+inert
 (read-only tooltip on click). Front-matter panel per doc 04. Smooth
 programmatic scrolls (outline/anchor jumps) with a brief highlight pulse on
 the target heading.
@@ -123,11 +129,57 @@ explanation + "Remove from session" + "Reveal parent folder".
 
 ## Theming
 
-Tokens (finalize at M1, keep the set small): `bg`, `bgAlt`, `fg`, `fgMuted`,
-`accent`, `codeBg`, `border`, `selection`. Light/dark/system via
-`ThemeData`; highlight theme pairs switch with mode. Design intent:
-quiet, typographic, reader-first — the accent appears in links, focus rings,
-and the pulse highlight only.
+**Finalized at M1** in `app/theme/reader_tokens.dart`: `bg`, `bgAlt`, `fg`,
+`fgMuted`, `accent`, `codeBg`, `border`, `selection` — eight, light and dark.
+Light/dark/system via `ThemeData`, carried as a `ThemeExtension` so every
+widget reads them the same way. Design intent: quiet, typographic,
+reader-first — the accent appears in links, focus rings, and the pulse
+highlight only.
+
+The set stays at eight, and a ninth needs an argument: a reading surface with
+many colours is a reading surface that fights the document. The Material
+`ColorScheme` is derived *from* these rather than beside them, so a Material
+default cannot appear next to a token colour and look almost right.
+
+**Contrast is asserted, not judged.** `test/app/reader_tokens_test.dart`
+computes the WCAG ratios for every pairing that occurs on screen, in both
+themes: AAA (7:1) for body text on the reading surface, AA (4.5:1) for
+secondary text, links and selected text on every surface they land on, and a
+band for borders so a hairline is neither invisible nor loud enough to read as
+content. Change a colour and the test says whether it is still readable.
+
+This also closes the S1 criterion that was waiting on the token set
+(`docs/15_SPIKES_ROADMAP.md`): the renderer is driven entirely from these
+through `ReaderStyle`, so it picks no colour of its own.
+
+### Code colours
+
+The highlighter's scope map is derived from the same eight (doc 01), which is
+why `flutter_highlight` and its ninety bundled themes were dropped. Eight
+tokens cannot make a rainbow, so the map earns its distinctions from weight and
+slant instead: comments recede to `fgMuted` in italic, the things a reader
+scans for take weight, and literals take `accent`. A scope that is not in the
+map renders as body text, which keeps an unfamiliar grammar readable rather
+than invisible.
+
+## Notices
+
+Required by CLAUDE.md rule 9, doc 00 principle 3, doc 02's error philosophy and
+doc 04 stage 1 — and previously described by none of them. Decided at M1:
+
+- **A slim bar directly above the document.** Not a line in the status bar:
+  `plainTextFallback` means the reader is looking at something that is not the
+  rendered document, and a person who misses that is being misled.
+- **One notice at a time**, the most serious, with a count of the rest.
+  Severity order: plain-text fallback, invalid UTF-8, MDX bail-out,
+  unparsed front matter, large document. Stacking bars pushes the document
+  down the screen, which is the thing the reader came for.
+- **Dismissible**, by its close button, for that document only. Opening
+  another document brings its own notices back — dismissing says "I have read
+  this one", not "stop telling me about documents".
+- Every kind's text is an ARB key, and the mapping is an exhaustive switch, so
+  a new `DocNoticeKind` without a translation fails to compile rather than
+  showing a blank bar.
 
 ## Accessibility
 

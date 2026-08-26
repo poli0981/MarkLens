@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:marklens/app/open_files.dart';
 import 'package:marklens/core/cache/doc_cache.dart';
 import 'package:marklens/core/files/file_service.dart';
 import 'package:marklens/core/markdown/pipeline.dart';
@@ -56,6 +57,13 @@ final Provider<FileService> fileServiceProvider = Provider<FileService>(
 final Provider<DocCache> docCacheProvider = Provider<DocCache>(
   (ref) => DocCache(),
 );
+
+/// Asks the user for documents to open.
+///
+/// Overridden in widget tests with a stub, so the shell can be driven without
+/// a platform dialog.
+final Provider<FilePickerPrompt> filePickerPromptProvider =
+    Provider<FilePickerPrompt>((ref) => const PlatformFilePickerPrompt());
 
 /// The one path from a file's bytes to a `DocModel`
 /// (`docs/04_MARKDOWN_PIPELINE.md`).

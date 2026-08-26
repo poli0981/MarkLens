@@ -1,0 +1,42 @@
+import 'package:flutter/material.dart';
+import 'package:marklens/app/theme/reader_tokens.dart';
+
+/// Builds the two `ThemeData`s from the doc 06 tokens.
+///
+/// Material's own colour scheme is derived *from* the tokens rather than the
+/// other way round, so there is one source of colour in the app and a Material
+/// default cannot quietly appear next to a token colour and look almost right.
+abstract final class AppTheme {
+  /// The light theme.
+  static ThemeData get light => _from(ReaderTokens.light, Brightness.light);
+
+  /// The dark theme.
+  static ThemeData get dark => _from(ReaderTokens.dark, Brightness.dark);
+
+  static ThemeData _from(ReaderTokens tokens, Brightness brightness) {
+    final scheme =
+        ColorScheme.fromSeed(
+          seedColor: tokens.accent,
+          brightness: brightness,
+        ).copyWith(
+          surface: tokens.bg,
+          onSurface: tokens.fg,
+          surfaceContainerHighest: tokens.bgAlt,
+          outlineVariant: tokens.border,
+          primary: tokens.accent,
+        );
+
+    return ThemeData(
+      useMaterial3: true,
+      brightness: brightness,
+      colorScheme: scheme,
+      scaffoldBackgroundColor: tokens.bg,
+      dividerColor: tokens.border,
+      extensions: <ThemeExtension<Object?>>[tokens],
+      textSelectionTheme: TextSelectionThemeData(
+        selectionColor: tokens.selection,
+        cursorColor: tokens.accent,
+      ),
+    );
+  }
+}

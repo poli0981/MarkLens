@@ -85,7 +85,7 @@ moves (rule 10).
 | riverpod / flutter_riverpod | State | MIT | `3.4.2` |
 | window_manager | Window geometry, minimum size, titles | **MIT** | `0.5.2` |
 | watcher (Dart team) | File/folder watching | BSD-3 | `1.2.1` |
-| file_picker | Open file/folder dialogs | MIT | `12.0.0` — major bump 2026-08; read its CHANGELOG before wiring |
+| file_picker | Open file/folder dialogs | MIT | `12.0.0` — see note |
 | desktop_drop | Drag & drop onto window | **Apache-2.0** | `0.8.0` |
 | path_provider | Config directory (resolved in `app/`, injected into core) | BSD-3 | `2.1.6` |
 | url_launcher | External links in system browser | BSD-3 | `6.3.2` |
@@ -108,6 +108,13 @@ Notes that matter:
   `package_info_plus` 8.0.3–9.x requires `win32 ^5.5.3`. They cannot coexist;
   `package_info_plus 10.2.1` is the version that resolves. Recorded because
   the next person to bump either package will hit the same wall.
+- **`file_picker` 12 changed shape.** `FilePicker.pickFiles(...)` is a static
+  returning `Future<List<PlatformFile>>` directly; 11 and earlier went through
+  `FilePicker.platform` and returned a nullable result object. `lockParentWindow`
+  moved into `WindowsOptions` / `LinuxOptions`. Wired at M1 behind
+  `FilePickerPrompt` in `app/open_files.dart`, which is the only place in the
+  app that touches the plugin — so a widget test can drive File → Open with a
+  stub, and the next major bump is one file.
 - **`desktop_drop` is Apache-2.0**, not BSD/MIT. Apache-2.0 is one-way
   compatible into GPLv3, so it is fine for a GPL-3.0-only project — recorded
   explicitly so nobody has to re-derive it later.
