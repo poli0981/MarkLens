@@ -33,5 +33,10 @@
   "menuThirdPartyLicenses": "Giấy phép bên thứ ba",
   "menuExportLog": "Xuất nhật ký chẩn đoán…",
   "menuAbout": "Giới thiệu MarkLens",
-  "menuNotImplemented": "{item} chưa được nối"
+  "menuNotImplemented": "{item} chưa được nối",
+  "readerNoticeInvalidUtf8": "Tệp này không phải UTF-8 hợp lệ. Một số ký tự đã được thay thế.",
+  "readerNoticeFrontMatterUnparsed": "Phần front matter không phải các dòng khóa/giá trị đơn giản nên được hiển thị nguyên văn.",
+  "readerNoticeMdxBailOut": "Một số đoạn MDX không thể diễn giải và được hiển thị dưới dạng mã nguồn.",
+  "readerNoticePlainTextFallback": "Không thể phân tích tài liệu này nên nó được hiển thị dưới dạng văn bản thuần.",
+  "readerNoticeLargeDocument": "Đây là tài liệu lớn. Một số tính năng có thể chậm hơn bình thường."
 }

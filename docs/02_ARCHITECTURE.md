@@ -32,11 +32,21 @@ lib/
     files/file_service.dart  # open/scan, extension registry, cap, natural sort
     markdown/
       pipeline.dart          # decode → FrontMatterSplitter → MdxSanitizer
-                             #   → parse → DocModel  (stops *before* widgets)
+                             #   → RawBlockRewriter → parse → DocModel
+                             #   (stops *before* widgets)
+      markdown_flavor.dart   # the one ExtensionSet, read by core AND by the
+                             #   renderer — a divergence here breaks every
+                             #   anchor and every search hit
       front_matter.dart      # leading --- block → panel model
       mdx_sanitizer.dart     # tolerant JSX → placeholder transform
+      raw_block_rewriter.dart # block HTML → inert fenced block (doc 04)
+      recording_syntaxes.dart # position-recording subclasses of markdown's
+                             #   own block syntaxes; how the index gets the
+                             #   source ranges the AST does not carry
+      source_lines.dart      # line offsets, shared by the stages above
       slug.dart              # GitHub heading-slug algorithm (doc 04)
-      block_index.dart       # top-level block line ranges (search/anchor map)
+      block_index.dart       # top-level blocks, 1:1 with renderer children
+      outline_builder.dart   # headings → Outline, slugged
     session/session_store.dart    # both stores take the config Directory as a
     settings/settings_store.dart  #   ctor argument — never call path_provider
     watch/watch_service.dart

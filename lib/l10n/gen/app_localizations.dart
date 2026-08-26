@@ -303,6 +303,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{item} is not wired up yet'**
   String menuNotImplemented(String item);
+
+  /// Notice bar for DocNoticeKind.invalidUtf8 (docs/04 stage 1).
+  ///
+  /// In en, this message translates to:
+  /// **'This file is not valid UTF-8. Some characters were replaced.'**
+  String get readerNoticeInvalidUtf8;
+
+  /// Notice bar for DocNoticeKind.frontMatterUnparsed (docs/04 stage 2).
+  ///
+  /// In en, this message translates to:
+  /// **'The front matter is not simple key/value lines, so it is shown as written.'**
+  String get readerNoticeFrontMatterUnparsed;
+
+  /// Notice bar for DocNoticeKind.mdxBailOut. Bailing out is correct behaviour, not an error (docs/04).
+  ///
+  /// In en, this message translates to:
+  /// **'Some MDX could not be interpreted and is shown as source.'**
+  String get readerNoticeMdxBailOut;
+
+  /// Notice bar for DocNoticeKind.plainTextFallback (CLAUDE.md rule 9).
+  ///
+  /// In en, this message translates to:
+  /// **'This document could not be parsed and is shown as plain text.'**
+  String get readerNoticePlainTextFallback;
+
+  /// Notice bar for DocNoticeKind.largeDocument, over the 10 MB threshold (docs/04).
+  ///
+  /// In en, this message translates to:
+  /// **'This is a large document. Some features may be slower than usual.'**
+  String get readerNoticeLargeDocument;
 }
 
 class _AppLocalizationsDelegate

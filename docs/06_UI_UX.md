@@ -92,10 +92,16 @@ Building the whole document up front to make it selectable was measured and
 rejected: 527 ms to first paint on a *typical* 100 KB document against a
 150 ms budget, and outright process death at 1 MB
 (`docs/spike-results/S2-selection.md`). Instead, **File → Copy entire document
-(`Ctrl+Shift+C`)** copies `DocModel.sanitizedSource` straight from the model —
-exact by construction, and indifferent to what has been built. Note it copies
-the **Markdown source**, which differs deliberately from the rendered text a
+(`Ctrl+Shift+C`)** copies `DocModel.rawSource` straight from the model — exact
+by construction, and indifferent to what has been built. Note it copies the
+**Markdown source**, which differs deliberately from the rendered text a
 drag-selection produces.
+
+`rawSource`, not `sanitizedSource`: the sanitized string is what the renderer
+gets, with the front matter lifted out and block HTML rewritten, so copying it
+would silently drop the user's front matter — the opposite of exact. `rawSource`
+is the file as decoded, BOM stripped. A file that was not valid UTF-8 copies
+with U+FFFD where the bad bytes were, which is what the reader is showing.
 
 Code blocks: language label + copy button + hover
 scrollbar for long lines. Task-list checkboxes render but are inert

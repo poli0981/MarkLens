@@ -188,12 +188,29 @@ and highlighter behind their seams, the menu bar and the full shortcut set, the
 watch normalizer, GitHub heading slugs, UTF-8 decoding, and the torture corpus
 with its tests.
 
-1. **Finish `core/markdown/`.** `FrontMatterSplitter`, `BlockIndexer` and the
-   parse stage (AST → outline + slugs) are still documented stubs. Start here:
-   they are pure Dart, the torture corpus and its fixtures already exist, and
-   doc 04 says the pipeline is the product. Includes the **block-HTML
-   pre-pass** S1 found necessary — the renderer drops `<div>` blocks entirely,
-   so the "Raw HTML (not rendered)" box has to be built upstream of it.
+1. **Finish `core/markdown/`.** ✅ **Done.** `FrontMatterSplitter`,
+   `BlockIndexer`, the parse stage (AST → outline + slugs) and the block-HTML
+   pre-pass all shipped together. `MdxSanitizer` is still a pass-through, which
+   is M3 and unchanged.
+
+   Three things are worth carrying forward:
+
+   - The block index is built by parsing with position-recording **subclasses**
+     of the `markdown` package's own block syntaxes. Wrappers do not work:
+     `BlockParser`, `SetextHeaderSyntax` and `HtmlBlockSyntax` all branch on
+     the runtime type of a syntax object, so a decorator stops setext headings
+     parsing at all. Doc 04 records this.
+   - The pre-pass turned out to be a **correctness precondition, not polish**.
+     A top-level HTML block is one node to us and zero children to the
+     renderer, so `blocks[i] → children[2i]` was already wrong for any document
+     containing block HTML. It also rescues block-level `<Component>` tags in
+     `.mdx`, which were being deleted the same way — that hole is closed years
+     before the sanitizer lands.
+   - Two guards carry the risk that nothing else could catch:
+     `test/core/parse_mirror_test.dart` compares our parse against the
+     renderer's on every fixture, and `test/features/block_alignment_test.dart`
+     asserts `children.length == 2N-1` against the real widget — with a
+     negative control proving it fails when the pre-pass is switched off.
 2. **`core/files/file_service.dart`** — open/scan, extension registry, the
    1,000-entry cap, natural sort, symlink-dir skip (doc 07). Everything that
    opens anything needs it.

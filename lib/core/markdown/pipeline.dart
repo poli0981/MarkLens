@@ -3,13 +3,16 @@ import 'dart:convert';
 import 'package:marklens/core/markdown/block_index.dart';
 import 'package:marklens/core/markdown/front_matter.dart';
 import 'package:marklens/core/markdown/mdx_sanitizer.dart';
+import 'package:marklens/core/markdown/outline_builder.dart';
+import 'package:marklens/core/markdown/raw_block_rewriter.dart';
 import 'package:marklens/core/models/doc_model.dart';
 import 'package:marklens/core/models/outline.dart';
 
 /// The one path from a file's bytes to a [DocModel].
 ///
 /// ```text
-/// bytes → decode → front-matter split → [mdx sanitize] → parse → DocModel
+/// bytes → decode → front-matter split → [mdx sanitize] → rewrite block HTML
+///       → parse → DocModel (blocks · outline · slugs)
 /// ```
 ///
 /// Every stage is pure Dart (CLAUDE.md rule 3) and every stage degrades
@@ -21,8 +24,24 @@ class MarkdownPipeline {
   const MarkdownPipeline({
     this.frontMatterSplitter = const FrontMatterSplitter(),
     this.mdxSanitizer = const MdxSanitizer(),
+    this.rawBlockRewriter = const RawBlockRewriter(),
     this.blockIndexer = const BlockIndexer(),
+    this.outlineBuilder = const OutlineBuilder(),
+    this.largeDocumentBytes = defaultLargeDocumentBytes,
   });
+
+  /// The doc 04 threshold above which a document is flagged as large.
+  ///
+  /// Refusing outright above 50 MB belongs to the file service, which decides
+  /// whether to open a file at all; by the time bytes reach the pipeline that
+  /// decision has been made.
+  static const int defaultLargeDocumentBytes = 10 * 1024 * 1024;
+
+  /// The size above which this pipeline flags a document as large.
+  ///
+  /// Injected rather than fixed so tests can exercise the boundary without
+  /// parsing ten megabytes to reach it.
+  final int largeDocumentBytes;
 
   /// Lifts the leading `---` block out before anything else sees it.
   final FrontMatterSplitter frontMatterSplitter;
@@ -30,8 +49,14 @@ class MarkdownPipeline {
   /// Turns JSX into inert placeholders, for `.mdx` files only.
   final MdxSanitizer mdxSanitizer;
 
+  /// Rescues block HTML, which the renderer would otherwise delete.
+  final RawBlockRewriter rawBlockRewriter;
+
   /// Locates top-level blocks so search hits and anchors have a target.
   final BlockIndexer blockIndexer;
+
+  /// Collects the headings, with their slugs.
+  final OutlineBuilder outlineBuilder;
 
   /// Parses one document.
   ///
@@ -43,6 +68,10 @@ class MarkdownPipeline {
     required bool isMdx,
   }) {
     final notices = <DocNotice>[];
+
+    if (bytes.length > largeDocumentBytes) {
+      notices.add(const DocNotice(DocNoticeKind.largeDocument));
+    }
 
     final decoded = decodeSource(bytes);
     if (decoded.lossy) {
@@ -61,14 +90,35 @@ class MarkdownPipeline {
       notices.addAll(sanitized.notices);
     }
 
-    // Parsing into an AST, and extracting the outline from it, lands at M2
-    // (doc 15). Until then the renderer still receives correct source; only
-    // the outline panel and anchor jumps are empty.
+    // Block HTML is rewritten before the index is built, not after. While it
+    // is still a bare text node the renderer emits no widget for it at all, so
+    // our block count would run one ahead of the renderer's for every region
+    // (`docs/spike-results/S1-renderer-bakeoff.md`, Result 3).
+    source = rawBlockRewriter.rewrite(source).source;
+
+    final index = blockIndexer.index(source);
+    if (index.degraded) {
+      // Rule 9: show the document as plain text with a notice, rather than
+      // taking the app down or — worse — offering scroll targets that are
+      // quietly wrong.
+      notices.add(const DocNotice(DocNoticeKind.plainTextFallback));
+      return DocModel(
+        path: path,
+        rawSource: decoded.text,
+        sanitizedSource: source,
+        outline: Outline.empty,
+        blocks: const <SourceBlock>[],
+        frontMatter: split.frontMatter,
+        notices: notices,
+      );
+    }
+
     return DocModel(
       path: path,
+      rawSource: decoded.text,
       sanitizedSource: source,
-      outline: Outline.empty,
-      blocks: blockIndexer.index(source),
+      outline: outlineBuilder.build(index.nodes),
+      blocks: index.blocks,
       frontMatter: split.frontMatter,
       notices: notices,
     );

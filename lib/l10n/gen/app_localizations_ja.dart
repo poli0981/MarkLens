@@ -119,4 +119,22 @@ class AppLocalizationsJa extends AppLocalizations {
   String menuNotImplemented(String item) {
     return '$item はまだ接続されていません';
   }
+
+  @override
+  String get readerNoticeInvalidUtf8 =>
+      'このファイルは有効な UTF-8 ではありません。一部の文字を置き換えました。';
+
+  @override
+  String get readerNoticeFrontMatterUnparsed =>
+      'front matter が単純なキー値形式ではないため、記述どおりに表示しています。';
+
+  @override
+  String get readerNoticeMdxBailOut => '解釈できない MDX があるため、ソースとして表示しています。';
+
+  @override
+  String get readerNoticePlainTextFallback =>
+      'この文書を解析できなかったため、プレーンテキストとして表示しています。';
+
+  @override
+  String get readerNoticeLargeDocument => '大きな文書です。一部の機能が通常より遅くなる場合があります。';
 }

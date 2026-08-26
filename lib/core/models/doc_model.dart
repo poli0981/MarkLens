@@ -11,6 +11,7 @@ class DocModel {
   /// Creates a parsed document.
   const DocModel({
     required this.path,
+    required this.rawSource,
     required this.sanitizedSource,
     required this.outline,
     required this.blocks,
@@ -22,17 +23,33 @@ class DocModel {
   /// the cache key and the session file (docs/07_FILES_AND_WATCH.md).
   final String path;
 
-  /// The Markdown handed to the renderer: front-matter removed, and for
-  /// `.mdx` files, JSX already transformed to inert placeholders.
+  /// The file exactly as decoded: BOM stripped, front matter still present,
+  /// nothing rewritten.
+  ///
+  /// This is what File → Copy entire document copies (`docs/06_UI_UX.md`).
+  /// [sanitizedSource] cannot serve that purpose despite what doc 06 first
+  /// said: it has the front matter lifted out and block HTML rewritten, so
+  /// copying it would silently drop the user's front matter. A lossily decoded
+  /// file carries U+FFFD here, in place of the bytes that were not UTF-8.
+  final String rawSource;
+
+  /// The Markdown handed to the renderer: front-matter removed, block HTML
+  /// rewritten into inert fenced blocks, and for `.mdx` files, JSX transformed
+  /// to inert placeholders.
   ///
   /// The renderer never sees the raw file, so it can never be handed anything
-  /// executable (CLAUDE.md rule 2).
+  /// executable (CLAUDE.md rule 2). It is also the string [blocks] indexes.
   final String sanitizedSource;
 
   /// Headings, in document order.
   final Outline outline;
 
-  /// Source line ranges of every top-level block, in document order.
+  /// Every top-level block, in the order the renderer builds them.
+  ///
+  /// One entry per top-level node of the parse, so `blocks[i]` corresponds to
+  /// the renderer's `children[2i]` (`docs/01_TECH_STACK.md`). May be empty: an
+  /// empty file has no blocks, and neither does one containing only blank
+  /// lines or only link-reference definitions.
   final List<SourceBlock> blocks;
 
   /// Parsed leading `---` block, or `null` when the document has none.
@@ -44,11 +61,21 @@ class DocModel {
   final List<DocNotice> notices;
 }
 
-/// A top-level block of the source, located by line and byte offset.
+/// A top-level block of the source, located by line and character offset.
 ///
 /// The `markdown` package's AST carries no source positions, so the pipeline
 /// builds this index itself. It is what search hits and `#anchor` jumps aim
 /// at — see `docs/04_MARKDOWN_PIPELINE.md`.
+///
+/// **Every position here indexes [DocModel.sanitizedSource]**, not the raw
+/// file: that is the exact string the renderer parses, so it is the only one
+/// whose offsets can line up with the widgets the reader scrolls to. The two
+/// strings differ by the front matter and by any rewritten block HTML.
+///
+/// Blocks partition the source — consecutive blocks meet exactly, and the last
+/// one runs to the end — so every offset falls inside exactly one block. The
+/// one exception is the footnote section the parser synthesizes at the end of a
+/// document with footnotes: it has no source of its own and spans nothing.
 class SourceBlock {
   /// Creates a block spanning [startLine]–[endLine].
   const SourceBlock({

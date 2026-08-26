@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
+import 'package:marklens/core/markdown/markdown_flavor.dart';
 import 'package:marklens/core/models/doc_model.dart';
 import 'package:marklens/features/reader/rendering/markdown_renderer.dart';
 
@@ -20,9 +21,11 @@ import 'package:marklens/features/reader/rendering/markdown_renderer.dart';
 ///   *not* safe, because an empty heading is a real block that also renders as
 ///   one. Index arithmetic (`sourceBlock[i] -> children[2i]`) is the only
 ///   correct mapping.
-/// - **It emits nothing at all for block HTML.** The "Raw HTML (not rendered)"
-///   box in `docs/04_MARKDOWN_PIPELINE.md` has to be produced upstream, in
-///   `core/markdown/`, before the renderer ever sees the document.
+/// - **It emits nothing at all for block HTML.** The content is deleted, not
+///   escaped, so `RawBlockRewriter` in `core/markdown/` rewrites every region
+///   into a fenced block before the document reaches here. That is also what
+///   keeps the `2N-1` arithmetic above true: a root-level text node is one
+///   block to us and zero children to the renderer.
 class FlutterMarkdownPlusRenderer implements MarkdownRenderer {
   /// Creates the reader renderer.
   const FlutterMarkdownPlusRenderer({this.controller, this.onBlockCount});
@@ -44,11 +47,21 @@ class FlutterMarkdownPlusRenderer implements MarkdownRenderer {
 }
 
 class _BlockListMarkdown extends MarkdownWidget {
-  const _BlockListMarkdown({
+  // Not const: `markdownExtensionSet` cannot be, because the package builds
+  // `ExtensionSet.gitHubFlavored` as a static final. Naming the set is worth
+  // more than a const constructor on one private widget.
+  _BlockListMarkdown({
     required super.data,
     this.controller,
     this.onBlockCount,
-  }) : super(imageBuilder: _placeholderImage, extensionSet: null);
+  }) : super(
+         imageBuilder: _placeholderImage,
+         // Named, not left to the package's `?? gitHubFlavored` fallback: the
+         // pipeline parses the same source with the same set to build the
+         // block index, and a silent divergence here would break every anchor
+         // jump. One constant, read by both sides.
+         extensionSet: markdownExtensionSet,
+       );
 
   final ScrollController? controller;
   final void Function(int count)? onBlockCount;

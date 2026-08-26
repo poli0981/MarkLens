@@ -121,4 +121,24 @@ class AppLocalizationsEn extends AppLocalizations {
   String menuNotImplemented(String item) {
     return '$item is not wired up yet';
   }
+
+  @override
+  String get readerNoticeInvalidUtf8 =>
+      'This file is not valid UTF-8. Some characters were replaced.';
+
+  @override
+  String get readerNoticeFrontMatterUnparsed =>
+      'The front matter is not simple key/value lines, so it is shown as written.';
+
+  @override
+  String get readerNoticeMdxBailOut =>
+      'Some MDX could not be interpreted and is shown as source.';
+
+  @override
+  String get readerNoticePlainTextFallback =>
+      'This document could not be parsed and is shown as plain text.';
+
+  @override
+  String get readerNoticeLargeDocument =>
+      'This is a large document. Some features may be slower than usual.';
 }

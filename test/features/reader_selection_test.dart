@@ -1,10 +1,11 @@
+import 'dart:convert';
+
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:marklens/core/markdown/pipeline.dart';
 import 'package:marklens/core/models/doc_model.dart';
-import 'package:marklens/core/models/outline.dart';
 import 'package:marklens/features/reader/rendering/flutter_markdown_plus_renderer.dart';
 
 /// Selection and copy quality — a release gate
@@ -184,13 +185,14 @@ void main() {
   });
 }
 
-DocModel _doc(String source) => DocModel(
+// The whole model comes from the pipeline rather than being hand-assembled,
+// so this gate exercises the same blocks the reader will actually get. Note
+// utf8.encode, not codeUnits: the pipeline takes bytes, and code units are
+// UTF-16 — identical only while the fixture stays ASCII.
+DocModel _doc(String source) => const MarkdownPipeline().parse(
   path: 'test.md',
-  sanitizedSource: source,
-  outline: Outline.empty,
-  blocks: const MarkdownPipeline()
-      .parse(path: 'test.md', bytes: source.codeUnits, isMdx: false)
-      .blocks,
+  bytes: utf8.encode(source),
+  isMdx: false,
 );
 
 Future<void> _pump(

@@ -120,4 +120,24 @@ class AppLocalizationsVi extends AppLocalizations {
   String menuNotImplemented(String item) {
     return '$item chưa được nối';
   }
+
+  @override
+  String get readerNoticeInvalidUtf8 =>
+      'Tệp này không phải UTF-8 hợp lệ. Một số ký tự đã được thay thế.';
+
+  @override
+  String get readerNoticeFrontMatterUnparsed =>
+      'Phần front matter không phải các dòng khóa/giá trị đơn giản nên được hiển thị nguyên văn.';
+
+  @override
+  String get readerNoticeMdxBailOut =>
+      'Một số đoạn MDX không thể diễn giải và được hiển thị dưới dạng mã nguồn.';
+
+  @override
+  String get readerNoticePlainTextFallback =>
+      'Không thể phân tích tài liệu này nên nó được hiển thị dưới dạng văn bản thuần.';
+
+  @override
+  String get readerNoticeLargeDocument =>
+      'Đây là tài liệu lớn. Một số tính năng có thể chậm hơn bình thường.';
 }

@@ -33,5 +33,10 @@
   "menuThirdPartyLicenses": "サードパーティライセンス",
   "menuExportLog": "診断ログを書き出す…",
   "menuAbout": "MarkLens について",
-  "menuNotImplemented": "{item} はまだ接続されていません"
+  "menuNotImplemented": "{item} はまだ接続されていません",
+  "readerNoticeInvalidUtf8": "このファイルは有効な UTF-8 ではありません。一部の文字を置き換えました。",
+  "readerNoticeFrontMatterUnparsed": "front matter が単純なキー値形式ではないため、記述どおりに表示しています。",
+  "readerNoticeMdxBailOut": "解釈できない MDX があるため、ソースとして表示しています。",
+  "readerNoticePlainTextFallback": "この文書を解析できなかったため、プレーンテキストとして表示しています。",
+  "readerNoticeLargeDocument": "大きな文書です。一部の機能が通常より遅くなる場合があります。"
 }

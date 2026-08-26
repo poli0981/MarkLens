@@ -72,11 +72,22 @@ void main() {
           isMdx: relative.endsWith('.mdx'),
         );
         expect(doc.path, relative);
-        expect(
-          doc.blocks,
-          isNotEmpty,
-          reason: 'every document needs at least one block to scroll to',
-        );
+        // Not "at least one block": an empty file, a file of blank lines and
+        // a file of nothing but link reference definitions all legitimately
+        // render as nothing. What must hold for every document is that the
+        // blocks partition the source the renderer is given, so no offset is
+        // left with nowhere to scroll to.
+        if (doc.blocks.isNotEmpty) {
+          expect(doc.blocks.first.startOffset, 0);
+          for (var i = 0; i < doc.blocks.length - 1; i++) {
+            expect(
+              doc.blocks[i].endOffset,
+              doc.blocks[i + 1].startOffset,
+              reason: 'blocks $i and ${i + 1} leave a gap in the source',
+            );
+          }
+          expect(doc.blocks.last.endOffset, doc.sanitizedSource.length);
+        }
       });
     }
   });

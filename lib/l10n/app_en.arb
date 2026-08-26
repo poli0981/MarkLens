@@ -147,5 +147,25 @@
         "example": "Open Folder…"
       }
     }
+  },
+  "readerNoticeInvalidUtf8": "This file is not valid UTF-8. Some characters were replaced.",
+  "@readerNoticeInvalidUtf8": {
+    "description": "Notice bar for DocNoticeKind.invalidUtf8 (docs/04 stage 1)."
+  },
+  "readerNoticeFrontMatterUnparsed": "The front matter is not simple key/value lines, so it is shown as written.",
+  "@readerNoticeFrontMatterUnparsed": {
+    "description": "Notice bar for DocNoticeKind.frontMatterUnparsed (docs/04 stage 2)."
+  },
+  "readerNoticeMdxBailOut": "Some MDX could not be interpreted and is shown as source.",
+  "@readerNoticeMdxBailOut": {
+    "description": "Notice bar for DocNoticeKind.mdxBailOut. Bailing out is correct behaviour, not an error (docs/04)."
+  },
+  "readerNoticePlainTextFallback": "This document could not be parsed and is shown as plain text.",
+  "@readerNoticePlainTextFallback": {
+    "description": "Notice bar for DocNoticeKind.plainTextFallback (CLAUDE.md rule 9)."
+  },
+  "readerNoticeLargeDocument": "This is a large document. Some features may be slower than usual.",
+  "@readerNoticeLargeDocument": {
+    "description": "Notice bar for DocNoticeKind.largeDocument, over the 10 MB threshold (docs/04)."
   }
 }

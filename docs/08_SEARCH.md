@@ -12,6 +12,14 @@ search over the document source; each hit maps to its block index → scroll +
 in-block highlight. Matches inside front-matter and MDX placeholder raw
 sections count (they're readable content).
 
+**Which string is searched.** `DocModel.sanitizedSource` — the same string
+`SourceBlock` indexes (doc 04), so a hit offset resolves to a block with no
+translation step. Front-matter matches therefore do not come from this search:
+the front-matter panel is its own surface and searches `FrontMatter.raw`, and a
+hit there scrolls the panel rather than the block list. A raw-to-sanitized
+offset map is deliberately out of scope; it would have to be rebuilt every time
+the MDX sanitizer changed a length, for a payoff of one shared match counter.
+
 ## Search open files — `Ctrl+Shift+F`
 
 Panel replacing the sidebar: query + case toggle, results grouped by file

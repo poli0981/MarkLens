@@ -29,7 +29,25 @@ All notable changes to MarkLens are documented here. Format follows
   fps and first-paint budgets, and a manual `watch-observation` workflow that
   records platform watcher behaviour on both OSes.
 
+- `core/markdown/` completed for M1: front-matter splitting, the block index,
+  the heading outline with GitHub slugs, and a block-HTML pre-pass. The
+  pipeline now produces a real `DocModel` instead of three placeholders.
+- Block HTML — and block-level `<Component>` tags in `.mdx`, which CommonMark
+  classifies the same way — is rewritten into an inert fenced block instead of
+  being deleted without trace by the renderer.
+- `DocModel.rawSource`, the file exactly as decoded, so File → Copy entire
+  document copies the whole document rather than a version with the front
+  matter stripped.
+- One pinned Markdown flavour shared by `core/markdown/` and the renderer, so
+  the two parses cannot silently disagree about where blocks begin.
+- ARB strings (en/vi/ja) for every `DocNoticeKind`, held to the enum by an
+  exhaustive switch so a new kind without a translation fails to compile.
+
 ### Changed
+- `DocModel.blocks` may now be empty. "Every document has at least one block"
+  was not true: an empty file, a file of blank lines and a file of nothing but
+  link-reference definitions all render as nothing, and the block list has to
+  match the renderer's child list exactly.
 - `MarkdownRenderer` moved from `core/markdown/` to
   `features/reader/rendering/`. Rule 3 (core is pure Dart) and rule 6 (one
   renderer seam) pointed at the same directory, which no renderer package can
