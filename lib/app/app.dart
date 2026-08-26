@@ -3,14 +3,14 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:marklens/app/chrome.dart';
-import 'package:marklens/app/documents.dart';
 import 'package:marklens/app/menu/app_menu_bar.dart';
 import 'package:marklens/app/providers.dart';
 import 'package:marklens/app/shortcuts.dart';
 import 'package:marklens/app/theme/app_theme.dart';
 import 'package:marklens/core/files/extension_registry.dart';
 import 'package:marklens/features/reader/reader_view.dart';
+import 'package:marklens/features/sidebar/sidebar_tree.dart';
+import 'package:marklens/features/tabs/tab_strip.dart';
 import 'package:marklens/l10n/gen/app_localizations.dart';
 
 /// The application shell.
@@ -116,9 +116,8 @@ class _AppShellState extends ConsumerState<AppShell> {
 
   /// File → Open Files.
   ///
-  /// Opens the first document chosen. Opening several at once needs tabs,
-  /// which are M1 step 6; until then the rest are ignored rather than
-  /// silently replacing each other.
+  /// Everything chosen is opened; the first becomes the active tab
+  /// (`docs/03_DATA_FLOW.md`).
   Future<void> _openFiles() async {
     final files = ref.read(fileServiceProvider);
     final paths = await ref
@@ -128,14 +127,59 @@ class _AppShellState extends ConsumerState<AppShell> {
       return;
     }
 
-    ref.read(activeDocumentProvider.notifier).open(paths.first);
-    final failed = ref.read(activeDocumentProvider).failedPath;
-    if (failed != null && mounted) {
+    // A path that is not a readable file never reaches the open set at all,
+    // so the count is the only way to tell that something the user picked did
+    // not open.
+    final resolved = ref.read(openSetProvider.notifier).openPaths(paths);
+    if (resolved < paths.length && mounted) {
       _notify(
         AppLocalizations.of(
           context,
-        ).readerOpenFailed(ExtensionRegistry.basenameOf(failed)),
+        ).readerOpenFailed(ExtensionRegistry.basenameOf(paths.first)),
       );
+    }
+  }
+
+  /// File → Open Folder.
+  ///
+  /// A scan over the cap opens nothing and asks first — doc 07 is explicit
+  /// that a folder is never silently truncated.
+  Future<void> _openFolder() async {
+    final root = await ref.read(filePickerPromptProvider).pickFolder();
+    if (!mounted || root == null) {
+      return;
+    }
+
+    final openSet = ref.read(openSetProvider.notifier)..openFolder(root);
+    final capped = ref.read(openSetProvider).capExceededRoot;
+    if (capped == null || !mounted) {
+      return;
+    }
+
+    final l10n = AppLocalizations.of(context);
+    final cap = ref.read(fileServiceProvider).fileCap;
+    final accepted = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(l10n.openFolderCapTitle(cap)),
+        content: Text(l10n.openFolderCapBody(cap)),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text(l10n.commonCancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: Text(l10n.openFolderCapAccept(cap)),
+          ),
+        ],
+      ),
+    );
+
+    if (accepted ?? false) {
+      openSet.acceptCappedScan();
+    } else {
+      openSet.cancelCappedScan();
     }
   }
 
@@ -198,16 +242,18 @@ class _AppShellState extends ConsumerState<AppShell> {
               return null;
             },
           ),
-          // The rest of the doc 06 inventory is bound but not yet implemented.
-          // Binding them now is the point: S4 is checking that the whole set
-          // reaches its actions, not that the actions do anything.
           OpenFilesIntent: CallbackAction<OpenFilesIntent>(
             onInvoke: (_) {
               unawaited(_openFiles());
               return null;
             },
           ),
-          OpenFolderIntent: _todo(l10n.menuOpenFolder),
+          OpenFolderIntent: CallbackAction<OpenFolderIntent>(
+            onInvoke: (_) {
+              unawaited(_openFolder());
+              return null;
+            },
+          ),
           ReloadDocumentIntent: CallbackAction<ReloadDocumentIntent>(
             onInvoke: (_) {
               ref.read(activeDocumentProvider.notifier).reload();
@@ -220,9 +266,29 @@ class _AppShellState extends ConsumerState<AppShell> {
               return null;
             },
           ),
-          CloseTabIntent: _todo(l10n.menuCloseTab),
-          ReopenTabIntent: _todo(l10n.menuCloseTab),
-          CycleTabIntent: _todo(l10n.menuFile),
+          CloseTabIntent: CallbackAction<CloseTabIntent>(
+            onInvoke: (_) {
+              final active = ref.read(openSetProvider).activeIdentity;
+              if (active != null) {
+                ref.read(openSetProvider.notifier).close(active);
+              }
+              return null;
+            },
+          ),
+          ReopenTabIntent: CallbackAction<ReopenTabIntent>(
+            onInvoke: (_) {
+              ref.read(openSetProvider.notifier).reopenClosed();
+              return null;
+            },
+          ),
+          CycleTabIntent: CallbackAction<CycleTabIntent>(
+            onInvoke: (intent) {
+              ref.read(openSetProvider.notifier).cycle(intent.forward ? 1 : -1);
+              return null;
+            },
+          ),
+          // The rest of the doc 06 inventory is bound but not yet implemented.
+          // Binding them keeps the whole set reachable (spike S4).
           QuickSwitcherIntent: _todo(l10n.menuFile),
           FindInFileIntent: _todo(l10n.menuFile),
           FindAcrossFilesIntent: _todo(l10n.menuFile),
@@ -236,11 +302,12 @@ class _AppShellState extends ConsumerState<AppShell> {
               children: <Widget>[
                 if (!chrome.fullScreen)
                   AppMenuBar(fileMenuController: _fileMenu),
+                const TabStrip(),
                 Expanded(
                   child: Row(
                     children: <Widget>[
                       if (chrome.sidebarVisible)
-                        const _Panel(label: 'Sidebar', width: 220),
+                        const SizedBox(width: 240, child: SidebarTree()),
                       Expanded(
                         child: Focus(
                           focusNode: _body,

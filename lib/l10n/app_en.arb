@@ -207,5 +207,51 @@
         "example": "README.md"
       }
     }
+  },
+  "sidebarEmpty": "No documents open.",
+  "@sidebarEmpty": {
+    "description": "Sidebar placeholder before anything has been opened."
+  },
+  "sidebarPin": "Pin",
+  "@sidebarPin": {
+    "description": "Sidebar row menu: keep this document at the left of the tab strip."
+  },
+  "sidebarUnpin": "Unpin",
+  "@sidebarUnpin": {
+    "description": "Sidebar row menu: stop pinning this document."
+  },
+  "openFolderCapTitle": "That folder holds more than {count} documents",
+  "@openFolderCapTitle": {
+    "description": "Dialog title when a folder scan hits the soft cap (docs/07).",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "1000"
+      }
+    }
+  },
+  "openFolderCapBody": "MarkLens can open the first {count} of them. Opening the rest would make the sidebar and the session slower than they are worth.",
+  "@openFolderCapBody": {
+    "description": "Dialog body for the folder cap.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "1000"
+      }
+    }
+  },
+  "openFolderCapAccept": "Open first {count}",
+  "@openFolderCapAccept": {
+    "description": "Confirm button for the folder cap dialog.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "1000"
+      }
+    }
+  },
+  "commonCancel": "Cancel",
+  "@commonCancel": {
+    "description": "Generic cancel button."
   }
 }

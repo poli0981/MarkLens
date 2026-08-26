@@ -63,6 +63,9 @@ All notable changes to MarkLens are documented here. Format follows
 - The eight doc 06 theme tokens, light and dark, with their WCAG contrast
   asserted by a test rather than judged by eye. This closes the last open
   criterion of spike S1, which was waiting on them.
+- **Sidebar and tabs**: an open set with pinning, MRU cycling, reopen, the
+  missing badge and the changed-on-disk dot. Opening a folder groups its files
+  under a header and asks before opening more than the cap allows.
 
 ### Changed
 - The parsed-document cache key is `identity + mtime + size +

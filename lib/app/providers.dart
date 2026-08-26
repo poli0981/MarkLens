@@ -1,3 +1,12 @@
+/// Composition root: core services are constructed here and exposed as
+/// providers. Features talk to each other only through this file
+/// (`docs/02_ARCHITECTURE.md`).
+///
+/// The app-level state a feature legitimately needs is re-exported rather than
+/// redeclared, so `features/` still has exactly one door into `app/` while the
+/// state itself stays in the file it belongs to.
+library;
+
 import 'dart:io';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -9,9 +18,12 @@ import 'package:marklens/core/session/session_store.dart';
 import 'package:marklens/core/settings/settings_store.dart';
 import 'package:path_provider/path_provider.dart';
 
-/// Composition root: core services are constructed here and exposed as
-/// providers. Features talk to each other only through this file
-/// (`docs/02_ARCHITECTURE.md`).
+export 'package:marklens/app/chrome.dart'
+    show ChromeController, ChromeState, chromeProvider;
+export 'package:marklens/app/documents.dart'
+    show ActiveDocument, ActiveDocumentController, activeDocumentProvider;
+export 'package:marklens/app/open_set.dart'
+    show OpenSetController, openSetProvider;
 
 /// The app's own config directory — `session.json` and `settings.json` live
 /// here, and it is the only place MarkLens ever writes (CLAUDE.md rule 1).

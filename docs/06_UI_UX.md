@@ -66,7 +66,12 @@ entirely — measured in `docs/spike-results/S4-menubar.md`.
 
 ## Sidebar
 
-Two presentations: **flat list** for ad-hoc files, **tree** per open root.
+Two presentations, chosen by what is open rather than by a switch: a **flat
+list** for files opened one at a time, and a **group per open root** for
+folders. A file below a root shows its folder after the name; a loose file
+shows its parent's name, so two `README.md` from different projects are
+distinguishable at a glance. A file is claimed by exactly one root, so opening
+a folder and then a folder inside it does not list anything twice.
 Virtualized (`ListView.builder`) — 1,000 entries must scroll cold without
 jank. Rows: name, subtle relative path, badges (`missing`, `pinned`,
 `stale`). Context menu: Reveal in file manager · Pin · Close. Natural sort

@@ -172,4 +172,31 @@ class AppLocalizationsEn extends AppLocalizations {
   String readerOpenFailed(String name) {
     return '$name could not be opened.';
   }
+
+  @override
+  String get sidebarEmpty => 'No documents open.';
+
+  @override
+  String get sidebarPin => 'Pin';
+
+  @override
+  String get sidebarUnpin => 'Unpin';
+
+  @override
+  String openFolderCapTitle(int count) {
+    return 'That folder holds more than $count documents';
+  }
+
+  @override
+  String openFolderCapBody(int count) {
+    return 'MarkLens can open the first $count of them. Opening the rest would make the sidebar and the session slower than they are worth.';
+  }
+
+  @override
+  String openFolderCapAccept(int count) {
+    return 'Open first $count';
+  }
+
+  @override
+  String get commonCancel => 'Cancel';
 }

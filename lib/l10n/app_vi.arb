@@ -45,5 +45,12 @@
   "readerFrontMatterTitle": "Front matter",
   "readerNoticeDismiss": "Đóng",
   "readerNoticeMore": "{count, plural, other{Thêm {count} thông báo}}",
-  "readerOpenFailed": "Không mở được {name}."
+  "readerOpenFailed": "Không mở được {name}.",
+  "sidebarEmpty": "Chưa mở tài liệu nào.",
+  "sidebarPin": "Ghim",
+  "sidebarUnpin": "Bỏ ghim",
+  "openFolderCapTitle": "Thư mục đó có hơn {count} tài liệu",
+  "openFolderCapBody": "MarkLens có thể mở {count} tài liệu đầu tiên. Mở hết sẽ làm sidebar và phiên làm việc chậm hơn mức đáng.",
+  "openFolderCapAccept": "Mở {count} đầu tiên",
+  "commonCancel": "Hủy"
 }

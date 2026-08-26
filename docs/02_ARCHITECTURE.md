@@ -27,8 +27,8 @@ lib/
     shortcuts.dart           # Intents + Actions bindings (doc 06)
     theme/                   # tokens, light/dark ThemeData
   core/                      # PURE DART — no package:flutter, ever (rule 3)
-    models/                  # OpenedFile, DocModel, Outline, SessionState,
-                             # AppSettings, WatchEvent, SearchHit
+    models/                  # OpenedFile, OpenSet, DocModel, Outline,
+                             # SessionState, AppSettings, WatchEvent, SearchHit
     files/
       file_service.dart      # breadth-first scan, soft cap, identity, the
                              #   mtime+size tuple; read-only throughout

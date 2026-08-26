@@ -167,4 +167,31 @@ class AppLocalizationsJa extends AppLocalizations {
   String readerOpenFailed(String name) {
     return '$name を開けませんでした。';
   }
+
+  @override
+  String get sidebarEmpty => '開いている文書はありません。';
+
+  @override
+  String get sidebarPin => 'ピン留め';
+
+  @override
+  String get sidebarUnpin => 'ピン留めを解除';
+
+  @override
+  String openFolderCapTitle(int count) {
+    return 'このフォルダーには $count 件を超える文書があります';
+  }
+
+  @override
+  String openFolderCapBody(int count) {
+    return 'MarkLens は先頭の $count 件を開けます。すべて開くとサイドバーとセッションが見合わないほど遅くなります。';
+  }
+
+  @override
+  String openFolderCapAccept(int count) {
+    return '先頭の $count 件を開く';
+  }
+
+  @override
+  String get commonCancel => 'キャンセル';
 }

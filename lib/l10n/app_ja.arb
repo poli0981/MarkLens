@@ -45,5 +45,12 @@
   "readerFrontMatterTitle": "front matter",
   "readerNoticeDismiss": "閉じる",
   "readerNoticeMore": "{count, plural, other{他に {count} 件の通知}}",
-  "readerOpenFailed": "{name} を開けませんでした。"
+  "readerOpenFailed": "{name} を開けませんでした。",
+  "sidebarEmpty": "開いている文書はありません。",
+  "sidebarPin": "ピン留め",
+  "sidebarUnpin": "ピン留めを解除",
+  "openFolderCapTitle": "このフォルダーには {count} 件を超える文書があります",
+  "openFolderCapBody": "MarkLens は先頭の {count} 件を開けます。すべて開くとサイドバーとセッションが見合わないほど遅くなります。",
+  "openFolderCapAccept": "先頭の {count} 件を開く",
+  "commonCancel": "キャンセル"
 }

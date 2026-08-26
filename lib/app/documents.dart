@@ -5,7 +5,7 @@ import 'package:marklens/core/cache/doc_cache.dart';
 import 'package:marklens/core/models/doc_model.dart';
 import 'package:marklens/core/models/opened_file.dart';
 
-/// Which document the reader is showing.
+/// What the reader is showing.
 @immutable
 class ActiveDocument {
   /// Creates a state.
@@ -17,86 +17,100 @@ class ActiveDocument {
   /// The file's metadata, or `null` when nothing is open.
   final OpenedFile? file;
 
-  /// The parsed document, or `null` when nothing is open.
+  /// The parsed document, or `null` when nothing is open or it could not be
+  /// read.
   final DocModel? doc;
 
-  /// The path of the last open that failed, for the message.
+  /// The path of a document that could not be read at all.
   ///
-  /// A separate field rather than an error inside [doc]: a document that
-  /// could not be read at all is not a document with a notice, it is the
-  /// absence of one.
+  /// A separate field rather than a notice inside [doc]: a file that has gone
+  /// is not a document with a problem, it is the absence of one. The tab stays
+  /// with its `missing` badge (doc 07) while the reader shows nothing.
   final String? failedPath;
 
   /// Whether there is something to render.
   bool get hasDocument => doc != null;
 }
 
-/// Opens documents: metadata, bytes, cache, pipeline.
+/// Parses whichever document the open set has made active.
 ///
-/// This is the activation path of `docs/03_DATA_FLOW.md`, and the order is the
-/// point — a cache hit must not read the file again, and a parse must not
-/// happen twice for a document that has not changed.
+/// This is the activation path of `docs/03_DATA_FLOW.md`, and it is derived
+/// rather than driven: the open set decides *what* is showing, and this decides
+/// what that costs. Rebuilding only when the active document's identity or its
+/// `mtime + size` changes is what stops a pin, a scroll or another tab opening
+/// from re-parsing anything.
 class ActiveDocumentController extends Notifier<ActiveDocument> {
   @override
-  ActiveDocument build() => ActiveDocument.none;
+  ActiveDocument build() {
+    // A record, so the comparison is structural: watching the OpenEntry itself
+    // would rebuild on every unrelated change to the open set, and watching
+    // only the identity would miss a file changing underneath it.
+    final key = ref.watch(
+      openSetProvider.select((set) {
+        final entry = set.active;
+        return entry == null
+            ? null
+            : (
+                identity: entry.identity,
+                modified: entry.file.modified,
+                size: entry.file.size,
+                missing: entry.file.missing,
+              );
+      }),
+    );
+    if (key == null) {
+      return ActiveDocument.none;
+    }
 
-  /// Opens [path], parsing it unless the cache already has it.
-  ///
-  /// Reports failure through [ActiveDocument.failedPath] rather than throwing:
-  /// a file chosen from a dialog can be gone, unreadable or not a file at all
-  /// by the time it is opened, and none of those is worth an exception.
-  void open(String path) {
-    final files = ref.read(fileServiceProvider);
-    final entry = files.describe(path);
-    if (entry == null) {
-      state = ActiveDocument(failedPath: path);
-      return;
+    final file = ref.read(openSetProvider).active?.file;
+    return file == null ? ActiveDocument.none : _load(file);
+  }
+
+  ActiveDocument _load(OpenedFile file) {
+    if (file.missing) {
+      return ActiveDocument(file: file, failedPath: file.path);
     }
 
     final cache = ref.read(docCacheProvider);
-    final key = DocCache.keyFor(entry);
-    final cached = cache.get(key);
+    final cacheKey = DocCache.keyFor(file);
+    final cached = cache.get(cacheKey);
     if (cached != null) {
-      state = ActiveDocument(file: entry, doc: cached);
-      return;
+      return ActiveDocument(file: file, doc: cached);
     }
 
-    final bytes = files.readBytes(entry.path);
+    final bytes = ref.read(fileServiceProvider).readBytes(file.path);
     if (bytes == null) {
-      state = ActiveDocument(failedPath: path);
-      return;
+      return ActiveDocument(file: file, failedPath: file.path);
     }
 
     final doc = ref
         .read(markdownPipelineProvider)
         .parse(
-          path: entry.path,
+          path: file.path,
           bytes: bytes,
-          isMdx: files.registry.isMdx(entry.path),
+          isMdx: ref.read(fileServiceProvider).registry.isMdx(file.path),
         );
-    cache.put(key, doc);
-    state = ActiveDocument(file: entry, doc: doc);
+    cache.put(cacheKey, doc);
+    return ActiveDocument(file: file, doc: doc);
   }
 
   /// Re-reads the active document from disk, ignoring the cache.
   ///
-  /// File → Reload, and the watch handler once it lands. The cache entry is
-  /// invalidated by identity rather than by key, because the key it was stored
-  /// under describes the version that has just been replaced.
+  /// File → Reload, and the watch handler once it lands. The cache is
+  /// invalidated by identity rather than by key, because the key the document
+  /// was stored under describes the version that has just been replaced.
   void reload() {
-    final path = state.file?.path;
-    if (path == null) {
+    final identity = state.file?.identity;
+    if (identity == null) {
       return;
     }
-    final identity = state.file?.identity;
-    if (identity != null) {
-      ref.read(docCacheProvider).invalidate(identity);
-    }
-    open(path);
+    ref.read(docCacheProvider).invalidate(identity);
+    // Re-stat first: a reload after an external edit has a new mtime and size,
+    // and the cache key has to be the new one or the next activation serves
+    // the stale parse straight back.
+    ref.read(openSetProvider.notifier).refreshAll();
+    ref.invalidateSelf();
   }
-
-  /// Returns to the empty state.
-  void close() => state = ActiveDocument.none;
 }
 
 /// The active document provider.

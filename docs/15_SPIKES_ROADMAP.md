@@ -238,10 +238,18 @@ with its tests.
    Note the reader also had to take ownership of the document's selection
    scope. A `SelectionArea` inside the code block would end a drag at the top
    of that block, which is precisely what S2 made a release gate.
-6. **Sidebar and tabs**, talking to each other only through
-   `app/providers.dart`.
+6. **Sidebar and tabs** ✅ **Done.** Both are views of one `OpenSet`, and
+   neither imports the other. The models live in `core/models/open_set.dart`
+   and the controller in `app/`, because a feature may import a model but not
+   app state — the same split the theme tokens needed.
+
+   `app/providers.dart` now re-exports the app-level state a feature is
+   allowed to see, so `features/` still has exactly one door into `app/`
+   while the state stays in the file it belongs to.
 7. **`core/single_instance.dart` + CLI args** in `main.dart`, then session
    restore end to end — the last piece, because it needs all of the above.
+   Note `no_network_test` deliberately leaves `ServerSocket` off its forbidden
+   list, reserving the localhost forwarding socket for exactly this.
 
 The M1 gate is the charter's: cold start to restored session under 1.5 s, and
 the maintainer using it daily.

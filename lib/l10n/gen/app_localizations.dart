@@ -375,6 +375,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{name} could not be opened.'**
   String readerOpenFailed(String name);
+
+  /// Sidebar placeholder before anything has been opened.
+  ///
+  /// In en, this message translates to:
+  /// **'No documents open.'**
+  String get sidebarEmpty;
+
+  /// Sidebar row menu: keep this document at the left of the tab strip.
+  ///
+  /// In en, this message translates to:
+  /// **'Pin'**
+  String get sidebarPin;
+
+  /// Sidebar row menu: stop pinning this document.
+  ///
+  /// In en, this message translates to:
+  /// **'Unpin'**
+  String get sidebarUnpin;
+
+  /// Dialog title when a folder scan hits the soft cap (docs/07).
+  ///
+  /// In en, this message translates to:
+  /// **'That folder holds more than {count} documents'**
+  String openFolderCapTitle(int count);
+
+  /// Dialog body for the folder cap.
+  ///
+  /// In en, this message translates to:
+  /// **'MarkLens can open the first {count} of them. Opening the rest would make the sidebar and the session slower than they are worth.'**
+  String openFolderCapBody(int count);
+
+  /// Confirm button for the folder cap dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Open first {count}'**
+  String openFolderCapAccept(int count);
+
+  /// Generic cancel button.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get commonCancel;
 }
 
 class _AppLocalizationsDelegate

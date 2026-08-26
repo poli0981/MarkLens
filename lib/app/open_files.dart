@@ -9,6 +9,9 @@ import 'package:marklens/core/files/extension_registry.dart';
 abstract class FilePickerPrompt {
   /// The paths chosen, or an empty list when the dialog was cancelled.
   Future<List<String>> pickDocuments(ExtensionRegistry registry);
+
+  /// The folder chosen, or `null` when the dialog was cancelled.
+  Future<String?> pickFolder();
 }
 
 /// The real dialog.
@@ -33,4 +36,10 @@ class PlatformFilePickerPrompt implements FilePickerPrompt {
     // A cancelled dialog is an empty list, not a null.
     return <String>[for (final file in files) ?file.path];
   }
+
+  @override
+  Future<String?> pickFolder() => FilePicker.getDirectoryPath(
+    windowsOptions: const WindowsOptions(lockParentWindow: true),
+    linuxOptions: const LinuxOptions(lockParentWindow: true),
+  );
 }

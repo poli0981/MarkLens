@@ -14,7 +14,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:marklens/app/app.dart';
-import 'package:marklens/app/documents.dart';
 import 'package:marklens/app/open_files.dart';
 import 'package:marklens/app/providers.dart';
 import 'package:marklens/core/files/extension_registry.dart';
@@ -24,12 +23,19 @@ class _StubPrompt implements FilePickerPrompt {
   _StubPrompt(this.paths);
 
   List<String> paths;
+  String? folder;
   int calls = 0;
 
   @override
   Future<List<String>> pickDocuments(ExtensionRegistry registry) async {
     calls++;
     return paths;
+  }
+
+  @override
+  Future<String?> pickFolder() async {
+    calls++;
+    return folder;
   }
 }
 
@@ -113,6 +119,49 @@ void main() {
       );
     });
 
+    testWidgets('a bad path is reported even when something is already open', (
+      tester,
+    ) async {
+      final container = await pumpApp(tester);
+      await openFiles(tester);
+      expect(container.read(openSetProvider).entries, hasLength(1));
+
+      prompt.paths = <String>['${root.path}${Platform.pathSeparator}gone.md'];
+      await openFiles(tester);
+
+      expect(
+        find.textContaining('could not be opened'),
+        findsOneWidget,
+        reason:
+            'reporting only when nothing at all is open would make the second '
+            'bad path of a session silent',
+      );
+      expect(container.read(openSetProvider).entries, hasLength(1));
+    });
+
+    testWidgets('a file that vanishes keeps its tab and stops rendering', (
+      tester,
+    ) async {
+      final container = await pumpApp(tester);
+      await openFiles(tester);
+      expect(container.read(activeDocumentProvider).hasDocument, isTrue);
+
+      document.deleteSync();
+      container.read(openSetProvider.notifier).refreshAll();
+      await tester.pumpAndSettle();
+
+      final active = container.read(activeDocumentProvider);
+      expect(active.hasDocument, isFalse);
+      expect(active.failedPath, isNotNull);
+      expect(
+        container.read(openSetProvider).entries.single.file.missing,
+        isTrue,
+        reason:
+            'entries leave the session only when the user closes them '
+            '(docs/07)',
+      );
+    });
+
     testWidgets('a cancelled dialog changes nothing', (tester) async {
       final container = await pumpApp(tester);
       prompt.paths = <String>[];
@@ -130,9 +179,12 @@ void main() {
 
       await openFiles(tester);
 
-      final active = container.read(activeDocumentProvider);
-      expect(active.hasDocument, isFalse);
-      expect(active.failedPath, isNotNull);
+      expect(container.read(activeDocumentProvider).hasDocument, isFalse);
+      expect(
+        container.read(openSetProvider).entries,
+        isEmpty,
+        reason: 'a path that is not a readable file never becomes a tab',
+      );
       expect(
         find.textContaining('could not be opened'),
         findsOneWidget,
@@ -151,9 +203,11 @@ void main() {
       final first = container.read(activeDocumentProvider).doc;
       expect(container.read(docCacheProvider).length, 1);
 
-      container.read(activeDocumentProvider.notifier)
-        ..close()
-        ..open(document.path);
+      // Switch away and back: the second activation must come out of the
+      // cache rather than parsing the same bytes again.
+      container.read(openSetProvider.notifier)
+        ..close(container.read(openSetProvider).activeIdentity!)
+        ..openPaths(<String>[document.path]);
 
       expect(
         identical(container.read(activeDocumentProvider).doc, first),

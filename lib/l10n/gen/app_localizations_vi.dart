@@ -170,4 +170,31 @@ class AppLocalizationsVi extends AppLocalizations {
   String readerOpenFailed(String name) {
     return 'Không mở được $name.';
   }
+
+  @override
+  String get sidebarEmpty => 'Chưa mở tài liệu nào.';
+
+  @override
+  String get sidebarPin => 'Ghim';
+
+  @override
+  String get sidebarUnpin => 'Bỏ ghim';
+
+  @override
+  String openFolderCapTitle(int count) {
+    return 'Thư mục đó có hơn $count tài liệu';
+  }
+
+  @override
+  String openFolderCapBody(int count) {
+    return 'MarkLens có thể mở $count tài liệu đầu tiên. Mở hết sẽ làm sidebar và phiên làm việc chậm hơn mức đáng.';
+  }
+
+  @override
+  String openFolderCapAccept(int count) {
+    return 'Mở $count đầu tiên';
+  }
+
+  @override
+  String get commonCancel => 'Hủy';
 }
