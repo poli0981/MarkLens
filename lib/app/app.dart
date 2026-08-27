@@ -103,6 +103,8 @@ class _AppShellState extends ConsumerState<AppShell> with WindowListener {
     ref.read(readerScrollProvider).onScrollSettled = (identity, ratio) =>
         ref.read(openSetProvider.notifier).recordScroll(identity, ratio);
 
+    ref.read(watchCoordinatorProvider).start();
+
     if (!mounted) {
       return;
     }
@@ -147,6 +149,11 @@ class _AppShellState extends ConsumerState<AppShell> with WindowListener {
 
   @override
   void onWindowUnmaximize() => unawaited(_recordGeometry());
+
+  /// The cheap mtime sweep of `docs/03_DATA_FLOW.md`, which covers whatever
+  /// the watcher missed — and is the whole story when watching is off.
+  @override
+  void onWindowFocus() => ref.read(watchCoordinatorProvider).sweep();
 
   @override
   void onWindowClose() => unawaited(_shutDown());

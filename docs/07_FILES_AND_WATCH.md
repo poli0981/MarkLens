@@ -75,7 +75,31 @@ reintroduce the same-tick rewrite the pair exists to catch. Note "parsed", not
 
   Full event tables: `docs/spike-results/S5-watcher.md`.
 - Watching off (setting) or watcher failure → degrade to the focus-sweep
-  path + per-tab `stale` badge. Never a hard error.
+  path + per-tab `stale` badge. Never a hard error. "Off" means **no watcher is
+  started at all**, not a flag consulted downstream; and one directory that
+  fails to open leaves every other watcher running.
+- The focus sweep is `onWindowFocus` on the shell: `refreshAll()` plus a
+  `flush()` of anything still inside its debounce window.
+
+### Accepted gap: a file added to an open root does not join the open set
+
+The watcher hears about it — the root's watcher is recursive — but the
+coordinator only acts on paths that are already open, so a new file appears in
+the sidebar the next time the folder is opened rather than the moment it is
+created. Recorded rather than fixed: doing it properly means re-running the scan
+with its cap and its natural sort on every event, and "the folder I opened grew
+a file" is not a case the charter's daily workflow leans on. No document claimed
+otherwise, so this is a gap being written down rather than a divergence.
+
+### Which piece does what
+
+`WatchService` (pure Dart, `core/watch/`) owns the watchers and the filtering;
+`WatchNormalizer` owns the debounce and the classification; `WatchLink` in
+`app/` is the test seam, exactly as `WindowLink` is for the window; and
+`WatchCoordinator`, also in `app/`, turns a normalized event into a change to
+the open set. No feature is involved in any of it — watching is cross-cutting
+wiring, and the sidebar, tab strip and reader simply observe the state that
+changes. Every badge it raises was already being drawn.
 
 ## Encoding & size
 

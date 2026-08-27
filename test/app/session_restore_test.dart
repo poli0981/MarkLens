@@ -69,6 +69,10 @@ void main() {
         // return a future that never completes there — which hangs
         // pumpAndSettle rather than failing.
         windowLinkProvider.overrideWithValue(const NoWindowLink()),
+        // Real watchers on a temp directory would race real timers
+        // against the test binding's clock, the same reason
+        // NoWindowLink exists.
+        watchLinkProvider.overrideWithValue(const NoWatchLink()),
         // A short debounce, so a test does not have to wait a real second for
         // the write — and so no timer is left pending when it ends. The
         // one-second default is asserted in session_store_test.
