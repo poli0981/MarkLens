@@ -73,6 +73,11 @@ The shell listens to the open set and the chrome as a whole rather than hooking
 each trigger, because the cost of a missed hook is a lost session and the cost
 of an extra call is nothing — the store coalesces a second of them into one
 write.
+
+The scroll trigger is `BlockScroller.onScrollSettled`, wired in the shell. It is
+also the first caller `OpenSetController.recordScroll` has ever had:
+`SessionDocument.scroll` round-tripped through JSON from M1 onwards with nothing
+at either end, so restoring a reading position only started working at M2.
 → debounce 1,000 ms → serialize SessionState
 → write session.json.tmp → fsync → rename over session.json
 ```

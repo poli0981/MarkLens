@@ -97,6 +97,11 @@ class _AppShellState extends ConsumerState<AppShell> with WindowListener {
     // window (docs/03). They are treated exactly like command-line paths.
     _forwarded = ref.read(forwardedPathsProvider).listen(_onForwarded);
 
+    // Doc 03's "scroll settle" session trigger, and the first caller
+    // `recordScroll` has ever had.
+    ref.read(readerScrollProvider).onScrollSettled = (identity, ratio) =>
+        ref.read(openSetProvider.notifier).recordScroll(identity, ratio);
+
     if (!mounted) {
       return;
     }
@@ -482,12 +487,17 @@ class _Body extends ConsumerWidget {
         ),
       );
     }
+    final entry = ref.watch(
+      openSetProvider.select((set) => set.active),
+    );
     return ReaderView(
       doc: doc,
+      scroller: ref.watch(readerScrollProvider),
+      identity: entry?.identity,
+      restoreScroll: entry?.scroll ?? 0,
       fontScale: reading.fontScale,
       contentMaxWidth: reading.contentMaxWidth.toDouble(),
       frontMatterDisplay: reading.frontMatter,
-      onPosition: ref.read(readerPositionProvider.notifier).record,
     );
   }
 }

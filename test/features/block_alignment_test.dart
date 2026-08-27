@@ -62,7 +62,105 @@ Future<int> _childCount(WidgetTester tester, DocModel doc) async {
 /// What `2N-1` means when `N` can be zero.
 int _expectedChildren(int blocks) => blocks == 0 ? 0 : 2 * blocks - 1;
 
+/// Builds [doc] recording which block indices the wrapper was handed, and the
+/// widget it was handed for each.
+Future<({List<int> order, Map<int, Widget> widgets})> _wrapped(
+  WidgetTester tester,
+  DocModel doc,
+) async {
+  final order = <int>[];
+  final widgets = <int, Widget>{};
+
+  tester.view
+    ..physicalSize = const Size(1200, 2400)
+    ..devicePixelRatio = 1;
+  addTearDown(tester.view.reset);
+
+  await tester.pumpWidget(
+    MaterialApp(
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      home: Scaffold(
+        body: Builder(
+          builder: (context) => const FlutterMarkdownPlusRenderer().build(
+            context,
+            doc,
+            wrapBlock: (index, child) {
+              order.add(index);
+              widgets[index] = child;
+              return child;
+            },
+          ),
+        ),
+      ),
+    ),
+  );
+  await tester.pump();
+  return (order: order, widgets: widgets);
+}
+
 void main() {
+  group('the block wrapper addresses blocks, not children', () {
+    testWidgets('once per source block, in document order', (tester) async {
+      final doc = pipeline.parse(
+        path: 'wrapped.md',
+        bytes: utf8.encode('# One\n\nTwo\n\n- three\n\n> four\n'),
+        isMdx: false,
+      );
+
+      final result = await _wrapped(tester, doc);
+
+      expect(
+        result.order,
+        List<int>.generate(doc.blocks.length, (i) => i),
+        reason:
+            'one call per DocModel.blocks entry, in order — the wrapper must '
+            'never be handed a spacer, and must never skip a block',
+      );
+    });
+
+    testWidgets('handing back the same widget the renderer would have', (
+      tester,
+    ) async {
+      final doc = pipeline.parse(
+        path: 'wrapped.md',
+        bytes: utf8.encode('# One\n\nTwo\n\n- three\n'),
+        isMdx: false,
+      );
+
+      final first = await _wrapped(tester, doc);
+      // A second identical build: the widget for block i must be the same one
+      // both times, or `children[2i]` is not a stable address to scroll to.
+      await tester.pumpWidget(const SizedBox());
+      final second = await _wrapped(tester, doc);
+
+      expect(second.order, first.order);
+      for (final index in first.order) {
+        expect(
+          second.widgets[index].runtimeType,
+          first.widgets[index].runtimeType,
+          reason: 'block $index changed shape between two builds',
+        );
+      }
+    });
+
+    testWidgets('a document with no blocks wraps nothing', (tester) async {
+      final doc = pipeline.parse(
+        path: 'empty.md',
+        bytes: utf8.encode('\n\n   \n'),
+        isMdx: false,
+      );
+      expect(
+        doc.blocks,
+        isEmpty,
+        reason: 'doc 04: "at least one block" is not an invariant',
+      );
+
+      final result = await _wrapped(tester, doc);
+      expect(result.order, isEmpty);
+    });
+  });
+
   group('every fixture lines up with the widgets it produces', () {
     for (final fixture in tortureFixtures()) {
       testWidgets(fixture.relativePath, (tester) async {
