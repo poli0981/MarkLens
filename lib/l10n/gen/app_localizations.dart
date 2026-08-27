@@ -453,6 +453,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Outline'**
   String get outlinePanelTitle;
+
+  /// Snackbar when settings.json was corrupt or written by a newer version (docs/05).
+  ///
+  /// In en, this message translates to:
+  /// **'Your settings could not be read. They have been kept alongside fresh defaults.'**
+  String get settingsNotRestored;
 }
 
 class _AppLocalizationsDelegate

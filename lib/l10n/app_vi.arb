@@ -58,5 +58,6 @@
   "statusBarWordCount": "{count, plural, other{{count} từ}}",
   "statusBarNotices": "{count, plural, other{{count} thông báo}}",
   "statusBarNoDocument": "Không có tài liệu nào đang mở",
-  "outlinePanelTitle": "Dàn ý"
+  "outlinePanelTitle": "Dàn ý",
+  "settingsNotRestored": "Không đọc được cài đặt của bạn. Chúng đã được giữ lại bên cạnh các giá trị mặc định mới."
 }

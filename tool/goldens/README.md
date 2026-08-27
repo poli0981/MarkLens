@@ -26,3 +26,11 @@ and the next Windows run would have to redo it.
 
 Drop `--update-goldens` to check the committed references instead of rewriting
 them — which is what CI does.
+
+**`flutter test --tags golden` on Windows fails, and that is correct.** The
+committed references are Ubuntu's. The local command in `docs/12_TESTING.md`
+excludes the tag for exactly this reason:
+
+```bash
+flutter test --exclude-tags "golden || watcher-live"
+```

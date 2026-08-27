@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:marklens/app/providers.dart';
 import 'package:marklens/app/shortcuts.dart';
+import 'package:marklens/core/models/app_settings.dart';
 import 'package:marklens/l10n/gen/app_localizations.dart';
 
 /// MarkLens's menu bar: File · View · Help (`docs/06_UI_UX.md`).
@@ -44,6 +45,8 @@ class AppMenuBar extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final chrome = ref.watch(chromeProvider);
     final controller = ref.read(chromeProvider.notifier);
+    // Narrow, so choosing a theme does not rebuild the bar for a zoom step.
+    final theme = ref.watch(settingsProvider.select((s) => s.theme));
 
     void todo(String item) {
       ScaffoldMessenger.of(context)
@@ -129,31 +132,35 @@ class AppMenuBar extends ConsumerWidget {
             ),
             MenuItemButton(
               shortcut: _zoomActivator(1),
-              onPressed: () => controller.zoomBy(1),
+              onPressed: () =>
+                  Actions.invoke(context, const ZoomIntent.zoomIn()),
               child: Text(l10n.menuZoomIn),
             ),
             MenuItemButton(
               shortcut: _zoomActivator(-1),
-              onPressed: () => controller.zoomBy(-1),
+              onPressed: () =>
+                  Actions.invoke(context, const ZoomIntent.zoomOut()),
               child: Text(l10n.menuZoomOut),
             ),
             MenuItemButton(
               shortcut: _zoomActivator(0),
-              onPressed: () => controller.zoomBy(0),
+              onPressed: () =>
+                  Actions.invoke(context, const ZoomIntent.reset()),
               child: Text(l10n.menuZoomReset),
             ),
             SubmenuButton(
               menuChildren: <Widget>[
-                for (final entry in <(ThemeMode, String)>[
-                  (ThemeMode.system, l10n.menuThemeSystem),
-                  (ThemeMode.light, l10n.menuThemeLight),
-                  (ThemeMode.dark, l10n.menuThemeDark),
+                for (final entry in <(ThemePreference, String)>[
+                  (ThemePreference.system, l10n.menuThemeSystem),
+                  (ThemePreference.light, l10n.menuThemeLight),
+                  (ThemePreference.dark, l10n.menuThemeDark),
                 ])
-                  RadioMenuButton<ThemeMode>(
+                  RadioMenuButton<ThemePreference>(
                     value: entry.$1,
-                    groupValue: chrome.themeMode,
-                    onChanged: (mode) =>
-                        controller.setThemeMode(mode ?? ThemeMode.system),
+                    groupValue: theme,
+                    onChanged: (choice) => ref
+                        .read(settingsProvider.notifier)
+                        .setTheme(choice ?? ThemePreference.system),
                     child: Text(entry.$2),
                   ),
               ],

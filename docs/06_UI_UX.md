@@ -224,6 +224,13 @@ doc 04 stage 1 — and previously described by none of them. Decided at M1:
 ## Accessibility
 
 Everything reachable by keyboard (menu, sidebar, tabs, reader focus,
-panels); visible focus indicators; AA contrast in both themes; UI honors
-`fontScale`; screen-reader labels on icon-only buttons. A11y pass is part of
-the feature DoD (doc 12).
+panels); visible focus indicators; AA contrast in both themes; screen-reader
+labels on icon-only buttons. A11y pass is part of the feature DoD (doc 12).
+
+**`reading.fontScale` scales the reading surface, not the window chrome.** This
+line used to say the UI honours it generally, which is not buildable as
+specified: the sidebar rows and the tab strip are fixed-height metrics
+(`itemExtent`, a 34 px strip) that a 3× scale would burst rather than grow. The
+document is what a reader zooms, and it is applied *clamped* — so Reset Zoom
+means exactly 100% and the platform's own text scale is deliberately not
+compounded on top of the user's choice.

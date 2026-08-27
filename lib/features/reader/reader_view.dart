@@ -26,7 +26,7 @@ class ReaderView extends StatefulWidget {
     this.rendererFactory = defaultRendererFactory,
     this.frontMatterDisplay = FrontMatterDisplay.collapsed,
     this.contentMaxWidth = 760,
-    this.zoom = 1,
+    this.fontScale = 1,
     this.onPosition,
     super.key,
   });
@@ -58,8 +58,12 @@ class ReaderView extends StatefulWidget {
   /// Column width in logical pixels, or `0` for the full window.
   final double contentMaxWidth;
 
-  /// Reading zoom, applied as a text scale.
-  final double zoom;
+  /// The reading scale, 0.5–3.0 (`reading.fontScale`, doc 05).
+  ///
+  /// Applied *clamped* rather than multiplied, so Reset Zoom means exactly
+  /// 100% and the platform's own text scale is deliberately not compounded on
+  /// top of the user's choice.
+  final double fontScale;
 
   @override
   State<ReaderView> createState() => _ReaderViewState();
@@ -195,8 +199,8 @@ class _ReaderViewState extends State<ReaderView> {
                     // alongside it (`docs/06_UI_UX.md`).
                     child: SelectionArea(
                       child: MediaQuery.withClampedTextScaling(
-                        minScaleFactor: widget.zoom,
-                        maxScaleFactor: widget.zoom,
+                        minScaleFactor: widget.fontScale,
+                        maxScaleFactor: widget.fontScale,
                         child: widget
                             .rendererFactory(_scroll)
                             .build(context, widget.doc),

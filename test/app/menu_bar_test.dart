@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:marklens/app/app.dart';
 import 'package:marklens/app/providers.dart';
+import 'package:marklens/core/models/app_settings.dart';
 import 'package:marklens/core/session/session_store.dart';
 import 'package:marklens/l10n/gen/app_localizations.dart';
 
@@ -189,23 +190,28 @@ void main() {
     });
 
     testWidgets('zoom clamps at both ends', (tester) async {
+      // Zoom is `reading.fontScale` in settings.json, not chrome state: doc 05
+      // puts it there, and it used to exist in both places at once with only
+      // the chrome copy connected to anything.
       final container = await pumpShell(tester);
-      final controller = container.read(chromeProvider.notifier);
+      final controller = container.read(settingsProvider.notifier);
+
+      double scale() => container.read(settingsProvider).reading.fontScale;
 
       for (var i = 0; i < 50; i++) {
         controller.zoomBy(1);
       }
-      expect(container.read(chromeProvider).zoom, ChromeController.maxZoom);
+      expect(scale(), ReadingSettings.maxFontScale);
 
       for (var i = 0; i < 100; i++) {
         controller.zoomBy(-1);
       }
-      expect(container.read(chromeProvider).zoom, ChromeController.minZoom);
+      expect(scale(), ReadingSettings.minFontScale);
 
       controller.zoomBy(0);
-      expect(container.read(chromeProvider).zoom, 1.0);
-      // Chrome changes schedule a session write; let it land.
-      await tester.pump(const Duration(milliseconds: 50));
+      expect(scale(), 1.0);
+      // Settings changes schedule a debounced write; let it land.
+      await tester.pump(AppSettingsController.writeDebounce);
     });
 
     testWidgets('full screen hides the menu bar', (tester) async {

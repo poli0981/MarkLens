@@ -236,4 +236,8 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get outlinePanelTitle => 'Outline';
+
+  @override
+  String get settingsNotRestored =>
+      'Your settings could not be read. They have been kept alongside fresh defaults.';
 }

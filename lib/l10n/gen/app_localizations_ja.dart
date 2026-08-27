@@ -228,4 +228,7 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get outlinePanelTitle => 'アウトライン';
+
+  @override
+  String get settingsNotRestored => '設定を読み取れませんでした。新しい初期設定の横に保存してあります。';
 }

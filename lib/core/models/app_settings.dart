@@ -16,7 +16,11 @@ enum AppLanguage {
 }
 
 /// Light/dark preference.
-enum AppTheme {
+///
+/// Named for the preference rather than the theme, because `app/theme/` has an
+/// `AppTheme` that builds the actual `ThemeData`. The two used to share a name
+/// and never met; they meet as soon as the menu writes this one.
+enum ThemePreference {
   /// Follow the operating system.
   system,
 
@@ -95,6 +99,32 @@ class ReadingSettings {
   /// How the front-matter panel opens.
   final FrontMatterDisplay frontMatter;
 
+  /// Returns a copy with the given fields replaced.
+  ///
+  /// Clamps exactly as [ReadingSettings.fromJson] does. The constructor cannot
+  /// clamp — it is `const`, and the defaults of [AppSettings] depend on that —
+  /// so without this a zoom step could walk `fontScale` past its own bound and
+  /// write it to disk, where the next load would silently pull it back.
+  ReadingSettings copyWith({
+    double? fontScale,
+    int? contentMaxWidth,
+    FrontMatterDisplay? frontMatter,
+  }) {
+    final width = contentMaxWidth ?? this.contentMaxWidth;
+    return ReadingSettings(
+      fontScale: _clampDouble(
+        fontScale ?? this.fontScale,
+        minFontScale,
+        maxFontScale,
+      ),
+      // Zero stays zero: it means full width, not "below the minimum".
+      contentMaxWidth: width == 0
+          ? 0
+          : width.clamp(minContentWidth, maxContentWidth),
+      frontMatter: frontMatter ?? this.frontMatter,
+    );
+  }
+
   /// This object as JSON.
   Map<String, Object?> toJson() => <String, Object?>{
     'fontScale': fontScale,
@@ -145,6 +175,21 @@ class FilesSettings {
   /// Whether the watcher runs.
   final bool watchEnabled;
 
+  /// Returns a copy with the given fields replaced, clamped as `fromJson`
+  /// clamps.
+  FilesSettings copyWith({
+    List<String>? extensions,
+    int? fileCap,
+    bool? watchEnabled,
+  }) {
+    final next = extensions ?? this.extensions;
+    return FilesSettings(
+      extensions: next.isEmpty ? const FilesSettings().extensions : next,
+      fileCap: (fileCap ?? this.fileCap).clamp(minFileCap, maxFileCap),
+      watchEnabled: watchEnabled ?? this.watchEnabled,
+    );
+  }
+
   /// This object as JSON.
   Map<String, Object?> toJson() => <String, Object?>{
     'extensions': extensions,
@@ -182,6 +227,13 @@ class NetworkSettings {
   /// Whether the GitHub Releases version check runs.
   final bool updateCheck;
 
+  /// Returns a copy with the given fields replaced.
+  NetworkSettings copyWith({bool? allowRemoteImages, bool? updateCheck}) =>
+      NetworkSettings(
+        allowRemoteImages: allowRemoteImages ?? this.allowRemoteImages,
+        updateCheck: updateCheck ?? this.updateCheck,
+      );
+
   /// This object as JSON.
   Map<String, Object?> toJson() => <String, Object?>{
     'allowRemoteImages': allowRemoteImages,
@@ -198,7 +250,7 @@ class AppSettings {
   /// Creates settings.
   const AppSettings({
     this.language = AppLanguage.system,
-    this.theme = AppTheme.system,
+    this.theme = ThemePreference.system,
     this.restoreSession = true,
     this.recentLimit = 20,
     this.reading = const ReadingSettings(),
@@ -215,7 +267,11 @@ class AppSettings {
         AppLanguage.values,
         AppLanguage.system,
       ),
-      theme: _readEnum(json['theme'], AppTheme.values, AppTheme.system),
+      theme: _readEnum(
+        json['theme'],
+        ThemePreference.values,
+        ThemePreference.system,
+      ),
       restoreSession: _readBool(
         json['restoreSession'],
         fallback.restoreSession,
@@ -244,7 +300,7 @@ class AppSettings {
   final AppLanguage language;
 
   /// Light/dark preference.
-  final AppTheme theme;
+  final ThemePreference theme;
 
   /// Whether the previous session is restored at startup.
   final bool restoreSession;
@@ -260,6 +316,29 @@ class AppSettings {
 
   /// The two network switches.
   final NetworkSettings network;
+
+  /// Returns a copy with the given fields replaced.
+  ///
+  /// A sub-object that is not named comes back as the *same instance*, which is
+  /// what lets `ref.watch(settingsProvider.select((s) => s.reading))` skip a
+  /// rebuild when something unrelated changed.
+  AppSettings copyWith({
+    AppLanguage? language,
+    ThemePreference? theme,
+    bool? restoreSession,
+    int? recentLimit,
+    ReadingSettings? reading,
+    FilesSettings? files,
+    NetworkSettings? network,
+  }) => AppSettings(
+    language: language ?? this.language,
+    theme: theme ?? this.theme,
+    restoreSession: restoreSession ?? this.restoreSession,
+    recentLimit: (recentLimit ?? this.recentLimit).clamp(0, maxRecentLimit),
+    reading: reading ?? this.reading,
+    files: files ?? this.files,
+    network: network ?? this.network,
+  );
 
   /// This object as JSON, including the schema version.
   Map<String, Object?> toJson() => <String, Object?>{

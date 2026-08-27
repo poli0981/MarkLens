@@ -87,7 +87,7 @@ class SessionLink {
 
   /// The recent list, most recent first, capped by the setting.
   List<String> _recentPaths(OpenSet set) {
-    final limit = ref.read(settingsStoreProvider).load().settings.recentLimit;
+    final limit = ref.read(settingsProvider).recentLimit;
     final byIdentity = <String, String>{
       for (final entry in set.entries) entry.identity: entry.file.path,
     };

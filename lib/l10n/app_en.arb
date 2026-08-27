@@ -295,5 +295,9 @@
   "outlinePanelTitle": "Outline",
   "@outlinePanelTitle": {
     "description": "Heading of the outline panel beside the reader (docs/06)."
+  },
+  "settingsNotRestored": "Your settings could not be read. They have been kept alongside fresh defaults.",
+  "@settingsNotRestored": {
+    "description": "Snackbar when settings.json was corrupt or written by a newer version (docs/05)."
   }
 }
