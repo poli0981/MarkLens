@@ -160,8 +160,12 @@ decides.
 > budget below. Ad-hoc files are watched through their parent directory
 > instead: 7 ms. doc 07 amended.
 >
-> Still open, and a confirmation rather than a risk: *which* editor uses
-> *which* pattern. All six normalize identically, so any answer passes.
+> **Notepad++ confirmed — 2026-08-27.** The maintainer saved a document open in
+> MarkLens and the reload was single and immediate, with no `missing` badge
+> flashing in between. That could not be checked before M2, because there was
+> no watcher running to check it against. VS Code and vim remain unconfirmed,
+> and remain a confirmation rather than a risk: all six patterns normalize
+> identically, so any answer passes.
 
 Save files from VS Code, Notepad++ and vim on Windows/NTFS; VS Code and vim
 on Ubuntu/ext4, against the WatchService normalizer.
@@ -372,13 +376,15 @@ and nothing started a watcher.
 **Still open at the end of M2**, both needing the real binary rather than a
 coding session:
 
-- **A second visual pass.** The first one is what produced this milestone's
-  opening work, and nothing in these six PRs changes the fact that layout and
-  copy are what tests here do not see. The goldens close a slice of it, no more.
-- **S5's last item.** Which editor performs which save pattern — save from VS
-  Code, Notepad++ and vim with a document open and confirm the reload is single
-  and prompt. All six patterns normalize identically, so it is a confirmation
-  rather than a risk, but until M2 there was no watcher to confirm it against.
+- **A second visual pass — done 2026-08-27.** The maintainer ran the binary and
+  accepted the chrome, the watcher and every M2 feature. Nothing in these PRs
+  changes the fact that layout and copy are what tests here do not see, so the
+  pass stays a per-milestone step rather than a one-off; the goldens close a
+  slice of it, no more.
+- **S5's last item, now partly closed.** Notepad++ was confirmed on
+  2026-08-27: single, immediate reload, no `missing` flash. VS Code and vim are
+  still unconfirmed. All six patterns normalize identically, so this stays a
+  confirmation rather than a risk.
 
 The bundled fonts (defect 8) remain outstanding by decision, not oversight:
 doc 01's Noto Sans JP size question is parked at M4 packaging, and the
