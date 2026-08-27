@@ -231,6 +231,36 @@ class OpenSetController extends Notifier<OpenSet> {
     );
   }
 
+  /// Re-reads one entry from disk.
+  ///
+  /// The targeted half of [refreshAll], for a watch event that named a single
+  /// path. `refreshAll` would `stat` up to a thousand entries for one save,
+  /// which is the wrong shape for something that fires on every keystroke of
+  /// someone else's editor.
+  void refreshEntry(String identity) {
+    final entry = state.entryFor(identity);
+    if (entry == null) {
+      return;
+    }
+    state = state.copyWith(
+      entries: _replace(
+        _refreshed(entry, ref.read(fileServiceProvider).refresh(entry.file)),
+      ),
+    );
+  }
+
+  /// Marks [identity] changed-on-disk while it was in the background.
+  ///
+  /// The dot this raises is already drawn by both the tab strip and the
+  /// sidebar; until M2 nothing ever set it outside a manual reload.
+  void markStale(String identity) {
+    final entry = state.entryFor(identity);
+    if (entry == null || entry.stale) {
+      return;
+    }
+    state = state.copyWith(entries: _replace(entry.copyWith(stale: true)));
+  }
+
   OpenEntry _refreshed(OpenEntry entry, OpenedFile current) {
     final changed =
         current.modified != entry.file.modified ||

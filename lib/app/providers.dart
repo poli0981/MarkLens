@@ -32,6 +32,10 @@ export 'package:marklens/app/session_link.dart'
     show SessionLink, sessionLinkProvider;
 export 'package:marklens/app/settings_link.dart'
     show AppSettingsController, settingsProvider;
+export 'package:marklens/app/watch_coordinator.dart'
+    show WatchCoordinator, watchCoordinatorProvider;
+export 'package:marklens/app/watch_link.dart'
+    show NoWatchLink, PlatformWatchLink, WatchLink, watchLinkProvider;
 export 'package:marklens/app/window_link.dart'
     show
         NoWindowLink,

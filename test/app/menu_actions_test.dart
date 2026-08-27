@@ -45,6 +45,10 @@ void main() {
       overrides: [
         configDirectoryProvider.overrideWithValue(config),
         windowLinkProvider.overrideWithValue(const NoWindowLink()),
+        // Real watchers on a temp directory would race real timers
+        // against the test binding's clock, the same reason
+        // NoWindowLink exists.
+        watchLinkProvider.overrideWithValue(const NoWatchLink()),
         sessionStoreProvider.overrideWithValue(
           SessionStore(
             directory: config,

@@ -86,6 +86,10 @@ void main() {
           configDirectoryProvider.overrideWithValue(root),
           filePickerPromptProvider.overrideWithValue(prompt),
           windowLinkProvider.overrideWithValue(const NoWindowLink()),
+          // Real watchers on a temp directory would race real timers
+          // against the test binding's clock, the same reason
+          // NoWindowLink exists.
+          watchLinkProvider.overrideWithValue(const NoWatchLink()),
           // Cold start records a session, and its one-second debounce would
           // still be pending when the test ends. The default is asserted in
           // session_store_test; here it only has to be short.

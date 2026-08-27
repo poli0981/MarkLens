@@ -97,6 +97,22 @@ class OpenSet {
   /// Whether anything is open.
   bool get isEmpty => entries.isEmpty;
 
+  /// The identity of the entry shown at [path], or `null` if it is not open.
+  ///
+  /// Case-insensitive, because a watcher reports the path the filesystem gives
+  /// it and that is not always the casing the entry was opened with — on
+  /// Windows it very often is not (`docs/07_FILES_AND_WATCH.md`).
+  String? identityForPath(String path) {
+    final wanted = path.toLowerCase();
+    for (final entry in entries) {
+      if (entry.file.path.toLowerCase() == wanted ||
+          entry.identity.toLowerCase() == wanted) {
+        return entry.identity;
+      }
+    }
+    return null;
+  }
+
   /// The entry for [identity], or `null`.
   OpenEntry? entryFor(String identity) {
     for (final entry in entries) {
