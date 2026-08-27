@@ -60,6 +60,13 @@ abstract class WindowLink {
   /// window stayed exactly the size it was and only lost its menu bar, which
   /// is not what `docs/06_UI_UX.md` promises.
   Future<void> setFullScreen({required bool full});
+
+  /// Asks the window to close, as File → Exit and the title-bar button do.
+  ///
+  /// Deliberately not [detachAndClose]: closing is intercepted
+  /// (`setPreventClose`), so this comes back as `onWindowClose` and leaves by
+  /// the one shutdown path that writes the session and releases the lock.
+  Future<void> requestClose();
 }
 
 /// The real window.
@@ -137,6 +144,9 @@ class PlatformWindowLink implements WindowLink {
       // down (CLAUDE.md rule 9); the chrome still collapses either way.
     }
   }
+
+  @override
+  Future<void> requestClose() => windowManager.close();
 }
 
 /// A window that is not there.
@@ -168,4 +178,7 @@ class NoWindowLink implements WindowLink {
 
   @override
   Future<void> setFullScreen({required bool full}) async {}
+
+  @override
+  Future<void> requestClose() async {}
 }

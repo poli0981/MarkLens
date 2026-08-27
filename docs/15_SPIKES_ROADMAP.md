@@ -307,10 +307,13 @@ doc says, with no test able to notice:
 6. **`F11` did not make the window full screen.** It flipped `ChromeState` and
    hid the menu bar; `WindowLink` had no `setFullScreen`, so `window_manager`
    was never told. ✅ Fixed at M2.
-7. **Every File menu item is a `todo()` stub** while the identical `Ctrl+O`,
-   `Ctrl+R`, `Ctrl+Shift+C` and `Ctrl+W` shortcuts work — the menu advertises
-   behaviour it does not have. Same class of defect as the status bar, but
-   behavioural rather than visual, so it is its own PR rather than folded in.
+7. **Every File menu item was a `todo()` stub** while the identical `Ctrl+O`,
+   `Ctrl+R`, `Ctrl+Shift+C` and `Ctrl+W` shortcuts worked — the menu advertised
+   behaviour it did not have. ✅ Fixed at M2, in its own PR: behavioural rather
+   than visual. The items now go through the same `Actions` map the shortcuts
+   use, so the two cannot diverge again. Settings, Open Recent, Check for
+   Updates and Export Log keep their placeholders, because those genuinely have
+   nothing behind them until M3 — an honest placeholder was never the defect.
 8. **The bundled fonts were never added.** `pubspec.yaml` still said they
    "land here at M1"; there is no `fonts/` directory and no `.ttf` in the tree,
    so VI/JA render in whatever the OS supplies — against charter principle 1.

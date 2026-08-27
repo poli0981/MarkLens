@@ -1,6 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:marklens/app/chrome.dart';
+import 'package:marklens/app/providers.dart';
 import 'package:marklens/app/shortcuts.dart';
 import 'package:marklens/l10n/gen/app_localizations.dart';
 
@@ -58,12 +60,13 @@ class AppMenuBar extends ConsumerWidget {
           menuChildren: <Widget>[
             MenuItemButton(
               shortcut: _activatorFor<OpenFilesIntent>(),
-              onPressed: () => todo(l10n.menuOpenFiles),
+              onPressed: () => Actions.invoke(context, const OpenFilesIntent()),
               child: Text(l10n.menuOpenFiles),
             ),
             MenuItemButton(
               shortcut: _activatorFor<OpenFolderIntent>(),
-              onPressed: () => todo(l10n.menuOpenFolder),
+              onPressed: () =>
+                  Actions.invoke(context, const OpenFolderIntent()),
               child: Text(l10n.menuOpenFolder),
             ),
             SubmenuButton(
@@ -76,21 +79,23 @@ class AppMenuBar extends ConsumerWidget {
             ),
             MenuItemButton(
               shortcut: _activatorFor<ReloadDocumentIntent>(),
-              onPressed: () => todo(l10n.menuReload),
+              onPressed: () =>
+                  Actions.invoke(context, const ReloadDocumentIntent()),
               child: Text(l10n.menuReload),
             ),
             MenuItemButton(
               shortcut: _activatorFor<CopyDocumentIntent>(),
-              onPressed: () => todo(l10n.menuCopyDocument),
+              onPressed: () =>
+                  Actions.invoke(context, const CopyDocumentIntent()),
               child: Text(l10n.menuCopyDocument),
             ),
             MenuItemButton(
               shortcut: _activatorFor<CloseTabIntent>(),
-              onPressed: () => todo(l10n.menuCloseTab),
+              onPressed: () => Actions.invoke(context, const CloseTabIntent()),
               child: Text(l10n.menuCloseTab),
             ),
             MenuItemButton(
-              onPressed: () => todo(l10n.menuCloseAll),
+              onPressed: () => ref.read(openSetProvider.notifier).closeAll(),
               child: Text(l10n.menuCloseAll),
             ),
             MenuItemButton(
@@ -99,7 +104,8 @@ class AppMenuBar extends ConsumerWidget {
               child: Text(l10n.menuSettings),
             ),
             MenuItemButton(
-              onPressed: () => todo(l10n.menuExit),
+              onPressed: () =>
+                  unawaited(ref.read(windowLinkProvider).requestClose()),
               child: Text(l10n.menuExit),
             ),
           ],
