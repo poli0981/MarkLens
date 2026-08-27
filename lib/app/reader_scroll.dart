@@ -82,6 +82,7 @@ class BlockScroller {
   Timer? _settle;
   Timer? _pulse;
   bool _restoring = false;
+  bool _disposed = false;
 
   /// Where the reader is, as a 0..1 ratio.
   double get ratio {
@@ -105,9 +106,23 @@ class BlockScroller {
     _identity = identity;
     _blockCount = blockCount;
     invalidateMeasurements();
-    topBlock.value = -1;
-    pulsingBlock.value = -1;
-    unawaited(restoreRatioPosition(restoreRatio));
+    // The reader adopts a document from `initState` and `didUpdateWidget` —
+    // both inside a build. Writing a `ValueNotifier` there marks its listeners
+    // dirty while the framework is already building them, which is an error,
+    // not a warning. Everything that notifies waits for the frame to end.
+    _afterFrame(() {
+      topBlock.value = -1;
+      pulsingBlock.value = -1;
+      unawaited(restoreRatioPosition(restoreRatio));
+    });
+  }
+
+  void _afterFrame(VoidCallback action) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!_disposed) {
+        action();
+      }
+    });
   }
 
   /// Forgets every measurement, for a reflow the old numbers cannot describe —
@@ -119,6 +134,9 @@ class BlockScroller {
 
   /// Records where a block actually landed. Called from the block wrapper.
   void report(int index, double offset, double extent) {
+    if (_disposed) {
+      return;
+    }
     _offsets[index] = offset;
     if (extent > 0) {
       // A running mean, so one enormous table does not define every estimate.
@@ -286,6 +304,7 @@ class BlockScroller {
 
   /// Releases the controller and every timer.
   void dispose() {
+    _disposed = true;
     _settle?.cancel();
     _pulse?.cancel();
     controller

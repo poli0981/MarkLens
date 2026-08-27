@@ -240,4 +240,7 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get settingsNotRestored =>
       'Your settings could not be read. They have been kept alongside fresh defaults.';
+
+  @override
+  String get outlineEmpty => 'This document has no headings.';
 }

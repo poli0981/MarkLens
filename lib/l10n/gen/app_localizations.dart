@@ -459,6 +459,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Your settings could not be read. They have been kept alongside fresh defaults.'**
   String get settingsNotRestored;
+
+  /// Outline panel when the document has no headings at all (docs/06). Not an error.
+  ///
+  /// In en, this message translates to:
+  /// **'This document has no headings.'**
+  String get outlineEmpty;
 }
 
 class _AppLocalizationsDelegate

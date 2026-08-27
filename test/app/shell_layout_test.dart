@@ -211,11 +211,22 @@ void main() {
       await pumpShell(tester, locale: const Locale('vi'));
       final vi = await strings(const Locale('vi'));
 
-      expect(find.text(vi.outlinePanelTitle), findsOneWidget);
+      expect(
+        find.text(vi.outlineEmpty),
+        findsOneWidget,
+        reason: 'nothing is open, so the panel says the document has none',
+      );
       expect(
         find.text('Outline'),
         findsNothing,
         reason: 'the placeholder shipped a raw English literal (rule 4)',
+      );
+      expect(
+        tester.getSemantics(find.byKey(const Key('outline'))).label,
+        contains(vi.outlinePanelTitle),
+        reason:
+            'the panel name is a screen-reader label rather than 24 px of a '
+            '200 px panel (doc 06, Accessibility)',
       );
     });
 

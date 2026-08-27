@@ -9,6 +9,7 @@ library;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:marklens/core/markdown/markdown_flavor.dart';
 import 'package:marklens/core/markdown/outline_builder.dart';
+import 'package:marklens/core/models/outline.dart';
 
 import '../fixtures/generators.dart';
 import 'corpus.dart';
@@ -179,6 +180,56 @@ void main() {
           reason: fixture.relativePath,
         );
       }
+    });
+  });
+
+  group('the two lookups the panel and anchor links need', () {
+    const outline = Outline(<OutlineEntry>[
+      OutlineEntry(level: 1, text: 'Top', slug: 'top', blockIndex: 2),
+      OutlineEntry(level: 2, text: 'Middle', slug: 'middle', blockIndex: 5),
+      OutlineEntry(level: 2, text: 'End', slug: 'end', blockIndex: 9),
+    ]);
+
+    test('headingAt is null above the first heading', () {
+      expect(
+        outline.headingAt(0),
+        isNull,
+        reason: 'a document may well open with a paragraph',
+      );
+      expect(outline.headingAt(1), isNull);
+    });
+
+    test('headingAt returns the heading a block sits under', () {
+      expect(outline.headingAt(2)?.slug, 'top');
+      expect(outline.headingAt(4)?.slug, 'top');
+      expect(outline.headingAt(5)?.slug, 'middle');
+      expect(outline.headingAt(8)?.slug, 'middle');
+      expect(outline.headingAt(9)?.slug, 'end');
+      expect(
+        outline.headingAt(9999)?.slug,
+        'end',
+        reason: 'past the last heading the reader is still under it',
+      );
+    });
+
+    test('the innermost heading wins when several share a block', () {
+      // Headings nested in a list or a block quote carry the enclosing
+      // top-level block's index (doc 04), so this really happens.
+      const nested = Outline(<OutlineEntry>[
+        OutlineEntry(level: 1, text: 'Outer', slug: 'outer', blockIndex: 3),
+        OutlineEntry(level: 2, text: 'Inner', slug: 'inner', blockIndex: 3),
+      ]);
+      expect(nested.headingAt(3)?.slug, 'inner');
+    });
+
+    test('an empty outline answers null rather than throwing', () {
+      expect(Outline.empty.headingAt(0), isNull);
+      expect(Outline.empty.bySlug('anything'), isNull);
+    });
+
+    test('bySlug finds an anchor, and misses cleanly', () {
+      expect(outline.bySlug('middle')?.blockIndex, 5);
+      expect(outline.bySlug('not-a-heading'), isNull);
     });
   });
 }
