@@ -13,11 +13,9 @@
 /// file or a clock, because a golden that embeds `Directory.systemTemp` is a
 /// golden that differs between the maintainer's machine and the CI runner.
 ///
-/// Regenerate on Ubuntu, never on Windows:
-///
-/// ```bash
-/// flutter test --tags golden --update-goldens
-/// ```
+/// Regenerate on Ubuntu, never on Windows — four of these five differ between
+/// the two platforms. `tool/goldens/README.md` has the container and the
+/// commands.
 library;
 
 import 'package:flutter/material.dart';
