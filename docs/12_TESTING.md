@@ -38,13 +38,17 @@
    `pubspec.yaml` has no `fonts:` entry despite doc 01 describing three. Doc
    01's open Noto Sans JP size decision has to close first.
 
-   **Both run on the ubuntu CI runner only.** For renderer goldens the reason
-   is the bundled fonts; for the layout goldens it is simply that
-   rasterization differs between platforms whatever the font, so one runner
-   has to be the reference. **Regenerate on Ubuntu, never on Windows** — the
-   references committed at M2 were generated on the dev machine because no
-   Linux environment was available there, so the first CI golden run is what
-   actually blesses them.
+   **Both run on the ubuntu CI runner only**, and must be **generated** there
+   too. For renderer goldens the reason is the bundled fonts; for the layout
+   goldens it is rasterization, which differs between platforms whatever the
+   font. That is measured, not assumed: the first goldens were generated on the
+   Windows dev machine and **four of the five differed from the Ubuntu render
+   byte-for-byte**, so they would have failed the CI job on its first
+   activation. Nothing about the layout was wrong on either platform.
+
+   `tool/goldens/` holds a container matching `ubuntu-latest` with the doc 01
+   Flutter pin, and the two commands — one to rewrite the references, one to
+   check them the way CI does. Use it; do not regenerate on Windows.
 
    Mechanics: the tag is declared in `dart_test.yaml`,
    each golden file starts with `@Tags(['golden'])` — the CI job self-activates

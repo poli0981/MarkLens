@@ -327,8 +327,10 @@ The lesson of this pass is that 716 tests were strong on what the app *does*
 and blind to what it *shows*. `test/goldens/shell_chrome_golden_test.dart`
 closes part of that: layout goldens over the menu bar and the status bar, which
 also switches on the self-activating CI `golden` job so later goldens are free.
-They were generated on the Windows dev machine because no Linux environment was
-available there, so **the first Ubuntu CI run is what blesses them** (doc 12).
+They are generated in a container matching `ubuntu-latest` (`tool/goldens/`),
+because the platform that compares them has to be the platform that made them:
+generated on Windows first, **four of the five differed from the Ubuntu render
+byte-for-byte** while the layout was correct on both. Rasterization, not fonts.
 
 The sidebar row is deliberately covered by ordinary widget tests instead —
 asserting the rendered name is as wide as the text it contains, at the width
