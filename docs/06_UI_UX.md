@@ -151,9 +151,18 @@ the same frame but opens **collapsed** and is titled "Raw HTML (not rendered)"
 S1 found. A code block the author wrote is never collapsible: hiding content
 behind a click is not a reader's job. Task-list checkboxes render but are
 inert
-(read-only tooltip on click). Front-matter panel per doc 04. Smooth
-programmatic scrolls (outline/anchor jumps) with a brief highlight pulse on
-the target heading.
+(read-only tooltip on click). Front-matter panel per doc 04.
+
+**Programmatic scrolls** (outline and anchor jumps) land on the block and mark
+it with a brief accent pulse. "Smooth" needed a definition once it met a lazy
+list, because a `ListView` cannot jump to an index it has never built and so
+does not know the height of. A target that is already built animates to the top
+over ~220 ms. One further away is converged on with invisible jumps — each jump
+builds the children around it, which both answers the question and sharpens the
+next estimate — and then glides the last stretch in. A single animation across
+900,000 px of a 1 MB document would not be smooth, it would be a smear; what
+the reader sees is a flash and then a settle, and the pulse is what says where
+they landed.
 
 ## Outline
 

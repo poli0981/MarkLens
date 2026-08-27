@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:marklens/app/providers.dart';
 import 'package:marklens/app/theme/reader_tokens.dart';
 import 'package:marklens/core/models/app_settings.dart';
 import 'package:marklens/core/models/doc_model.dart';
+import 'package:marklens/features/reader/block_frame.dart';
 import 'package:marklens/features/reader/front_matter_panel.dart';
 import 'package:marklens/features/reader/notice_bar.dart';
 import 'package:marklens/features/reader/rendering/flutter_markdown_plus_renderer.dart';
@@ -23,16 +25,31 @@ class ReaderView extends StatefulWidget {
   /// Creates a reader for [doc].
   const ReaderView({
     required this.doc,
+    this.scroller,
+    this.identity,
+    this.restoreScroll = 0,
     this.rendererFactory = defaultRendererFactory,
     this.frontMatterDisplay = FrontMatterDisplay.collapsed,
     this.contentMaxWidth = 760,
     this.fontScale = 1,
-    this.onPosition,
     super.key,
   });
 
   /// The parsed document.
   final DocModel doc;
+
+  /// Where the reader is in the document, and how it gets somewhere else.
+  ///
+  /// Supplied by the shell in the running app; a reader pumped on its own in a
+  /// test gets one of its own, so this widget stays testable without a
+  /// provider scope.
+  final BlockScroller? scroller;
+
+  /// The open-set identity of [doc], for recording the scroll position.
+  final String? identity;
+
+  /// Where the session last saw this document, as a 0..1 ratio (doc 05).
+  final double restoreScroll;
 
   /// The seam. Injected so a test can render without the real package.
   ///
@@ -44,13 +61,6 @@ class ReaderView extends StatefulWidget {
   /// `integration_test/perf_gate_test.dart` already uses, so the
   /// `MarkdownRenderer` interface itself is untouched (CLAUDE.md rule 6).
   final MarkdownRenderer Function(ScrollController controller) rendererFactory;
-
-  /// Called with how far through the document the reader is, as a 0..1 ratio.
-  ///
-  /// Fires only when the whole percent changes, not on every scroll tick: the
-  /// status bar shows a percentage, so finer reporting would rebuild it sixty
-  /// times a second to display the same string (CLAUDE.md rule 7).
-  final ValueChanged<double>? onPosition;
 
   /// How the front-matter panel opens (`docs/05`).
   final FrontMatterDisplay frontMatterDisplay;
@@ -72,82 +82,48 @@ class ReaderView extends StatefulWidget {
 class _ReaderViewState extends State<ReaderView> {
   bool _noticesDismissed = false;
 
-  final ScrollController _scroll = ScrollController();
+  /// The scroller this widget made for itself, if it was not given one.
+  BlockScroller? _owned;
 
-  /// The last whole percent reported, so identical values are not re-sent.
-  int _percent = 0;
+  BlockScroller get _scroller =>
+      widget.scroller ?? (_owned ??= BlockScroller());
 
   @override
   void initState() {
     super.initState();
-    _scroll.addListener(_reportPosition);
+    _adopt();
   }
 
   @override
   void didUpdateWidget(ReaderView oldWidget) {
     super.didUpdateWidget(oldWidget);
+
     if (!identical(oldWidget.doc, widget.doc)) {
       // A new document gets its notices back. Dismissing a notice says "I have
       // read this one", not "stop telling me about documents".
       _noticesDismissed = false;
-      // And it starts at the top. Without this the list keeps the offset of
-      // the document that was showing a moment ago, because the state — and
-      // so the controller — survives a tab switch.
-      _resetToTop = true;
-      _schedulePositionReport();
-    }
-  }
-
-  void _reportPosition() => _schedulePositionReport();
-
-  /// Whether the next report should first put the list back at the top.
-  bool _resetToTop = false;
-
-  /// Whether a report is already queued for the end of this frame.
-  bool _reportPending = false;
-
-  /// Reports the position after the frame, never during it.
-  ///
-  /// The listener fires while the scroll view is laying out — and it fires for
-  /// the first time as the position attaches, before anything has been
-  /// scrolled at all. Telling a provider about it there is a state change
-  /// during build, which Flutter tears the widget tree down over. Once per
-  /// frame at the end of it is both safe and finer resolution than a status
-  /// bar showing whole percents can use.
-  void _schedulePositionReport() {
-    if (_reportPending) {
+      _adopt();
       return;
     }
-    _reportPending = true;
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _reportPending = false;
-      if (!mounted || !_scroll.hasClients) {
-        return;
-      }
-      if (_resetToTop) {
-        _resetToTop = false;
-        _scroll.jumpTo(0);
-      }
-      final extent = _scroll.position.maxScrollExtent;
-      // A document shorter than the viewport does not scroll, and dividing by
-      // its zero extent would report NaN rather than "at the top".
-      final ratio = extent <= 0
-          ? 0.0
-          : (_scroll.offset / extent).clamp(0.0, 1.0);
-      final percent = (ratio * 100).round();
-      if (percent == _percent) {
-        return;
-      }
-      _percent = percent;
-      widget.onPosition?.call(ratio);
-    });
+
+    // Same document, different shape. Every measured offset described the old
+    // layout, and an estimate built from stale anchors lands nowhere.
+    if (oldWidget.fontScale != widget.fontScale ||
+        oldWidget.contentMaxWidth != widget.contentMaxWidth ||
+        oldWidget.frontMatterDisplay != widget.frontMatterDisplay) {
+      _scroller.invalidateMeasurements();
+    }
   }
+
+  void _adopt() => _scroller.adopt(
+    identity: widget.identity ?? widget.doc.path,
+    blockCount: widget.doc.blocks.length,
+    restoreRatio: widget.restoreScroll,
+  );
 
   @override
   void dispose() {
-    _scroll
-      ..removeListener(_reportPosition)
-      ..dispose();
+    _owned?.dispose();
     super.dispose();
   }
 
@@ -155,6 +131,7 @@ class _ReaderViewState extends State<ReaderView> {
   Widget build(BuildContext context) {
     final tokens = ReaderTokens.of(context);
     final frontMatter = widget.doc.frontMatter;
+    final scroller = _scroller;
 
     return ColoredBox(
       color: tokens.bg,
@@ -202,8 +179,16 @@ class _ReaderViewState extends State<ReaderView> {
                         minScaleFactor: widget.fontScale,
                         maxScaleFactor: widget.fontScale,
                         child: widget
-                            .rendererFactory(_scroll)
-                            .build(context, widget.doc),
+                            .rendererFactory(scroller.controller)
+                            .build(
+                              context,
+                              widget.doc,
+                              wrapBlock: (index, child) => BlockFrame(
+                                index: index,
+                                scroller: scroller,
+                                child: child,
+                              ),
+                            ),
                       ),
                     ),
                   ),

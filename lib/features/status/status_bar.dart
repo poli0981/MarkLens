@@ -81,20 +81,23 @@ class _Trailing extends ConsumerWidget {
       return const SizedBox.shrink();
     }
 
-    // Watched here rather than in the parent so a scroll rebuilds this row and
-    // not the path beside it.
-    final percent = (ref.watch(readerPositionProvider) * 100).round();
-
-    final fields = <String>[
-      l10n.statusBarPosition(percent),
-      l10n.statusBarWordCount(document.wordCount),
-      if (document.notices.isNotEmpty)
-        l10n.statusBarNotices(document.notices.length),
-    ];
-
+    // A `ValueListenableBuilder` rather than a watched provider: the position
+    // changes as the wheel turns, and this rebuilds only this row — not the
+    // path beside it, and nothing above it.
     return Padding(
       padding: const EdgeInsets.only(left: 12),
-      child: Text(fields.join(StatusBar.separator), style: style),
+      child: ValueListenableBuilder<int>(
+        valueListenable: ref.watch(readerScrollProvider).positionPercent,
+        builder: (context, percent, _) => Text(
+          <String>[
+            l10n.statusBarPosition(percent),
+            l10n.statusBarWordCount(document.wordCount),
+            if (document.notices.isNotEmpty)
+              l10n.statusBarNotices(document.notices.length),
+          ].join(StatusBar.separator),
+          style: style,
+        ),
+      ),
     );
   }
 }

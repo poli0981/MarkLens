@@ -54,10 +54,15 @@ class FlutterMarkdownPlusRenderer implements MarkdownRenderer {
   final CodeHighlighter? highlighter;
 
   @override
-  Widget build(BuildContext context, DocModel doc) => _BlockListMarkdown(
+  Widget build(
+    BuildContext context,
+    DocModel doc, {
+    BlockWrapper? wrapBlock,
+  }) => _BlockListMarkdown(
     data: doc.sanitizedSource,
     controller: controller,
     onBlockCount: onBlockCount,
+    wrapBlock: wrapBlock,
     styleSheet: ReaderStyle.of(context),
     codeBlocks: CodeBlockBuilder(
       highlighter: highlighter ?? _highlighterFor(context),
@@ -84,6 +89,7 @@ class _BlockListMarkdown extends MarkdownWidget {
     required super.styleSheet,
     this.controller,
     this.onBlockCount,
+    this.wrapBlock,
   }) : super(
          // Every `pre` is drawn by our own builder: fenced code gets a
          // language label and a copy button, and a block the raw-HTML rewrite
@@ -100,6 +106,7 @@ class _BlockListMarkdown extends MarkdownWidget {
 
   final ScrollController? controller;
   final void Function(int count)? onBlockCount;
+  final BlockWrapper? wrapBlock;
 
   @override
   Widget build(BuildContext context, List<Widget>? children) {
@@ -112,10 +119,17 @@ class _BlockListMarkdown extends MarkdownWidget {
     // the charter budget — and kills the process outright at 1 MB. Whole
     // document selection was replaced by File -> Copy entire document instead
     // (docs/06_UI_UX.md, docs/spike-results/S2-selection.md).
+    final wrap = wrapBlock;
     return ListView.builder(
       controller: controller,
       itemCount: blocks.length,
-      itemBuilder: (context, index) => blocks[index],
+      // `children[2i]` is block `i`; the odd entries are the package's spacers
+      // and belong to nobody. Halving the index here is the one place in the
+      // codebase that has to know that, which is the point of doing it here
+      // rather than making every caller carry the arithmetic.
+      itemBuilder: (context, index) => wrap == null || index.isOdd
+          ? blocks[index]
+          : wrap(index ~/ 2, blocks[index]),
     );
   }
 }
