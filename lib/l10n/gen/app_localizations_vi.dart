@@ -232,4 +232,8 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get outlinePanelTitle => 'Dàn ý';
+
+  @override
+  String get settingsNotRestored =>
+      'Không đọc được cài đặt của bạn. Chúng đã được giữ lại bên cạnh các giá trị mặc định mới.';
 }

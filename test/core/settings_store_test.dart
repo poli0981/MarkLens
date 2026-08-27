@@ -34,7 +34,7 @@ void main() {
 
       expect(loaded.outcome, JsonLoadOutcome.missing);
       expect(loaded.settings.language, AppLanguage.system);
-      expect(loaded.settings.theme, AppTheme.system);
+      expect(loaded.settings.theme, ThemePreference.system);
       expect(loaded.settings.restoreSession, isTrue);
       expect(loaded.settings.recentLimit, 20);
       expect(loaded.settings.reading.fontScale, 1.0);
@@ -71,7 +71,7 @@ void main() {
     test('everything survives a save and load', () {
       const settings = AppSettings(
         language: AppLanguage.vi,
-        theme: AppTheme.dark,
+        theme: ThemePreference.dark,
         restoreSession: false,
         recentLimit: 5,
         reading: ReadingSettings(
@@ -91,7 +91,7 @@ void main() {
       final loaded = store.load().settings;
 
       expect(loaded.language, AppLanguage.vi);
-      expect(loaded.theme, AppTheme.dark);
+      expect(loaded.theme, ThemePreference.dark);
       expect(loaded.restoreSession, isFalse);
       expect(loaded.recentLimit, 5);
       expect(loaded.reading.fontScale, 1.5);
@@ -211,7 +211,7 @@ void main() {
       final loaded = store.load();
       expect(loaded.outcome, JsonLoadOutcome.ok);
       expect(loaded.settings.language, AppLanguage.system);
-      expect(loaded.settings.theme, AppTheme.system);
+      expect(loaded.settings.theme, ThemePreference.system);
       expect(loaded.settings.restoreSession, isTrue);
       expect(loaded.settings.recentLimit, 20);
       expect(loaded.settings.reading.fontScale, 1.0);
@@ -220,7 +220,7 @@ void main() {
 
     test('an unknown enum value falls back rather than throwing', () {
       writeRaw(<String, Object?>{'version': 1, 'theme': 'solarized'});
-      expect(store.load().settings.theme, AppTheme.system);
+      expect(store.load().settings.theme, ThemePreference.system);
     });
 
     test('an integer where a double belongs is accepted', () {
@@ -238,7 +238,7 @@ void main() {
         'somethingFromTheFuture': true,
       });
       final loaded = store.load();
-      expect(loaded.settings.theme, AppTheme.dark);
+      expect(loaded.settings.theme, ThemePreference.dark);
 
       store.save(loaded.settings);
       final json =
@@ -251,7 +251,7 @@ void main() {
       final loaded = store.load();
 
       expect(loaded.outcome, JsonLoadOutcome.corrupt);
-      expect(loaded.settings.theme, AppTheme.system);
+      expect(loaded.settings.theme, ThemePreference.system);
       expect(
         config.listSync().where((e) => e.path.contains('corrupt-')),
         hasLength(1),
@@ -267,7 +267,7 @@ void main() {
       expect(loaded.outcome, JsonLoadOutcome.ok);
       expect(
         loaded.settings.theme,
-        AppTheme.dark,
+        ThemePreference.dark,
         reason: 'v1 is the only shape ever written, so it is the safe reading',
       );
     });
@@ -279,7 +279,7 @@ void main() {
       expect(loaded.outcome, JsonLoadOutcome.futureVersion);
       expect(
         loaded.settings.theme,
-        AppTheme.system,
+        ThemePreference.system,
         reason:
             'a downgrade must not read a schema it does not know, or it will '
             'quietly rewrite the file and lose whatever was new in it',

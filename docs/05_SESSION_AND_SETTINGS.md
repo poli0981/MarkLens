@@ -20,9 +20,15 @@ mocking, which is exactly what doc 12 asks of them.
   `test/architecture/no_write_test.dart` — it is the implementation of the
   config-directory write, not an exception to it, and a test asserts it
   touches nothing outside the `Directory` it was handed.
-- Session writes debounce 1,000 ms (triggers in doc 03); settings write on
-  change. Disposing the session store flushes what is pending, so quitting
-  never loses the last second.
+- Session writes debounce 1,000 ms (triggers in doc 03); **settings writes
+  coalesce over 250 ms**. This paragraph used to say settings need no debounce
+  because they change when a person clicks something. That is true of a
+  checkbox and false of zoom: holding `Ctrl+=` is a stream of changes, and each
+  one would be its own fsync-and-rename. A quarter of a second is below notice
+  and turns a held key into one write (rule 7). The debounce lives in
+  `app/settings_link.dart`, not in `SettingsStore`, which stays a plain atomic
+  writer. Disposing either store flushes what is pending, so quitting never
+  loses the last second.
 - Corruption on load: rename the bad file to `<name>.json.corrupt-<epoch>`,
   start from defaults/empty, show a one-time snackbar. Never crash, never
   silently delete the evidence.
@@ -102,6 +108,22 @@ because a restored session should never open a sidebar too narrow to read or
 wide enough to hide the document. An empty `files.extensions` list also falls
 back to the default set rather than being honoured — it would open nothing at
 all, which is never what anyone meant.
+
+### Reaching the running app
+
+Settings are loaded once into `settingsProvider` (`app/settings_link.dart`) and
+written back through it. Before M2 there was no such provider: the store was
+exposed but `save` had no caller anywhere, so `settings.json` was read-only at
+runtime and every preference here was unreachable. The one setting anything did
+read — `recentLimit` — was fetched by loading the whole file off disk
+synchronously on *every* session save.
+
+Two of these lived twice over. `theme` sat beside a `ChromeState.themeMode`
+that was never written to disk, and `reading.fontScale` beside a
+`ChromeState.zoom` that was never read from it. The duplicates are gone rather
+than synchronised: **settings own zoom and theme; the session owns panel
+geometry**, which is what this document always said. The View menu's "Zoom" is
+`reading.fontScale` under a shorter name.
 
 **None of these settings changes parse output**, which is why the parsed-doc
 cache key's `settingsRevision` component (doc 02) stays at zero in v1:

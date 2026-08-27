@@ -27,9 +27,11 @@ class MarkLensApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final themeMode = ref.watch(
-      chromeProvider.select((state) => state.themeMode),
-    );
+    // The theme is a setting, not chrome: it belongs in `settings.json`, and
+    // doc 05 has always said so (`docs/05_SESSION_AND_SETTINGS.md`).
+    final themeMode = ref
+        .watch(settingsProvider.select((settings) => settings.theme))
+        .mode;
 
     return MaterialApp(
       onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,
@@ -98,12 +100,30 @@ class _AppShellState extends ConsumerState<AppShell> with WindowListener {
     if (!mounted) {
       return;
     }
-    if (outcome == JsonLoadOutcome.corrupt ||
-        outcome == JsonLoadOutcome.futureVersion) {
-      _notify(AppLocalizations.of(context).sessionNotRestored);
+    // Doc 05 asks for a one-time notice when either file could not be read.
+    // `SettingsStore` has always reported it and nothing ever looked, so a
+    // quarantined settings.json used to be completely silent.
+    final l10n = AppLocalizations.of(context);
+    final settingsOutcome = ref.read(settingsProvider.notifier).loadOutcome;
+    final notices = <String>[
+      if (_unreadable(outcome)) l10n.sessionNotRestored,
+      if (_unreadable(settingsOutcome)) l10n.settingsNotRestored,
+    ];
+    if (notices.isNotEmpty) {
+      // Queued rather than replaced: when both files are bad, hearing about
+      // one of them is worse than hearing about neither.
+      final messenger = ScaffoldMessenger.of(context)..hideCurrentSnackBar();
+      for (final notice in notices) {
+        messenger.showSnackBar(SnackBar(content: Text(notice)));
+      }
     }
     session.save();
   }
+
+  /// Whether a load outcome means the file was set aside rather than read.
+  static bool _unreadable(JsonLoadOutcome outcome) =>
+      outcome == JsonLoadOutcome.corrupt ||
+      outcome == JsonLoadOutcome.futureVersion;
 
   void _onForwarded(List<String> paths) {
     ref.read(openSetProvider.notifier).openPaths(paths);
@@ -333,7 +353,7 @@ class _AppShellState extends ConsumerState<AppShell> with WindowListener {
           ),
           ZoomIntent: CallbackAction<ZoomIntent>(
             onInvoke: (intent) {
-              controller.zoomBy(intent.step);
+              ref.read(settingsProvider.notifier).zoomBy(intent.step);
               return null;
             },
           ),
@@ -416,10 +436,7 @@ class _AppShellState extends ConsumerState<AppShell> with WindowListener {
                           child: const SidebarTree(),
                         ),
                       Expanded(
-                        child: Focus(
-                          focusNode: _body,
-                          child: _Body(zoom: chrome.zoom),
-                        ),
+                        child: Focus(focusNode: _body, child: const _Body()),
                       ),
                       if (chrome.outlineVisible)
                         _Panel(label: l10n.outlinePanelTitle, width: 200),
@@ -445,27 +462,31 @@ class _AppShellState extends ConsumerState<AppShell> with WindowListener {
 
 /// The reading surface, or the empty state when nothing is open.
 class _Body extends ConsumerWidget {
-  const _Body({required this.zoom});
-
-  final double zoom;
+  const _Body();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final active = ref.watch(activeDocumentProvider);
     final doc = active.doc;
+    // Every reading preference doc 05 defines, finally reaching the reader.
+    // `contentMaxWidth` and `frontMatter` had never been passed at all, so the
+    // reader had been showing its constructor defaults since M1.
+    final reading = ref.watch(settingsProvider.select((s) => s.reading));
 
     if (doc == null) {
       return Center(
         child: Text(
           AppLocalizations.of(context).emptyStateDropHint,
           textAlign: TextAlign.center,
-          textScaler: TextScaler.linear(zoom),
+          textScaler: TextScaler.linear(reading.fontScale),
         ),
       );
     }
     return ReaderView(
       doc: doc,
-      zoom: zoom,
+      fontScale: reading.fontScale,
+      contentMaxWidth: reading.contentMaxWidth.toDouble(),
+      frontMatterDisplay: reading.frontMatter,
       onPosition: ref.read(readerPositionProvider.notifier).record,
     );
   }

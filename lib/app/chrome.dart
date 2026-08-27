@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-/// The chrome around the reader: which panels are showing, the reading zoom,
-/// the theme, and whether the window is full screen.
+/// The chrome around the reader: which panels are showing, how wide the
+/// sidebar is, and whether the window is full screen.
 ///
-/// All of it is `View` menu state (`docs/06_UI_UX.md`) and all of it persists
-/// to `session.json` / `settings.json` at M1 — for the S4 prototype it lives in
-/// memory, which is enough to tell whether the menu and its shortcuts feel
-/// right.
+/// Exactly the `View` menu state that belongs to the *session*
+/// (`docs/05_SESSION_AND_SETTINGS.md`). Zoom and theme used to live here too,
+/// left over from the S4 prototype where everything was in memory — and they
+/// also existed, unconnected, as `reading.fontScale` and `theme` in
+/// `settings.json`, where doc 05 puts them. Two numbers for one preference is
+/// a drift waiting to happen and a double-scale waiting to happen, so the
+/// duplicates are gone rather than synchronised: settings own zoom and theme,
+/// this owns panel geometry and full screen.
 @immutable
 class ChromeState {
   /// Creates a chrome state.
@@ -15,8 +19,6 @@ class ChromeState {
     this.sidebarVisible = true,
     this.outlineVisible = true,
     this.sidebarWidth = 280,
-    this.zoom = 1,
-    this.themeMode = ThemeMode.system,
     this.fullScreen = false,
   });
 
@@ -29,12 +31,6 @@ class ChromeState {
   /// Sidebar width in logical pixels, persisted in the session (doc 05).
   final double sidebarWidth;
 
-  /// Reading zoom, clamped to 50%–300% (`docs/06_UI_UX.md`).
-  final double zoom;
-
-  /// Light, dark, or follow the system.
-  final ThemeMode themeMode;
-
   /// Whether the window is full screen.
   final bool fullScreen;
 
@@ -43,30 +39,17 @@ class ChromeState {
     bool? sidebarVisible,
     bool? outlineVisible,
     double? sidebarWidth,
-    double? zoom,
-    ThemeMode? themeMode,
     bool? fullScreen,
   }) => ChromeState(
     sidebarVisible: sidebarVisible ?? this.sidebarVisible,
     outlineVisible: outlineVisible ?? this.outlineVisible,
     sidebarWidth: sidebarWidth ?? this.sidebarWidth,
-    zoom: zoom ?? this.zoom,
-    themeMode: themeMode ?? this.themeMode,
     fullScreen: fullScreen ?? this.fullScreen,
   );
 }
 
 /// Drives [ChromeState] from the View menu and its shortcuts.
 class ChromeController extends Notifier<ChromeState> {
-  /// Zoom bounds from `docs/06_UI_UX.md`: 50%–300%.
-  static const double minZoom = 0.5;
-
-  /// See [minZoom].
-  static const double maxZoom = 3;
-
-  /// One press of Zoom In or Zoom Out.
-  static const double zoomStep = 0.1;
-
   @override
   ChromeState build() => const ChromeState();
 
@@ -84,25 +67,13 @@ class ChromeController extends Notifier<ChromeState> {
 
   /// Puts back what the session remembered.
   ///
-  /// Only the parts the session stores. Zoom, theme and full screen are
-  /// settings or per-launch state, not session geometry (`docs/05`).
+  /// Full screen is deliberately not restored: it is per-launch state, not
+  /// session geometry (`docs/05`).
   void restore({required double sidebarWidth, required bool outlineVisible}) =>
       state = state.copyWith(
         sidebarWidth: sidebarWidth,
         outlineVisible: outlineVisible,
       );
-
-  /// Sets the colour theme.
-  void setThemeMode(ThemeMode mode) => state = state.copyWith(themeMode: mode);
-
-  /// Applies one zoom step: `1` in, `-1` out, `0` back to 100%.
-  void zoomBy(int step) {
-    final next = switch (step) {
-      0 => 1.0,
-      final int s => state.zoom + s * zoomStep,
-    };
-    state = state.copyWith(zoom: next.clamp(minZoom, maxZoom));
-  }
 }
 
 /// The chrome state provider.

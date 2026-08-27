@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:marklens/app/theme/reader_tokens.dart';
+import 'package:marklens/core/models/app_settings.dart';
 
 /// Builds the two `ThemeData`s from the doc 06 tokens.
 ///
@@ -39,4 +40,18 @@ abstract final class AppTheme {
       ),
     );
   }
+}
+
+/// The Flutter `ThemeMode` a stored [ThemePreference] means.
+///
+/// An exhaustive switch with no default, so a fourth preference cannot be added
+/// without deciding what it looks like — the same shape the notice-kind mapping
+/// uses (`docs/06_UI_UX.md`).
+extension ThemePreferenceMode on ThemePreference {
+  /// This preference as Flutter expresses it.
+  ThemeMode get mode => switch (this) {
+    ThemePreference.system => ThemeMode.system,
+    ThemePreference.light => ThemeMode.light,
+    ThemePreference.dark => ThemeMode.dark,
+  };
 }

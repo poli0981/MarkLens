@@ -32,6 +32,19 @@ class _FrontMatterPanelState extends State<FrontMatterPanel> {
   late bool _expanded = widget.display == FrontMatterDisplay.expanded;
 
   @override
+  void didUpdateWidget(FrontMatterPanel oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // The setting changing is an instruction; a rebuild for any other reason is
+    // not. Re-syncing only when `display` actually moved is what lets someone
+    // collapse the panel by hand and keep it collapsed, while still having
+    // `reading.frontMatter` mean something once it can be changed at all
+    // (`docs/05_SESSION_AND_SETTINGS.md`).
+    if (oldWidget.display != widget.display) {
+      _expanded = widget.display == FrontMatterDisplay.expanded;
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     if (widget.display == FrontMatterDisplay.hidden) {
       return const SizedBox.shrink();

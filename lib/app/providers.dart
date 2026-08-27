@@ -33,6 +33,8 @@ export 'package:marklens/app/open_set.dart'
     show OpenSetController, openSetProvider;
 export 'package:marklens/app/session_link.dart'
     show SessionLink, sessionLinkProvider;
+export 'package:marklens/app/settings_link.dart'
+    show AppSettingsController, settingsProvider;
 export 'package:marklens/app/window_link.dart'
     show
         NoWindowLink,

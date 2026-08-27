@@ -25,12 +25,20 @@ import 'package:marklens/app/menu/app_menu_bar.dart';
 import 'package:marklens/app/providers.dart';
 import 'package:marklens/app/theme/app_theme.dart';
 import 'package:marklens/core/markdown/pipeline.dart';
+import 'package:marklens/core/models/app_settings.dart';
 import 'package:marklens/core/models/opened_file.dart';
 import 'package:marklens/features/status/status_bar.dart';
 import 'package:marklens/l10n/gen/app_localizations.dart';
 
 /// A path that reads the same on both operating systems.
 const String samplePath = '/home/kokone/projects/marklens/docs/06_UI_UX.md';
+
+/// Pins the settings, so no golden reads `settings.json` — the menu bar takes
+/// its theme from there, and the real controller would want a config directory.
+class _FixedSettings extends AppSettingsController {
+  @override
+  AppSettings build() => const AppSettings();
+}
 
 /// Pins the active document, so no golden depends on the filesystem.
 class _FixedDocument extends ActiveDocumentController {
@@ -74,6 +82,7 @@ Future<void> pumpChrome(
   await tester.pumpWidget(
     ProviderScope(
       overrides: [
+        settingsProvider.overrideWith(_FixedSettings.new),
         if (document != null)
           activeDocumentProvider.overrideWith(() => _FixedDocument(document)),
       ],
