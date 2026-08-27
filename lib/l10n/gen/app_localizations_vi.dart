@@ -239,4 +239,27 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get outlineEmpty => 'Tài liệu này không có tiêu đề nào.';
+
+  @override
+  String get findPlaceholder => 'Tìm trong tài liệu';
+
+  @override
+  String findMatchCounter(int current, int total) {
+    return '$current/$total';
+  }
+
+  @override
+  String get findNoResults => 'Không có kết quả';
+
+  @override
+  String get findCaseSensitive => 'Phân biệt hoa thường';
+
+  @override
+  String get findNext => 'Kết quả tiếp theo';
+
+  @override
+  String get findPrevious => 'Kết quả trước';
+
+  @override
+  String get findClose => 'Đóng tìm kiếm';
 }

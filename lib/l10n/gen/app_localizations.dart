@@ -465,6 +465,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'This document has no headings.'**
   String get outlineEmpty;
+
+  /// Placeholder in the find bar's query field (docs/08).
+  ///
+  /// In en, this message translates to:
+  /// **'Find in document'**
+  String get findPlaceholder;
+
+  /// Find bar: which match you are on, out of how many (docs/08).
+  ///
+  /// In en, this message translates to:
+  /// **'{current}/{total}'**
+  String findMatchCounter(int current, int total);
+
+  /// Find bar counter when the query matches nothing.
+  ///
+  /// In en, this message translates to:
+  /// **'No matches'**
+  String get findNoResults;
+
+  /// Find bar: tooltip on the case-sensitivity toggle.
+  ///
+  /// In en, this message translates to:
+  /// **'Match case'**
+  String get findCaseSensitive;
+
+  /// Find bar: tooltip on the next-match arrow (Enter).
+  ///
+  /// In en, this message translates to:
+  /// **'Next match'**
+  String get findNext;
+
+  /// Find bar: tooltip on the previous-match arrow (Shift+Enter).
+  ///
+  /// In en, this message translates to:
+  /// **'Previous match'**
+  String get findPrevious;
+
+  /// Find bar: tooltip on the close button (Esc).
+  ///
+  /// In en, this message translates to:
+  /// **'Close find'**
+  String get findClose;
 }
 
 class _AppLocalizationsDelegate

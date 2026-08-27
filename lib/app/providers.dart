@@ -24,6 +24,8 @@ export 'package:marklens/app/chrome.dart'
     show ChromeController, ChromeState, chromeProvider;
 export 'package:marklens/app/documents.dart'
     show ActiveDocument, ActiveDocumentController, activeDocumentProvider;
+export 'package:marklens/app/find.dart'
+    show FindController, FindState, findProvider;
 export 'package:marklens/app/open_set.dart'
     show OpenSetController, openSetProvider;
 export 'package:marklens/app/reader_scroll.dart'

@@ -82,15 +82,25 @@ class _BlockFrameState extends State<BlockFrame> {
   @override
   Widget build(BuildContext context) {
     final tokens = ReaderTokens.of(context);
-    return ValueListenableBuilder<int>(
-      valueListenable: widget.scroller.pulsingBlock,
-      builder: (context, pulsing, child) {
-        final active = pulsing == widget.index;
+    return ListenableBuilder(
+      listenable: Listenable.merge(<Listenable>[
+        widget.scroller.pulsingBlock,
+        widget.scroller.highlightedBlocks,
+      ]),
+      builder: (context, child) {
+        final pulsing = widget.scroller.pulsingBlock.value == widget.index;
+        final matched = widget.scroller.highlightedBlocks.value.contains(
+          widget.index,
+        );
         return AnimatedContainer(
           duration: BlockScroller.pulseDuration ~/ 3,
-          // The accent, at the weight doc 06 reserves for it: a pulse that
-          // says "here", not a highlight that competes with the text.
-          color: active ? tokens.accent.withValues(alpha: 0.14) : null,
+          // The accent, at the weight doc 06 reserves for it: a mark that says
+          // "here", never a highlight that competes with the text. The pulse
+          // is the stronger of the two, so landing on a match still reads as
+          // an arrival rather than as one more tinted block.
+          color: pulsing
+              ? tokens.accent.withValues(alpha: 0.16)
+              : (matched ? tokens.accent.withValues(alpha: 0.07) : null),
           child: child,
         );
       },

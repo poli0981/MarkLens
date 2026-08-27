@@ -243,4 +243,27 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get outlineEmpty => 'This document has no headings.';
+
+  @override
+  String get findPlaceholder => 'Find in document';
+
+  @override
+  String findMatchCounter(int current, int total) {
+    return '$current/$total';
+  }
+
+  @override
+  String get findNoResults => 'No matches';
+
+  @override
+  String get findCaseSensitive => 'Match case';
+
+  @override
+  String get findNext => 'Next match';
+
+  @override
+  String get findPrevious => 'Previous match';
+
+  @override
+  String get findClose => 'Close find';
 }

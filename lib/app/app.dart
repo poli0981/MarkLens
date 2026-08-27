@@ -11,6 +11,7 @@ import 'package:marklens/core/files/extension_registry.dart';
 import 'package:marklens/core/storage/json_store.dart';
 import 'package:marklens/features/outline/outline_panel.dart';
 import 'package:marklens/features/reader/reader_view.dart';
+import 'package:marklens/features/search/find_bar.dart';
 import 'package:marklens/features/sidebar/sidebar_tree.dart';
 import 'package:marklens/features/status/status_bar.dart';
 import 'package:marklens/features/tabs/tab_strip.dart';
@@ -417,8 +418,13 @@ class _AppShellState extends ConsumerState<AppShell> with WindowListener {
           ),
           // The rest of the doc 06 inventory is bound but not yet implemented.
           // Binding them keeps the whole set reachable (spike S4).
+          FindInFileIntent: CallbackAction<FindInFileIntent>(
+            onInvoke: (_) {
+              ref.read(findProvider.notifier).open();
+              return null;
+            },
+          ),
           QuickSwitcherIntent: _todo(l10n.menuFile),
-          FindInFileIntent: _todo(l10n.menuFile),
           FindAcrossFilesIntent: _todo(l10n.menuFile),
           OpenSettingsIntent: _todo(l10n.menuSettings),
         },
@@ -449,7 +455,25 @@ class _AppShellState extends ConsumerState<AppShell> with WindowListener {
                           child: const SidebarTree(),
                         ),
                       Expanded(
-                        child: Focus(focusNode: _body, child: const _Body()),
+                        child: Focus(
+                          focusNode: _body,
+                          // The bar floats over the document rather than
+                          // pushing it down (doc 08): a find that reflows the
+                          // page moves the very text you were looking at.
+                          child: Stack(
+                            children: <Widget>[
+                              const Positioned.fill(child: _Body()),
+                              if (ref.watch(
+                                findProvider.select((find) => find.visible),
+                              ))
+                                const Positioned(
+                                  top: 8,
+                                  right: 16,
+                                  child: FindBar(),
+                                ),
+                            ],
+                          ),
+                        ),
                       ),
                       if (chrome.outlineVisible)
                         const SizedBox(width: 200, child: OutlinePanel()),
