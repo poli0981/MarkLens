@@ -109,3 +109,15 @@ network failure → silent (log ring buffer only)
 `activeDoc` (path + parsed DocModel) · `docCache` · `outline(activeDoc)` ·
 `watchEvents` (stream) · `findState` (in-file) · `crossSearchState` ·
 `updateBanner`.
+
+Live after M2, under the names they actually have: `settingsProvider`,
+`sessionLinkProvider`, `openSetProvider`, `activeDocumentProvider`,
+`docCacheProvider`, `chromeProvider`, `readerScrollProvider`,
+`watchLinkProvider` + `watchCoordinatorProvider`, `findProvider`. Still to
+come: `crossSearchState` and `updateBanner` (M3).
+
+`outline` never became a provider of its own — it is a field on the `DocModel`
+the active-document provider already holds, so a separate one would be a second
+name for the same object. `readerScrollProvider` is the addition this list did
+not anticipate: where the reader *is*, as opposed to what it is showing, and
+the thing the outline, the find bar and session restore all steer.
