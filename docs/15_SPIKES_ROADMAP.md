@@ -175,7 +175,7 @@ false `missing` badges during atomic saves.
 |---|---|---|
 | **M0** ✅ | Spikes S1, S2, S4, S5 (S3 deferred), pins locked in doc 01, repo + CI scaffolded with the boundary tests | done 2026-08-23 |
 | **M1 — usable daily** | Open file/folder, sidebar + tabs, pipeline + reader, session restore, single instance + CLI | 2 wk |
-| **M2 — comfortable** | Watch/auto-reload, outline, Ctrl+F, zoom, themes, front-matter panel | 1.5 wk |
+| **M2 — comfortable** ✅ | Watch/auto-reload, outline, Ctrl+F, zoom, themes, front-matter panel — plus the first visual pass's eight defects and the repo's first goldens | done |
 | **M3 — complete** | Cross-file search + Ctrl+P, MDX placeholders, link routing, file association, Settings UI, i18n vi/ja | 1.5 wk |
 | **M4 — shipped** | Packaging both OSes, A-1 reusable workflow, docs polish, v1.0.0 | 1 wk |
 
@@ -336,6 +336,53 @@ The sidebar row is deliberately covered by ordinary widget tests instead —
 asserting the rendered name is as wide as the text it contains, at the width
 the sidebar really has. That is font-independent, runs on both platforms, and
 states the actual rule rather than a picture of it.
+
+## M2 build order
+
+Six PRs, dependency-ordered. What M2 turned out to be, which the one-line
+roadmap entry above does not convey: **mostly wiring.** Almost every surface it
+names already had its pure-Dart core, its model, its ARB-labelled menu item and
+its keybinding, and no caller at all — `WatchNormalizer`, `Outline`,
+`recordScroll`, `SessionDocument.scroll`, `SettingsStore.save`,
+`FrontMatterPanel`, every zoom and find activator. The work was finding the
+missing caller, not writing the feature.
+
+1. **The visual pass** ✅ — all eight defects, not the three doc 15 listed;
+   see "What the first visual pass found" above. Plus the first goldens.
+2. **The File menu** ✅ — every item was a `todo()` stub while the identical
+   shortcuts worked. Now one `Actions` map serves both.
+3. **The settings bridge** ✅ — `settings.json` was read-only at runtime.
+   Zoom, theme, `contentMaxWidth` and the front-matter display all persist and
+   apply; the duplicated zoom and theme on `ChromeState` are gone rather than
+   synchronised.
+4. **Scroll to a block** ✅ — the one primitive seven features were waiting
+   on. `lib/app/reader_scroll.dart`, no new dependency, measurement plus
+   bounded convergence.
+5. **The outline panel** ✅ — heading tree, scroll-spy, click to jump.
+6. **The watcher** ✅ — `core/watch/watch_service.dart` and the coordinator
+   that turns its events into open-set changes, plus doc 03's focus sweep.
+7. **Find in file** ✅ — with doc 08 amended: per-match highlighting inside
+   rendered prose is not reachable through the renderer, and the measurement is
+   recorded in doc 01 beside its other load-bearing behaviours.
+
+Three cross-cutting blockers carried the risk, and none of them appears in the
+roadmap line: there was no settings→UI bridge, nothing could scroll to a block,
+and nothing started a watcher.
+
+**Still open at the end of M2**, both needing the real binary rather than a
+coding session:
+
+- **A second visual pass.** The first one is what produced this milestone's
+  opening work, and nothing in these six PRs changes the fact that layout and
+  copy are what tests here do not see. The goldens close a slice of it, no more.
+- **S5's last item.** Which editor performs which save pattern — save from VS
+  Code, Notepad++ and vim with a document open and confirm the reload is single
+  and prompt. All six patterns normalize identically, so it is a confirmation
+  rather than a risk, but until M2 there was no watcher to confirm it against.
+
+The bundled fonts (defect 8) remain outstanding by decision, not oversight:
+doc 01's Noto Sans JP size question is parked at M4 packaging, and the
+font-dependent renderer goldens doc 12 describes are blocked behind it.
 
 ## Release checklist (every tag)
 
