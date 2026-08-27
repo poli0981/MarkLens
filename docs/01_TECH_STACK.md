@@ -47,6 +47,15 @@ measured in S1, both covered by tests:
   real block that also renders as a `SizedBox`. Only `children[2i]` is correct.
 - **It emits nothing at all for block HTML.** The "Raw HTML (not rendered)" box
   in doc 04 must be produced upstream in `core/markdown/`.
+- **It exposes no span-level styling hook.** `MarkdownStyleSheet` maps tags to
+  styles and a `MarkdownElementBuilder` is handed a whole element and the
+  *block's* style, never the inline style in force — so nothing can style an
+  arbitrary range of characters inside rendered prose without re-rendering the
+  element and losing the bold, links and inline code inside it. Found at M2,
+  when find-in-file wanted per-match highlighting; doc 08 is amended to
+  block-level marking as a result. It is a property of this choice rather than
+  of the feature, which is why it belongs beside the other two: a future
+  renderer swap should score against it.
 
 ## Highlighting decision — **settled: `highlight 0.7.0`**
 

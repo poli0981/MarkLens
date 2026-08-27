@@ -303,5 +303,43 @@
   "outlineEmpty": "This document has no headings.",
   "@outlineEmpty": {
     "description": "Outline panel when the document has no headings at all (docs/06). Not an error."
+  },
+  "findPlaceholder": "Find in document",
+  "@findPlaceholder": {
+    "description": "Placeholder in the find bar's query field (docs/08)."
+  },
+  "findMatchCounter": "{current}/{total}",
+  "@findMatchCounter": {
+    "description": "Find bar: which match you are on, out of how many (docs/08).",
+    "placeholders": {
+      "current": {
+        "type": "int",
+        "example": "3"
+      },
+      "total": {
+        "type": "int",
+        "example": "17"
+      }
+    }
+  },
+  "findNoResults": "No matches",
+  "@findNoResults": {
+    "description": "Find bar counter when the query matches nothing."
+  },
+  "findCaseSensitive": "Match case",
+  "@findCaseSensitive": {
+    "description": "Find bar: tooltip on the case-sensitivity toggle."
+  },
+  "findNext": "Next match",
+  "@findNext": {
+    "description": "Find bar: tooltip on the next-match arrow (Enter)."
+  },
+  "findPrevious": "Previous match",
+  "@findPrevious": {
+    "description": "Find bar: tooltip on the previous-match arrow (Shift+Enter)."
+  },
+  "findClose": "Close find",
+  "@findClose": {
+    "description": "Find bar: tooltip on the close button (Esc)."
   }
 }

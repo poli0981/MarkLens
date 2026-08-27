@@ -71,6 +71,16 @@ class BlockScroller {
   /// The block currently flashing after a jump, or `-1`.
   final ValueNotifier<int> pulsingBlock = ValueNotifier<int>(-1);
 
+  /// Blocks containing a find match, tinted while the find bar is open.
+  ///
+  /// Here rather than threaded through the reader, because this is the same
+  /// question the pulse answers — which block is marked — and every block is
+  /// already listening to this object. A keystroke in the find bar therefore
+  /// repaints the blocks and nothing above them.
+  final ValueNotifier<Set<int>> highlightedBlocks = ValueNotifier<Set<int>>(
+    const <int>{},
+  );
+
   /// Called [settleDelay] after the reader stops moving, with the document's
   /// identity and where it is — one of doc 03's session-save triggers.
   void Function(String identity, double ratio)? onScrollSettled;
@@ -113,6 +123,7 @@ class BlockScroller {
     _afterFrame(() {
       topBlock.value = -1;
       pulsingBlock.value = -1;
+      highlightedBlocks.value = const <int>{};
       unawaited(restoreRatioPosition(restoreRatio));
     });
   }
@@ -313,6 +324,7 @@ class BlockScroller {
     topBlock.dispose();
     positionPercent.dispose();
     pulsingBlock.dispose();
+    highlightedBlocks.dispose();
   }
 }
 

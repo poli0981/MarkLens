@@ -234,4 +234,27 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get outlineEmpty => 'この文書には見出しがありません。';
+
+  @override
+  String get findPlaceholder => '文書内を検索';
+
+  @override
+  String findMatchCounter(int current, int total) {
+    return '$current/$total';
+  }
+
+  @override
+  String get findNoResults => '一致なし';
+
+  @override
+  String get findCaseSensitive => '大文字と小文字を区別';
+
+  @override
+  String get findNext => '次の一致';
+
+  @override
+  String get findPrevious => '前の一致';
+
+  @override
+  String get findClose => '検索を閉じる';
 }

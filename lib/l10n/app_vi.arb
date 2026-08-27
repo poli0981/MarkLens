@@ -60,5 +60,12 @@
   "statusBarNoDocument": "Không có tài liệu nào đang mở",
   "outlinePanelTitle": "Dàn ý",
   "settingsNotRestored": "Không đọc được cài đặt của bạn. Chúng đã được giữ lại bên cạnh các giá trị mặc định mới.",
-  "outlineEmpty": "Tài liệu này không có tiêu đề nào."
+  "outlineEmpty": "Tài liệu này không có tiêu đề nào.",
+  "findPlaceholder": "Tìm trong tài liệu",
+  "findMatchCounter": "{current}/{total}",
+  "findNoResults": "Không có kết quả",
+  "findCaseSensitive": "Phân biệt hoa thường",
+  "findNext": "Kết quả tiếp theo",
+  "findPrevious": "Kết quả trước",
+  "findClose": "Đóng tìm kiếm"
 }
