@@ -17,6 +17,7 @@ import 'package:marklens/app/app.dart';
 import 'package:marklens/app/providers.dart';
 import 'package:marklens/app/theme/app_theme.dart';
 import 'package:marklens/core/session/session_store.dart';
+import 'package:marklens/features/reader/reader_view.dart';
 import 'package:marklens/l10n/gen/app_localizations.dart';
 
 void main() {
@@ -91,6 +92,10 @@ void main() {
   Future<AppLocalizations> strings() =>
       AppLocalizations.delegate.load(const Locale('en'));
 
+  /// Restricts a finder to the reading surface.
+  Finder inReader(Finder matching) =>
+      find.descendant(of: find.byType(ReaderView), matching: matching);
+
   group('the File menu reaches its actions', () {
     testWidgets('Close Tab closes the active document', (tester) async {
       final a = write('a.md', '# A\n');
@@ -162,14 +167,16 @@ void main() {
       final container = await pumpShell(tester);
       container.read(openSetProvider.notifier).openPaths(<String>[path]);
       await tester.pumpAndSettle();
-      expect(find.text('Before'), findsOneWidget);
+      expect(inReader(find.text('Before')), findsOneWidget);
 
       File(path).writeAsStringSync('# After\n');
       final l10n = await strings();
       await chooseFile(tester, l10n.menuReload);
 
-      expect(find.text('After'), findsOneWidget);
-      expect(find.text('Before'), findsNothing);
+      // Scoped to the reader: the outline panel shows heading text too, so an
+      // unscoped matcher would find the same heading twice.
+      expect(inReader(find.text('After')), findsOneWidget);
+      expect(inReader(find.text('Before')), findsNothing);
     });
   });
 

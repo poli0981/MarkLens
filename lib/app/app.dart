@@ -9,6 +9,7 @@ import 'package:marklens/app/shortcuts.dart';
 import 'package:marklens/app/theme/app_theme.dart';
 import 'package:marklens/core/files/extension_registry.dart';
 import 'package:marklens/core/storage/json_store.dart';
+import 'package:marklens/features/outline/outline_panel.dart';
 import 'package:marklens/features/reader/reader_view.dart';
 import 'package:marklens/features/sidebar/sidebar_tree.dart';
 import 'package:marklens/features/status/status_bar.dart';
@@ -444,7 +445,7 @@ class _AppShellState extends ConsumerState<AppShell> with WindowListener {
                         child: Focus(focusNode: _body, child: const _Body()),
                       ),
                       if (chrome.outlineVisible)
-                        _Panel(label: l10n.outlinePanelTitle, width: 200),
+                        const SizedBox(width: 200, child: OutlinePanel()),
                     ],
                   ),
                 ),
@@ -498,25 +499,6 @@ class _Body extends ConsumerWidget {
       fontScale: reading.fontScale,
       contentMaxWidth: reading.contentMaxWidth.toDouble(),
       frontMatterDisplay: reading.frontMatter,
-    );
-  }
-}
-
-class _Panel extends StatelessWidget {
-  const _Panel({required this.label, required this.width});
-
-  final String label;
-  final double width;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Container(
-      width: width,
-      color: theme.colorScheme.surfaceContainerHighest,
-      alignment: Alignment.topCenter,
-      padding: const EdgeInsets.all(12),
-      child: Text(label, style: theme.textTheme.labelLarge),
     );
   }
 }

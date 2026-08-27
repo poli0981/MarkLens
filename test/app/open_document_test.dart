@@ -18,6 +18,7 @@ import 'package:marklens/app/open_files.dart';
 import 'package:marklens/app/providers.dart';
 import 'package:marklens/core/files/extension_registry.dart';
 import 'package:marklens/core/session/session_store.dart';
+import 'package:marklens/features/reader/reader_view.dart';
 
 /// Returns whatever it was told to, without touching a platform dialog.
 class _StubPrompt implements FilePickerPrompt {
@@ -57,6 +58,13 @@ void main() {
       root.deleteSync(recursive: true);
     }
   });
+
+  /// Restricts a finder to the reading surface.
+  ///
+  /// The outline panel renders heading text as well, so an unscoped matcher
+  /// finds a heading twice and `findsOneWidget` stops meaning what it says.
+  Finder inReader(Finder matching) =>
+      find.descendant(of: find.byType(ReaderView), matching: matching);
 
   ProviderContainer containerOf(WidgetTester tester) =>
       ProviderScope.containerOf(
@@ -113,7 +121,7 @@ void main() {
 
       expect(prompt.calls, 1);
       expect(
-        find.textContaining('Hello from disk', findRichText: true),
+        inReader(find.textContaining('Hello from disk', findRichText: true)),
         findsOneWidget,
       );
     });
@@ -245,7 +253,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(
-        find.textContaining('Changed on disk', findRichText: true),
+        inReader(find.textContaining('Changed on disk', findRichText: true)),
         findsOneWidget,
       );
       expect(

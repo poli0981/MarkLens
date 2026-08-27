@@ -299,5 +299,9 @@
   "settingsNotRestored": "Your settings could not be read. They have been kept alongside fresh defaults.",
   "@settingsNotRestored": {
     "description": "Snackbar when settings.json was corrupt or written by a newer version (docs/05)."
+  },
+  "outlineEmpty": "This document has no headings.",
+  "@outlineEmpty": {
+    "description": "Outline panel when the document has no headings at all (docs/06). Not an error."
   }
 }

@@ -236,4 +236,7 @@ class AppLocalizationsVi extends AppLocalizations {
   @override
   String get settingsNotRestored =>
       'Không đọc được cài đặt của bạn. Chúng đã được giữ lại bên cạnh các giá trị mặc định mới.';
+
+  @override
+  String get outlineEmpty => 'Tài liệu này không có tiêu đề nào.';
 }

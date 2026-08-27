@@ -17,6 +17,36 @@ class Outline {
 
   /// Whether the document has no headings at all.
   bool get isEmpty => entries.isEmpty;
+
+  /// The heading a reader looking at [blockIndex] is underneath.
+  ///
+  /// This is scroll-spy: entries are in document order, so the answer is the
+  /// last one that starts at or before the block on screen. `null` above the
+  /// first heading — a document may well open with a paragraph.
+  ///
+  /// Headings nested in a list or a block quote share the enclosing block's
+  /// index (doc 04), so several entries can answer for one block; the last of
+  /// them wins, which is the innermost heading the reader has passed.
+  OutlineEntry? headingAt(int blockIndex) {
+    OutlineEntry? found;
+    for (final entry in entries) {
+      if (entry.blockIndex > blockIndex) {
+        break;
+      }
+      found = entry;
+    }
+    return found;
+  }
+
+  /// The entry with [slug], or `null` — for `#anchor` links (doc 03).
+  OutlineEntry? bySlug(String slug) {
+    for (final entry in entries) {
+      if (entry.slug == slug) {
+        return entry;
+      }
+    }
+    return null;
+  }
 }
 
 /// A single heading in the [Outline].
