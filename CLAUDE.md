@@ -68,7 +68,8 @@ lib/
   app/               # shell, menu bar, shortcuts, providers wiring, theme
   core/              # PURE DART: models, files, markdown, session, watch,
                      # settings, update, search
-  features/          # sidebar, tabs, reader, outline, search, settings_ui, about
+  features/          # sidebar, tabs, reader, outline, search, status,
+                     # settings_ui, about
   l10n/              # app_en.arb, app_vi.arb, app_ja.arb
 test/
   core/  features/  architecture/  fixtures/torture/

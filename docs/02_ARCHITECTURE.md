@@ -8,7 +8,8 @@
 │             provider wiring (composition root) │
 ├────────────────────────────────────────────────┤
 │ features/   sidebar · tabs · reader · outline  │
-│             search · settings_ui · about       │
+│             search · status · settings_ui      │
+│             about                              │
 ├────────────────────────────────────────────────┤
 │ core/       PURE DART services + models        │
 │             (no package:flutter imports)       │
@@ -28,7 +29,14 @@ lib/
     open_set.dart            # which documents are open, active, pinned
     documents.dart           # the active document, parsed on activation
     session_link.dart        # session.json <-> the running app
+    settings_link.dart       # settings.json <-> the running app, debounced
+    reader_scroll.dart       # BlockScroller: the reader's position, addressed
+                             #   by block index — needs Flutter, and every
+                             #   feature that jumps needs it, so it lives here
+    find.dart                # find-in-file state (doc 08)
+    watch_coordinator.dart   # watch events -> open-set changes
     window_link.dart         # the seam over window_manager, stubbed in tests
+    watch_link.dart          # the seam over the watcher, stubbed in tests
     open_files.dart          # the seam over file_picker, stubbed in tests
     theme/                   # tokens, light/dark ThemeData
   core/                      # PURE DART — no package:flutter, ever (rule 3)
@@ -66,7 +74,7 @@ lib/
     cli/launch_arguments.dart    # paths, --help, --version; never throws
     single_instance.dart         # lock file + loopback socket arg-forwarding
   features/
-    sidebar/  tabs/  outline/  search/  settings_ui/  about/
+    sidebar/  tabs/  outline/  search/  status/  settings_ui/  about/
     reader/
       rendering/
         markdown_renderer.dart  # abstract MarkdownRenderer (S1 winner behind it)
@@ -90,6 +98,15 @@ test/
 Cross-feature communication goes through providers declared in
 `app/providers.dart` only. This keeps sidebar/tabs/reader decoupled and makes
 each feature testable alone.
+
+**This is also why some widget-layer state lives in `app/` rather than in the
+feature that looks like it owns it.** `BlockScroller` is the clear case: it
+needs Flutter, so `core/` is closed to it (rule 3), but the outline panel and
+the find bar both drive it and neither may import `features/reader/`. Same for
+`WatchCoordinator`, which is cross-cutting wiring rather than any feature's
+business. The test is not "where does this feel like it belongs" but "how many
+features need it" — more than one means `app/`, re-exported from
+`providers.dart`.
 
 The `core/` row is an **allowlist**, not a denylist: `core_purity_test.dart`
 fails on any import that is not explicitly permitted, so a newly added package
