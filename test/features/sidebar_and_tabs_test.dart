@@ -10,6 +10,7 @@ import 'dart:io';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:marklens/app/providers.dart';
@@ -274,6 +275,102 @@ void main() {
       expect(
         container.read(openSetProvider).activeIdentity,
         identityOf('b.md'),
+      );
+    });
+  });
+
+  // The defect the first visual pass found, and the reason it survived 716
+  // tests: every widget test above pumps the sidebar with no width constraint
+  // at all, where nothing has to compete for room. It only misbehaves at the
+  // width the sidebar actually has.
+  group('a row at the width the sidebar really is', () {
+    /// The width the shell gives the sidebar by default (`docs/05`).
+    const double sidebarWidth = 280;
+
+    Future<void> pumpSidebar(WidgetTester tester) => pump(
+      tester,
+      const SizedBox(width: sidebarWidth, child: SidebarTree()),
+    );
+
+    testWidgets('shows the whole file name when there is room for it', (
+      tester,
+    ) async {
+      writeFile('notes/README.md');
+      controller().openPaths(<String>[at('notes/README.md')]);
+      await pumpSidebar(tester);
+
+      final label = tester.renderObject<RenderParagraph>(
+        find.text('README.md'),
+      );
+      expect(
+        label.size.width,
+        closeTo(label.getMaxIntrinsicWidth(double.infinity), 0.5),
+        reason:
+            'the name used to share the row equally with the folder hint and a '
+            'Spacer, so it ellipsised to README.... with most of the row empty',
+      );
+    });
+
+    testWidgets('the folder hint yields to the name, not the other way', (
+      tester,
+    ) async {
+      writeFile('a-rather-deeply-nested-folder/README.md');
+      controller().openPaths(
+        <String>[at('a-rather-deeply-nested-folder/README.md')],
+      );
+      await pumpSidebar(tester);
+
+      final label = tester.renderObject<RenderParagraph>(
+        find.text('README.md'),
+      );
+      expect(
+        label.size.width,
+        closeTo(label.getMaxIntrinsicWidth(double.infinity), 0.5),
+        reason: 'doc 06: the name is the row, the folder is a hint',
+      );
+
+      final detail = tester.renderObject<RenderParagraph>(
+        find.text('a-rather-deeply-nested-folder'),
+      );
+      expect(
+        detail.size.width,
+        lessThan(detail.getMaxIntrinsicWidth(double.infinity)),
+        reason: 'the hint is what gives way when the row runs out of room',
+      );
+    });
+
+    testWidgets('a name too long for any row still ellipsises', (tester) async {
+      writeFile('notes/a-file-name-far-too-long-to-fit-in-any-sidebar.md');
+      controller().openPaths(
+        <String>[at('notes/a-file-name-far-too-long-to-fit-in-any-sidebar.md')],
+      );
+      await pumpSidebar(tester);
+
+      final label = tester.renderObject<RenderParagraph>(
+        find.text('a-file-name-far-too-long-to-fit-in-any-sidebar.md'),
+      );
+      expect(
+        label.size.width,
+        lessThanOrEqualTo(sidebarWidth),
+        reason: 'giving the name priority must not let it overflow the row',
+      );
+    });
+
+    testWidgets('the full path is reachable as a tooltip', (tester) async {
+      writeFile('notes/README.md');
+      controller().openPaths(<String>[at('notes/README.md')]);
+      await pumpSidebar(tester);
+
+      final tooltip = tester.widget<Tooltip>(
+        find.ancestor(
+          of: find.text('README.md'),
+          matching: find.byType(Tooltip),
+        ),
+      );
+      expect(
+        tooltip.message,
+        at('notes/README.md'),
+        reason: 'docs/09 asks for ellipsis *and* tooltip on paths',
       );
     });
   });

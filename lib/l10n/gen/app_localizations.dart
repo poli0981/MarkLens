@@ -423,6 +423,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The previous session could not be read. It has been kept alongside a fresh one.'**
   String get sessionNotRestored;
+
+  /// Status bar: how far through the document the reader has scrolled (docs/06).
+  ///
+  /// In en, this message translates to:
+  /// **'{percent}%'**
+  String statusBarPosition(int percent);
+
+  /// Status bar: words in the document, fenced code excluded (docs/06). Each CJK character counts as one word.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 word} other{{count} words}}'**
+  String statusBarWordCount(int count);
+
+  /// Status bar: how many parse notices the document raised (docs/06). Hidden when there are none.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 notice} other{{count} notices}}'**
+  String statusBarNotices(int count);
+
+  /// Status bar when nothing is open, in place of path/position/word count.
+  ///
+  /// In en, this message translates to:
+  /// **'No document open'**
+  String get statusBarNoDocument;
+
+  /// Heading of the outline panel beside the reader (docs/06).
+  ///
+  /// In en, this message translates to:
+  /// **'Outline'**
+  String get outlinePanelTitle;
 }
 
 class _AppLocalizationsDelegate

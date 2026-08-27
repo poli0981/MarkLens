@@ -203,4 +203,37 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get sessionNotRestored =>
       'The previous session could not be read. It has been kept alongside a fresh one.';
+
+  @override
+  String statusBarPosition(int percent) {
+    return '$percent%';
+  }
+
+  @override
+  String statusBarWordCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count words',
+      one: '1 word',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String statusBarNotices(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count notices',
+      one: '1 notice',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get statusBarNoDocument => 'No document open';
+
+  @override
+  String get outlinePanelTitle => 'Outline';
 }

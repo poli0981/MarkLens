@@ -53,5 +53,10 @@
   "openFolderCapBody": "MarkLens は先頭の {count} 件を開けます。すべて開くとサイドバーとセッションが見合わないほど遅くなります。",
   "openFolderCapAccept": "先頭の {count} 件を開く",
   "commonCancel": "キャンセル",
-  "sessionNotRestored": "前回のセッションを読み取れませんでした。新しいセッションの横に保存してあります。"
+  "sessionNotRestored": "前回のセッションを読み取れませんでした。新しいセッションの横に保存してあります。",
+  "statusBarPosition": "{percent}%",
+  "statusBarWordCount": "{count, plural, other{{count} 語}}",
+  "statusBarNotices": "{count, plural, other{{count} 件の通知}}",
+  "statusBarNoDocument": "文書が開かれていません",
+  "outlinePanelTitle": "アウトライン"
 }

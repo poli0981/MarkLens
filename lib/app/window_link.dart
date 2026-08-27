@@ -53,6 +53,13 @@ abstract class WindowLink {
 
   /// Brings the window forward, for a second launch handing paths over.
   Future<void> focus();
+
+  /// Enters or leaves full screen.
+  ///
+  /// The shell hides its own chrome for `F11` either way; without this the
+  /// window stayed exactly the size it was and only lost its menu bar, which
+  /// is not what `docs/06_UI_UX.md` promises.
+  Future<void> setFullScreen({required bool full});
 }
 
 /// The real window.
@@ -120,6 +127,16 @@ class PlatformWindowLink implements WindowLink {
 
   @override
   Future<void> focus() => windowManager.focus();
+
+  @override
+  Future<void> setFullScreen({required bool full}) async {
+    try {
+      await windowManager.setFullScreen(full);
+    } on Object {
+      // A compositor that refuses full screen is not a reason to take the app
+      // down (CLAUDE.md rule 9); the chrome still collapses either way.
+    }
+  }
 }
 
 /// A window that is not there.
@@ -148,4 +165,7 @@ class NoWindowLink implements WindowLink {
 
   @override
   Future<void> focus() async {}
+
+  @override
+  Future<void> setFullScreen({required bool full}) async {}
 }

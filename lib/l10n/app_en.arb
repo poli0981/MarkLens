@@ -257,5 +257,43 @@
   "sessionNotRestored": "The previous session could not be read. It has been kept alongside a fresh one.",
   "@sessionNotRestored": {
     "description": "Snackbar when session.json was corrupt or written by a newer version (docs/05)."
+  },
+  "statusBarPosition": "{percent}%",
+  "@statusBarPosition": {
+    "description": "Status bar: how far through the document the reader has scrolled (docs/06).",
+    "placeholders": {
+      "percent": {
+        "type": "int",
+        "example": "42"
+      }
+    }
+  },
+  "statusBarWordCount": "{count, plural, =1{1 word} other{{count} words}}",
+  "@statusBarWordCount": {
+    "description": "Status bar: words in the document, fenced code excluded (docs/06). Each CJK character counts as one word.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "1240"
+      }
+    }
+  },
+  "statusBarNotices": "{count, plural, =1{1 notice} other{{count} notices}}",
+  "@statusBarNotices": {
+    "description": "Status bar: how many parse notices the document raised (docs/06). Hidden when there are none.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "2"
+      }
+    }
+  },
+  "statusBarNoDocument": "No document open",
+  "@statusBarNoDocument": {
+    "description": "Status bar when nothing is open, in place of path/position/word count."
+  },
+  "outlinePanelTitle": "Outline",
+  "@outlinePanelTitle": {
+    "description": "Heading of the outline panel beside the reader (docs/06)."
   }
 }

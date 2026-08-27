@@ -53,5 +53,10 @@
   "openFolderCapBody": "MarkLens có thể mở {count} tài liệu đầu tiên. Mở hết sẽ làm sidebar và phiên làm việc chậm hơn mức đáng.",
   "openFolderCapAccept": "Mở {count} đầu tiên",
   "commonCancel": "Hủy",
-  "sessionNotRestored": "Không đọc được phiên làm việc trước. Nó đã được giữ lại bên cạnh một phiên mới."
+  "sessionNotRestored": "Không đọc được phiên làm việc trước. Nó đã được giữ lại bên cạnh một phiên mới.",
+  "statusBarPosition": "{percent}%",
+  "statusBarWordCount": "{count, plural, other{{count} từ}}",
+  "statusBarNotices": "{count, plural, other{{count} thông báo}}",
+  "statusBarNoDocument": "Không có tài liệu nào đang mở",
+  "outlinePanelTitle": "Dàn ý"
 }

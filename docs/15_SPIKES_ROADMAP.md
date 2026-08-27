@@ -271,20 +271,66 @@ The maintainer ran it and it starts fast. Three things no test caught, because
 every one of them is about layout or copy rather than behaviour — worth
 recording as the shape of what tests here do *not* cover:
 
-1. **The menu bar is centred, and should be left-aligned.** `AppShell`'s
-   `Column` has no `crossAxisAlignment`, so it defaults to `center`, and
-   `AppMenuBar` sizes to its content rather than filling. Doc 06's layout
-   diagram puts it at the left.
+1. **The menu bar is centred, and should be left-aligned.** ✅ Fixed at M2.
+   `AppShell`'s `Column` has no `crossAxisAlignment`, so it defaults to
+   `center`, and `AppMenuBar` sizes to its content rather than filling —
+   Material's `MenuBar` declares no minimum width, so it was the only child of
+   that column that shrink-wrapped. `CrossAxisAlignment.stretch` is the whole
+   fix. Doc 06's layout diagram puts it at the left.
 2. **The status bar is still the S4 prototype line** — `zoom … · sidebar … ·
    outline … · theme …` — where doc 06 specifies `path · position % · word
-   count · notices`. A live deviation from doc 06 sitting in `main`. Position
-   and word count both need work the reader does not do yet; path and notices
-   are available today.
+   count · notices`. ✅ Fixed at M2, all four fields, in
+   `features/status/status_bar.dart`. Position % came sooner than expected: it
+   only needed the reader to own a `ScrollController` and report a ratio,
+   which is a much smaller piece than the scroll-to-block work it was assumed
+   to depend on. Word count needed a new pure-Dart stage — see doc 06 for why
+   it is not a whitespace split.
 3. **A sidebar row truncates its file name too early** (`README....` with room
-   to spare). The name and its folder detail are both `Flexible`, so they split
-   the row evenly instead of the name taking what it needs first.
+   to spare). ✅ Fixed at M2. The name and its folder detail were both
+   `Flexible` beside a `Spacer` — three flex children of equal weight, so
+   `RenderFlex` gave each a third of the row and never redistributed what the
+   loose ones left unused. The pair now shares one `Expanded`, inside which the
+   folder is a capped non-flexible child laid out first and the name takes the
+   rest.
 
-These are the first work of M2, ahead of the watcher.
+### Five more the same pass turned up
+
+Found while fixing the three, all the same shape — the app not doing what a
+doc says, with no test able to notice:
+
+4. **The restored sidebar width had never once been honoured.** `session.json`
+   stores `sidebarWidth`, doc 05 clamps it, `SessionLink` restores it — and the
+   shell hardcoded `SizedBox(width: 240)`. ✅ Fixed at M2.
+5. **The outline panel's title was a hardcoded English literal**
+   (`_Panel(label: 'Outline')`), a second rule-4 violation beside the status
+   bar. ✅ Fixed at M2 with an ARB key the real panel will keep.
+6. **`F11` did not make the window full screen.** It flipped `ChromeState` and
+   hid the menu bar; `WindowLink` had no `setFullScreen`, so `window_manager`
+   was never told. ✅ Fixed at M2.
+7. **Every File menu item is a `todo()` stub** while the identical `Ctrl+O`,
+   `Ctrl+R`, `Ctrl+Shift+C` and `Ctrl+W` shortcuts work — the menu advertises
+   behaviour it does not have. Same class of defect as the status bar, but
+   behavioural rather than visual, so it is its own PR rather than folded in.
+8. **The bundled fonts were never added.** `pubspec.yaml` still said they
+   "land here at M1"; there is no `fonts/` directory and no `.ttf` in the tree,
+   so VI/JA render in whatever the OS supplies — against charter principle 1.
+   Not fixed at M2: doc 01's Noto Sans JP size decision is still open and is
+   parked at M4 packaging. The stale comment is corrected and the gap is
+   recorded here.
+
+### And the first goldens
+
+The lesson of this pass is that 716 tests were strong on what the app *does*
+and blind to what it *shows*. `test/goldens/shell_chrome_golden_test.dart`
+closes part of that: layout goldens over the menu bar and the status bar, which
+also switches on the self-activating CI `golden` job so later goldens are free.
+They were generated on the Windows dev machine because no Linux environment was
+available there, so **the first Ubuntu CI run is what blesses them** (doc 12).
+
+The sidebar row is deliberately covered by ordinary widget tests instead —
+asserting the rendered name is as wide as the text it contains, at the width
+the sidebar really has. That is font-independent, runs on both platforms, and
+states the actual rule rather than a picture of it.
 
 ## Release checklist (every tag)
 

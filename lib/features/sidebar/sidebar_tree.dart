@@ -213,6 +213,13 @@ class _GroupRow extends StatelessWidget {
   }
 }
 
+/// How much of a row the folder hint may take before it ellipsises.
+///
+/// A cap rather than a share: at the sidebar's real width there is only room
+/// for one of the two to be complete, and doc 06 says which one — "name, subtle
+/// relative path".
+const double _detailMaxWidth = 96;
+
 class _FileRow extends StatelessWidget {
   const _FileRow({
     required this.row,
@@ -247,31 +254,64 @@ class _FileRow extends StatelessWidget {
                 padding: const EdgeInsets.only(right: 4),
                 child: Icon(Icons.push_pin, size: 11, color: tokens.fgMuted),
               ),
-            Flexible(
-              child: Text(
-                row.label,
-                overflow: TextOverflow.ellipsis,
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: entry.file.missing ? tokens.fgMuted : tokens.fg,
-                  fontStyle: entry.file.missing ? FontStyle.italic : null,
-                  fontWeight: active ? FontWeight.w600 : null,
-                ),
-              ),
-            ),
-            if (row.detail.isNotEmpty)
-              Flexible(
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 6),
-                  child: Text(
-                    row.detail,
-                    overflow: TextOverflow.ellipsis,
-                    style: theme.textTheme.labelSmall?.copyWith(
-                      color: tokens.fgMuted,
+            // The name and its folder used to be two `Flexible`s beside a
+            // `Spacer`, which is three flex children of equal weight sharing
+            // the free space in equal thirds — so `README.md` ellipsised to
+            // `README....` with most of the row still empty. `RenderFlex`
+            // hands each loose child its share and never redistributes what
+            // one of them leaves unused, so the split could not come out any
+            // other way.
+            //
+            // Now the pair owns all the leftover width together, and inside it
+            // the folder is a capped non-flexible child. Non-flexible children
+            // are laid out first, so the folder takes what little it needs and
+            // the name — the only flexible child left — takes the rest. Which
+            // is doc 06's intent expressed as layout: the name is the row, the
+            // folder is a hint.
+            Expanded(
+              child: Row(
+                children: <Widget>[
+                  Flexible(
+                    // "Ellipsis + tooltip for paths" (`docs/09_I18N.md`): a
+                    // truncated name is only tolerable if the whole one is
+                    // still reachable, and the sidebar had the ellipsis
+                    // without the tooltip.
+                    child: Tooltip(
+                      message: entry.file.path,
+                      child: Text(
+                        row.label,
+                        overflow: TextOverflow.ellipsis,
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: entry.file.missing
+                              ? tokens.fgMuted
+                              : tokens.fg,
+                          fontStyle: entry.file.missing
+                              ? FontStyle.italic
+                              : null,
+                          fontWeight: active ? FontWeight.w600 : null,
+                        ),
+                      ),
                     ),
                   ),
-                ),
+                  if (row.detail.isNotEmpty)
+                    ConstrainedBox(
+                      constraints: const BoxConstraints(
+                        maxWidth: _detailMaxWidth,
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 6),
+                        child: Text(
+                          row.detail,
+                          overflow: TextOverflow.ellipsis,
+                          style: theme.textTheme.labelSmall?.copyWith(
+                            color: tokens.fgMuted,
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
               ),
-            const Spacer(),
+            ),
             if (entry.file.missing)
               Tooltip(
                 message: l10n.sidebarMissingBadge,
