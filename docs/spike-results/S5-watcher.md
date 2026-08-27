@@ -110,6 +110,23 @@ from VS Code, Notepad++ and vim, and check the reload is single and prompt. If
 any editor produces a sequence not in the table above, add it to
 `test/platform/watch_observation_test.dart` and it becomes a regression test.
 
+### Confirmed for Notepad++ — 2026-08-27
+
+**Notepad++ on Windows 11/NTFS: the reload is single and immediate.** The
+maintainer saved a document open in MarkLens and it updated at once, with no
+`missing` badge flashing in between — which is the observable half of the
+classification rule, since a false `missing` is exactly what a delete-then-write
+save would produce if the kinds were being trusted.
+
+That was the first save this could be checked against at all: the watcher only
+came into existence at M2, so from M0 to M1 there was nothing running to
+confirm it against.
+
+Whatever pattern Notepad++ used, it normalized as the table predicts, and no
+sequence outside P1–P6 surfaced. **VS Code and vim are still unconfirmed** —
+the same low-risk confirmation, for the same reason: every pattern in the table
+ends the same way.
+
 Re-run the observations any time with:
 
 ```bash
