@@ -114,18 +114,29 @@ class WatchService {
     return <String>{
       for (final candidate in candidates)
         if (!rootSet.any(
-          (root) => root != candidate && _isInside(candidate, root),
+          (root) => root != candidate && isInsideDirectory(candidate, root),
         ))
           candidate,
     };
   }
 
-  static bool _isInside(String path, String directory) {
-    final prefix = directory.endsWith(Platform.pathSeparator)
-        ? directory
-        : '$directory${Platform.pathSeparator}';
-    return path.toLowerCase().startsWith(prefix.toLowerCase());
+  /// Whether [path] sits under [directory].
+  ///
+  /// Separator-agnostic, like `basenameOf` and [parentOf], and for the same
+  /// reason: a root can reach us from a session file written on the other
+  /// operating system. Keying this on `Platform.pathSeparator` looked right on
+  /// Windows and quietly watched every directory twice on Linux.
+  ///
+  /// The trailing separator is not decoration either: without it `/docs2`
+  /// counts as being inside `/docs`.
+  static bool isInsideDirectory(String path, String directory) {
+    final root = _canonical(directory);
+    final prefix = root.endsWith('/') ? root : '$root/';
+    return _canonical(path).startsWith(prefix);
   }
+
+  static String _canonical(String path) =>
+      path.replaceAll(r'\', '/').toLowerCase();
 
   void _start(String directory) {
     try {

@@ -72,10 +72,14 @@ class WatchCoordinator {
     ref.read(watchLinkProvider).sync(roots: roots, files: files);
   }
 
-  static bool _isUnderRoot(String path, Set<String> roots) {
-    final lower = path.toLowerCase();
-    return roots.any((root) => lower.startsWith(root.toLowerCase()));
-  }
+  /// Whether [path] is already covered by one of the watched [roots].
+  ///
+  /// Shares `WatchService`'s comparison rather than case-folding and comparing
+  /// prefixes here: that version treated `/docs2/note.md` as living under
+  /// `/docs`, and keyed on the platform separator, which is wrong for a root
+  /// restored from a session written on the other operating system.
+  static bool _isUnderRoot(String path, Set<String> roots) =>
+      roots.any((root) => WatchService.isInsideDirectory(path, root));
 
   static bool _setsEqual(Set<String> a, Set<String> b) =>
       a.length == b.length && a.containsAll(b);
