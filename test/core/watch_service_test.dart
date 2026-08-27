@@ -104,6 +104,40 @@ void main() {
       );
     });
 
+    test('nesting is judged the same way whichever separator wrote it', () {
+      // This is the one that only failed on Linux: the check used to key on
+      // `Platform.pathSeparator`, so a Windows-style root restored from a
+      // session written on the other OS quietly got two watchers.
+      for (final paths in <(String, String)>[
+        (r'C:\docs', r'C:\docs\guide\intro.md'),
+        ('/home/kokone/docs', '/home/kokone/docs/guide/intro.md'),
+      ]) {
+        final service = WatchService(
+          pathExists: (_) => true,
+          openWatcher: _FakeWatcher.new,
+        )..watch(roots: <String>[paths.$1], files: <String>[paths.$2]);
+        addTearDown(service.dispose);
+
+        expect(
+          service.watchedDirectories,
+          <String>[paths.$1],
+          reason: '${paths.$2} is already inside ${paths.$1}',
+        );
+      }
+    });
+
+    test('a sibling directory with a shared prefix is not "inside"', () {
+      expect(
+        WatchService.isInsideDirectory(r'C:\docs2\note.md', r'C:\docs'),
+        isFalse,
+        reason: 'without the trailing separator, docs2 counts as inside docs',
+      );
+      expect(
+        WatchService.isInsideDirectory(r'C:\docs\note.md', r'C:\docs'),
+        isTrue,
+      );
+    });
+
     test('calling watch again with the same set changes nothing', () {
       service.watch(roots: <String>[r'C:\docs'], files: const <String>[]);
       final first = opened[r'C:\docs'];
