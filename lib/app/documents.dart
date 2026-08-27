@@ -119,3 +119,27 @@ activeDocumentProvider =
     NotifierProvider<ActiveDocumentController, ActiveDocument>(
       ActiveDocumentController.new,
     );
+
+/// How far through the active document the reader is scrolled, as a 0..1 ratio.
+///
+/// Kept apart from [ActiveDocument] on purpose. The document changes when a tab
+/// is activated or a file is re-parsed; the position changes while someone is
+/// reading. Folding the second into the first would put every dependent of the
+/// parse path — the reader, the outline, the cache key — behind a value that
+/// moves as the wheel turns.
+///
+/// The reader reports it only when the whole percent changes (`ReaderView`),
+/// which is the resolution the status bar displays.
+class ReaderPositionController extends Notifier<double> {
+  @override
+  double build() => 0;
+
+  /// Records where the reader is now.
+  void record(double ratio) => state = ratio.clamp(0.0, 1.0);
+}
+
+/// The reader-position provider.
+final NotifierProvider<ReaderPositionController, double>
+readerPositionProvider = NotifierProvider<ReaderPositionController, double>(
+  ReaderPositionController.new,
+);

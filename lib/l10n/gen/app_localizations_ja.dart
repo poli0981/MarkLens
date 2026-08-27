@@ -197,4 +197,35 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get sessionNotRestored => '前回のセッションを読み取れませんでした。新しいセッションの横に保存してあります。';
+
+  @override
+  String statusBarPosition(int percent) {
+    return '$percent%';
+  }
+
+  @override
+  String statusBarWordCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count 語',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String statusBarNotices(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count 件の通知',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get statusBarNoDocument => '文書が開かれていません';
+
+  @override
+  String get outlinePanelTitle => 'アウトライン';
 }

@@ -7,6 +7,13 @@ import 'package:marklens/features/reader/notice_bar.dart';
 import 'package:marklens/features/reader/rendering/flutter_markdown_plus_renderer.dart';
 import 'package:marklens/features/reader/rendering/markdown_renderer.dart';
 
+/// The renderer the app actually reads with, wired to the reader's controller.
+///
+/// A named top-level function rather than a closure so it can be a `const`
+/// default argument.
+MarkdownRenderer defaultRendererFactory(ScrollController controller) =>
+    FlutterMarkdownPlusRenderer(controller: controller);
+
 /// The reading surface: notices, the front-matter panel, and the document.
 ///
 /// Everything below the notice bar is the document; everything the renderer
@@ -16,10 +23,11 @@ class ReaderView extends StatefulWidget {
   /// Creates a reader for [doc].
   const ReaderView({
     required this.doc,
-    this.renderer = const FlutterMarkdownPlusRenderer(),
+    this.rendererFactory = defaultRendererFactory,
     this.frontMatterDisplay = FrontMatterDisplay.collapsed,
     this.contentMaxWidth = 760,
     this.zoom = 1,
+    this.onPosition,
     super.key,
   });
 
@@ -27,7 +35,22 @@ class ReaderView extends StatefulWidget {
   final DocModel doc;
 
   /// The seam. Injected so a test can render without the real package.
-  final MarkdownRenderer renderer;
+  ///
+  /// A factory rather than a renderer, because the reader owns the scroll
+  /// controller and the renderer needs it: the document's scroll view lives
+  /// inside the renderer (that is what makes blocks lazy), while everything
+  /// that wants to *drive* it — the status bar's position, session restore,
+  /// outline jumps — lives outside. The same shape
+  /// `integration_test/perf_gate_test.dart` already uses, so the
+  /// `MarkdownRenderer` interface itself is untouched (CLAUDE.md rule 6).
+  final MarkdownRenderer Function(ScrollController controller) rendererFactory;
+
+  /// Called with how far through the document the reader is, as a 0..1 ratio.
+  ///
+  /// Fires only when the whole percent changes, not on every scroll tick: the
+  /// status bar shows a percentage, so finer reporting would rebuild it sixty
+  /// times a second to display the same string (CLAUDE.md rule 7).
+  final ValueChanged<double>? onPosition;
 
   /// How the front-matter panel opens (`docs/05`).
   final FrontMatterDisplay frontMatterDisplay;
@@ -45,14 +68,83 @@ class ReaderView extends StatefulWidget {
 class _ReaderViewState extends State<ReaderView> {
   bool _noticesDismissed = false;
 
+  final ScrollController _scroll = ScrollController();
+
+  /// The last whole percent reported, so identical values are not re-sent.
+  int _percent = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _scroll.addListener(_reportPosition);
+  }
+
   @override
   void didUpdateWidget(ReaderView oldWidget) {
     super.didUpdateWidget(oldWidget);
-    // A new document gets its notices back. Dismissing a notice says "I have
-    // read this one", not "stop telling me about documents".
     if (!identical(oldWidget.doc, widget.doc)) {
+      // A new document gets its notices back. Dismissing a notice says "I have
+      // read this one", not "stop telling me about documents".
       _noticesDismissed = false;
+      // And it starts at the top. Without this the list keeps the offset of
+      // the document that was showing a moment ago, because the state — and
+      // so the controller — survives a tab switch.
+      _resetToTop = true;
+      _schedulePositionReport();
     }
+  }
+
+  void _reportPosition() => _schedulePositionReport();
+
+  /// Whether the next report should first put the list back at the top.
+  bool _resetToTop = false;
+
+  /// Whether a report is already queued for the end of this frame.
+  bool _reportPending = false;
+
+  /// Reports the position after the frame, never during it.
+  ///
+  /// The listener fires while the scroll view is laying out — and it fires for
+  /// the first time as the position attaches, before anything has been
+  /// scrolled at all. Telling a provider about it there is a state change
+  /// during build, which Flutter tears the widget tree down over. Once per
+  /// frame at the end of it is both safe and finer resolution than a status
+  /// bar showing whole percents can use.
+  void _schedulePositionReport() {
+    if (_reportPending) {
+      return;
+    }
+    _reportPending = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _reportPending = false;
+      if (!mounted || !_scroll.hasClients) {
+        return;
+      }
+      if (_resetToTop) {
+        _resetToTop = false;
+        _scroll.jumpTo(0);
+      }
+      final extent = _scroll.position.maxScrollExtent;
+      // A document shorter than the viewport does not scroll, and dividing by
+      // its zero extent would report NaN rather than "at the top".
+      final ratio = extent <= 0
+          ? 0.0
+          : (_scroll.offset / extent).clamp(0.0, 1.0);
+      final percent = (ratio * 100).round();
+      if (percent == _percent) {
+        return;
+      }
+      _percent = percent;
+      widget.onPosition?.call(ratio);
+    });
+  }
+
+  @override
+  void dispose() {
+    _scroll
+      ..removeListener(_reportPosition)
+      ..dispose();
+    super.dispose();
   }
 
   @override
@@ -105,7 +197,9 @@ class _ReaderViewState extends State<ReaderView> {
                       child: MediaQuery.withClampedTextScaling(
                         minScaleFactor: widget.zoom,
                         maxScaleFactor: widget.zoom,
-                        child: widget.renderer.build(context, widget.doc),
+                        child: widget
+                            .rendererFactory(_scroll)
+                            .build(context, widget.doc),
                       ),
                     ),
                   ),

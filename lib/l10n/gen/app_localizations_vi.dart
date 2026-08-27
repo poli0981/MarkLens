@@ -201,4 +201,35 @@ class AppLocalizationsVi extends AppLocalizations {
   @override
   String get sessionNotRestored =>
       'Không đọc được phiên làm việc trước. Nó đã được giữ lại bên cạnh một phiên mới.';
+
+  @override
+  String statusBarPosition(int percent) {
+    return '$percent%';
+  }
+
+  @override
+  String statusBarWordCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count từ',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String statusBarNotices(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count thông báo',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get statusBarNoDocument => 'Không có tài liệu nào đang mở';
+
+  @override
+  String get outlinePanelTitle => 'Dàn ý';
 }

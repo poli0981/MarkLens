@@ -64,5 +64,8 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   generate: true
-  # Bundled fonts (Noto Sans / Noto Sans JP / JetBrains Mono) land here at M1.
-  # The Noto Sans JP size question is still open — see docs/01_TECH_STACK.md.
+  # Bundled fonts (Noto Sans / Noto Sans JP / JetBrains Mono) are NOT here yet.
+  # They did not land at M1 as this comment used to claim; doc 01 describes them
+  # as shipped and doc 12 wants renderer goldens rendered with them, so both are
+  # blocked until the Noto Sans JP size question closes — parked at M4 packaging
+  # (docs/01_TECH_STACK.md, docs/15_SPIKES_ROADMAP.md).

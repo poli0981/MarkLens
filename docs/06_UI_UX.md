@@ -16,8 +16,43 @@
 └───────────────────────────────────────────────────────┘
 ```
 
-Sidebar and outline are collapsible; widths persist in session. The reader
-column centers at `reading.contentMaxWidth` for comfortable line length.
+Sidebar and outline are collapsible. **The sidebar's width persists in the
+session; the outline's does not** — `session.json` v1 has `sidebarWidth` and no
+`outlineWidth` (doc 05), so the outline is fixed-width in v1. Corrected at M2
+rather than adding the field: a second width would need a schema bump and a
+migration fixture for no behaviour anyone asked for. The reader column centers
+at `reading.contentMaxWidth` for comfortable line length.
+
+## Status bar
+
+`path · position % · word count · notices`, left to right, `·`-separated.
+Written down properly at M2, because until then this line was still the S4
+prototype's debug output (`zoom … · sidebar … · outline … · theme …`) — the
+one place in the shell that shipped hardcoded English.
+
+- **path** is `OpenedFile.path`, the display path in its on-disk casing —
+  never `identity`, which is case-folded and would lower-case the folder names
+  the user chose (doc 07). It takes whatever width the other three leave,
+  ellipsises, and carries the full path as a tooltip (doc 09).
+- **position %** is the reader's scroll offset over its extent. A document
+  shorter than the window reads 0%. It is reported only when the whole percent
+  changes, so scrolling does not rebuild the bar sixty times a second (rule 7).
+- **word count** is over `sanitizedSource`, so front matter is not counted —
+  it is metadata, not prose — and **fenced code is not counted either**,
+  including the rescued raw-HTML blocks, which are fences by the time the
+  reader sees them (doc 04). A reader asking how long a document is means the
+  prose; a code sample would otherwise dominate the number.
+
+  **Words are not whitespace-delimited runs.** Japanese is written without
+  spaces, so splitting on whitespace reports a whole Japanese document as
+  roughly one word, and doc 09 makes Japanese a first-class locale. Each CJK
+  ideograph and kana counts as one word — the convention Japanese word
+  processors use — while spaced scripts count runs. A run must contain a
+  letter or digit to count, so a table rule or a thematic break is punctuation
+  rather than prose. Vietnamese needs no special case: its combining marks are
+  ordinary non-separator characters.
+- **notices** is the count of `DocModel.notices`, and the field is **absent**
+  at zero rather than reading "0 notices".
 
 ## Menu map
 

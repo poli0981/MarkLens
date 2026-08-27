@@ -11,6 +11,7 @@ import 'package:marklens/core/files/extension_registry.dart';
 import 'package:marklens/core/storage/json_store.dart';
 import 'package:marklens/features/reader/reader_view.dart';
 import 'package:marklens/features/sidebar/sidebar_tree.dart';
+import 'package:marklens/features/status/status_bar.dart';
 import 'package:marklens/features/tabs/tab_strip.dart';
 import 'package:marklens/l10n/gen/app_localizations.dart';
 import 'package:window_manager/window_manager.dart';
@@ -320,6 +321,13 @@ class _AppShellState extends ConsumerState<AppShell> with WindowListener {
           ToggleFullScreenIntent: CallbackAction<ToggleFullScreenIntent>(
             onInvoke: (_) {
               controller.toggleFullScreen();
+              // The chrome collapsing is only half of it; the window has to be
+              // told too, or F11 just hides the menu bar.
+              unawaited(
+                ref
+                    .read(windowLinkProvider)
+                    .setFullScreen(full: ref.read(chromeProvider).fullScreen),
+              );
               return null;
             },
           ),
@@ -386,6 +394,12 @@ class _AppShellState extends ConsumerState<AppShell> with WindowListener {
           onKeyEvent: _onKey,
           child: Scaffold(
             body: Column(
+              // Without this the column centres its children, and the menu bar
+              // is the only one that shrink-wraps — Material's MenuBar declares
+              // no minimum width — so it floated in the middle of the window
+              // while everything else filled. Doc 06's layout diagram puts it
+              // at the left, which is where a stretched box leaves it.
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: <Widget>[
                 if (!chrome.fullScreen)
                   AppMenuBar(fileMenuController: _fileMenu),
@@ -394,7 +408,13 @@ class _AppShellState extends ConsumerState<AppShell> with WindowListener {
                   child: Row(
                     children: <Widget>[
                       if (chrome.sidebarVisible)
-                        const SizedBox(width: 240, child: SidebarTree()),
+                        SizedBox(
+                          // The restored width, not a hardcoded one: the
+                          // session stores it and doc 05 clamps it, and the
+                          // shell used to ignore both.
+                          width: chrome.sidebarWidth,
+                          child: const SidebarTree(),
+                        ),
                       Expanded(
                         child: Focus(
                           focusNode: _body,
@@ -402,11 +422,11 @@ class _AppShellState extends ConsumerState<AppShell> with WindowListener {
                         ),
                       ),
                       if (chrome.outlineVisible)
-                        const _Panel(label: 'Outline', width: 200),
+                        _Panel(label: l10n.outlinePanelTitle, width: 200),
                     ],
                   ),
                 ),
-                _StatusBar(chrome: chrome),
+                const StatusBar(),
               ],
             ),
           ),
@@ -443,7 +463,11 @@ class _Body extends ConsumerWidget {
         ),
       );
     }
-    return ReaderView(doc: doc, zoom: zoom);
+    return ReaderView(
+      doc: doc,
+      zoom: zoom,
+      onPosition: ref.read(readerPositionProvider.notifier).record,
+    );
   }
 }
 
@@ -462,30 +486,6 @@ class _Panel extends StatelessWidget {
       alignment: Alignment.topCenter,
       padding: const EdgeInsets.all(12),
       child: Text(label, style: theme.textTheme.labelLarge),
-    );
-  }
-}
-
-class _StatusBar extends StatelessWidget {
-  const _StatusBar({required this.chrome});
-
-  final ChromeState chrome;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Container(
-      width: double.infinity,
-      color: theme.colorScheme.surfaceContainerHighest,
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      child: Text(
-        'zoom ${(chrome.zoom * 100).round()}%  ·  '
-        'sidebar ${chrome.sidebarVisible ? 'on' : 'off'}  ·  '
-        'outline ${chrome.outlineVisible ? 'on' : 'off'}  ·  '
-        'theme ${chrome.themeMode.name}'
-        '${chrome.fullScreen ? '  ·  full screen' : ''}',
-        style: theme.textTheme.bodySmall,
-      ),
     );
   }
 }

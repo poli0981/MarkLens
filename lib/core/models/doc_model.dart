@@ -1,3 +1,4 @@
+import 'package:marklens/core/markdown/word_count.dart';
 import 'package:marklens/core/models/outline.dart';
 
 /// The complete result of parsing one document — and the point at which
@@ -9,7 +10,14 @@ import 'package:marklens/core/models/outline.dart';
 /// `docs/02_ARCHITECTURE.md`, "The seam".
 class DocModel {
   /// Creates a parsed document.
-  const DocModel({
+  ///
+  /// [wordCount] is derived here rather than passed in, which is why this
+  /// constructor is not `const`. The status bar shows the number
+  /// (`docs/06_UI_UX.md`), and a count that arrived as a separate argument
+  /// could disagree with the text beside it; computing it from
+  /// [sanitizedSource] makes that unrepresentable. The cost is one linear scan
+  /// per parse, against a parse that is already linear.
+  DocModel({
     required this.path,
     required this.rawSource,
     required this.sanitizedSource,
@@ -17,7 +25,7 @@ class DocModel {
     required this.blocks,
     this.frontMatter,
     this.notices = const <DocNotice>[],
-  });
+  }) : wordCount = countWords(sanitizedSource);
 
   /// Canonical absolute path of the source file. Identity for the open set,
   /// the cache key and the session file (docs/07_FILES_AND_WATCH.md).
@@ -59,6 +67,12 @@ class DocModel {
   ///
   /// Every one of these must degrade rather than throw (CLAUDE.md rule 9).
   final List<DocNotice> notices;
+
+  /// Words in [sanitizedSource], fenced code excluded.
+  ///
+  /// Counted rather than split on whitespace, so Japanese does not report one
+  /// word per paragraph — see `countWords`.
+  final int wordCount;
 }
 
 /// A top-level block of the source, located by line and character offset.

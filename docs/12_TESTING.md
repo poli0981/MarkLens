@@ -22,10 +22,33 @@
    quality** (`test/features/reader_selection_test.dart`) — cross-block copy,
    Vietnamese and Japanese, code indentation, and auto-scroll drag. That last
    group is a release gate (doc 15, S2).
-3. **Golden tests** (renderer output): torture pages rendered with the
-   bundled fonts. **Run on the ubuntu CI runner only** — bundled fonts make
-   goldens stable there. Mechanics: the tag is declared in `dart_test.yaml`,
-   each golden file starts with `@Tags(['golden'])`, and the split is
+3. **Golden tests.** Two kinds, and the distinction matters because only one
+   of them exists yet.
+
+   **Layout goldens** — `test/goldens/shell_chrome_golden_test.dart`, the first
+   goldens in the repo, added at M2. They pin the chrome the first visual pass
+   found broken: where the menu bar starts and how wide it runs, and which
+   fields the status bar shows in what order. They depend on no font, because
+   `flutter_test` substitutes its own fixed-width test font, and on no
+   filesystem — every fixture is a literal, since a golden that embeds
+   `Directory.systemTemp` differs between the dev machine and the runner.
+
+   **Renderer goldens** — torture pages, the ones this section was originally
+   about. **Still unwritten**, and blocked: they need the bundled fonts, and
+   `pubspec.yaml` has no `fonts:` entry despite doc 01 describing three. Doc
+   01's open Noto Sans JP size decision has to close first.
+
+   **Both run on the ubuntu CI runner only.** For renderer goldens the reason
+   is the bundled fonts; for the layout goldens it is simply that
+   rasterization differs between platforms whatever the font, so one runner
+   has to be the reference. **Regenerate on Ubuntu, never on Windows** — the
+   references committed at M2 were generated on the dev machine because no
+   Linux environment was available there, so the first CI golden run is what
+   actually blesses them.
+
+   Mechanics: the tag is declared in `dart_test.yaml`,
+   each golden file starts with `@Tags(['golden'])` — the CI job self-activates
+   by grepping for exactly that literal — and the split is
 
    ```bash
    flutter test --exclude-tags "golden || watcher-live"   # local + windows CI
