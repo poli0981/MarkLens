@@ -196,6 +196,42 @@ abstract class AppLocalizations {
   /// **'Couldn’t hand {host} to the browser.'**
   String readerLinkLaunchFailed(String host);
 
+  /// Placeholder for a local image whose resolved path does not exist. The path is shown beneath, untranslated.
+  ///
+  /// In en, this message translates to:
+  /// **'Image not found'**
+  String get readerImageMissing;
+
+  /// Placeholder for a src outside the extension allowlist, or with a scheme MarkLens does not load (docs/04).
+  ///
+  /// In en, this message translates to:
+  /// **'Not a supported image'**
+  String get readerImageUnsupported;
+
+  /// Placeholder for an http(s) image while network.allowRemoteImages is off, which is the default (docs/10).
+  ///
+  /// In en, this message translates to:
+  /// **'Remote image blocked. Turn on remote images in Settings to load it.'**
+  String get readerImageRemoteBlocked;
+
+  /// Placeholder for a local image over the size guard, shown with a load-anyway button.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} is large, so it is not shown automatically.'**
+  String readerImageTooLarge(String name);
+
+  /// Button on the oversize-image placeholder. Still local, still user-initiated.
+  ///
+  /// In en, this message translates to:
+  /// **'Load anyway'**
+  String get readerImageLoadAnyway;
+
+  /// Placeholder shown when a decoder gave up on the bytes (CLAUDE.md rule 9).
+  ///
+  /// In en, this message translates to:
+  /// **'This image could not be displayed.'**
+  String get readerImageFailed;
+
   /// First-run empty state, shown when nothing is open.
   ///
   /// In en, this message translates to:

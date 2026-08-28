@@ -10,7 +10,7 @@
 library;
 
 import 'package:marklens/core/files/extension_registry.dart';
-import 'package:path/path.dart' as p;
+import 'package:marklens/core/links/document_reference.dart';
 
 /// Where a link goes.
 sealed class LinkTarget {
@@ -84,7 +84,7 @@ LinkTarget classifyLink({
   }
 
   if (trimmed.startsWith('#')) {
-    return AnchorLink(_decode(trimmed.substring(1)));
+    return AnchorLink(decodeReference(trimmed.substring(1)));
   }
 
   final uri = Uri.tryParse(trimmed);
@@ -92,10 +92,7 @@ LinkTarget classifyLink({
     return UnsupportedLink(href: href);
   }
 
-  // A one-letter scheme is a Windows drive letter, not a protocol. `Uri` reads
-  // `C:/docs/README.md` as scheme `c`, and refusing it would refuse an
-  // ordinary absolute path on the platform this app was written on.
-  final scheme = uri.scheme.length == 1 ? '' : uri.scheme;
+  final scheme = schemeOf(uri);
 
   if (scheme.isNotEmpty) {
     if (!externalLinkSchemes.contains(scheme)) {
@@ -109,7 +106,7 @@ LinkTarget classifyLink({
   }
 
   final hash = trimmed.indexOf('#');
-  final anchor = hash < 0 ? null : _decode(trimmed.substring(hash + 1));
+  final anchor = hash < 0 ? null : decodeReference(trimmed.substring(hash + 1));
   final rawPath = hash < 0 ? trimmed : trimmed.substring(0, hash);
   if (rawPath.isEmpty) {
     return anchor == null ? UnsupportedLink(href: href) : AnchorLink(anchor);
@@ -118,58 +115,20 @@ LinkTarget classifyLink({
   // Query strings are a web idea; on a path they are part of the name at best
   // and noise at worst. Dropped before resolving, never sent anywhere.
   final withoutQuery = rawPath.split('?').first;
-  final decoded = _decode(withoutQuery);
+  final decoded = decodeReference(withoutQuery);
+  if (isNetworkPathReference(decoded)) {
+    // A protocol-relative URL or a UNC path. Not a document on this machine,
+    // whatever it looks like — see [isNetworkPathReference].
+    return UnsupportedLink(href: href);
+  }
   if (!registry.allows(decoded)) {
     // A relative link to something we do not open — an image, a source file,
     // a directory. Doc 03 refuses it with a notice rather than guessing.
     return UnsupportedLink(href: href);
   }
 
-  final directory = p.dirname(documentPath);
-  final resolved = p.isAbsolute(decoded)
-      ? p.normalize(decoded)
-      : p.normalize(p.join(directory, decoded));
-
-  return DocumentLink(path: resolved, anchor: anchor);
+  return DocumentLink(
+    path: resolveAgainstDocument(decoded, documentPath),
+    anchor: anchor,
+  );
 }
-
-/// Percent-decodes [value], or returns it unchanged when decoding it would
-/// throw.
-///
-/// `[text](my%20notes.md)` is an ordinary way to write a filename with a space,
-/// and a stray `%` in a filename — `50%_done.md` — is an ordinary way to break
-/// a decoder. Checked rather than caught: `Uri.decodeComponent` signals both
-/// failures with an `ArgumentError`, and catching an `Error` is catching a bug.
-String _decode(String value) =>
-    _isDecodable(value) ? Uri.decodeComponent(value) : value;
-
-/// Whether `Uri.decodeComponent` will accept [value].
-///
-/// Two conditions, and the second is the one that is easy to miss: every `%`
-/// must introduce two hex digits, **and the whole string must be ASCII**.
-/// Dart's decoder raises the same "Illegal percent encoding" for a code unit
-/// above 127 as it does for a bad escape, so `#tiếng-việt` — an anchor doc 09
-/// makes a first-class case — would otherwise take the classifier down. A
-/// string that is already non-ASCII is already decoded.
-bool _isDecodable(String value) {
-  for (var i = 0; i < value.length; i++) {
-    final unit = value.codeUnitAt(i);
-    if (unit > 127) {
-      return false;
-    }
-    if (unit != 0x25) {
-      continue;
-    }
-    if (i + 2 >= value.length ||
-        !_isHexDigit(value.codeUnitAt(i + 1)) ||
-        !_isHexDigit(value.codeUnitAt(i + 2))) {
-      return false;
-    }
-  }
-  return true;
-}
-
-bool _isHexDigit(int unit) =>
-    (unit >= 0x30 && unit <= 0x39) ||
-    (unit >= 0x41 && unit <= 0x46) ||
-    (unit >= 0x61 && unit <= 0x66);

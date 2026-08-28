@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="88" height="20">
+  <rect width="88" height="20" fill="#555"
+  <text x="22" y="14">unclosed attribute, unclosed tag
+  <notARealElement stroke-width="not-a-number" d="M z z z"/>
+</svg

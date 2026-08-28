@@ -77,6 +77,27 @@ class AppLocalizationsVi extends AppLocalizations {
   }
 
   @override
+  String get readerImageMissing => 'Không tìm thấy ảnh';
+
+  @override
+  String get readerImageUnsupported => 'Không phải định dạng ảnh được hỗ trợ';
+
+  @override
+  String get readerImageRemoteBlocked =>
+      'Đã chặn ảnh từ xa. Bật ảnh từ xa trong Cài đặt để tải.';
+
+  @override
+  String readerImageTooLarge(String name) {
+    return '$name khá lớn nên không được hiển thị tự động.';
+  }
+
+  @override
+  String get readerImageLoadAnyway => 'Vẫn tải';
+
+  @override
+  String get readerImageFailed => 'Không thể hiển thị ảnh này.';
+
+  @override
   String get emptyStateDropHint =>
       'Kéo thả một tệp Markdown vào đây, hoặc mở một tệp để bắt đầu.';
 

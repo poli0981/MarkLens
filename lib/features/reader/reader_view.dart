@@ -5,6 +5,7 @@ import 'package:marklens/core/models/app_settings.dart';
 import 'package:marklens/core/models/doc_model.dart';
 import 'package:marklens/features/reader/block_frame.dart';
 import 'package:marklens/features/reader/front_matter_panel.dart';
+import 'package:marklens/features/reader/images/document_image.dart';
 import 'package:marklens/features/reader/notice_bar.dart';
 import 'package:marklens/features/reader/rendering/flutter_markdown_plus_renderer.dart';
 import 'package:marklens/features/reader/rendering/markdown_renderer.dart';
@@ -14,8 +15,10 @@ import 'package:marklens/l10n/gen/app_localizations.dart';
 ///
 /// A named top-level function rather than a closure so it can be a `const`
 /// default argument.
-MarkdownRenderer defaultRendererFactory(ScrollController controller) =>
-    FlutterMarkdownPlusRenderer(controller: controller);
+MarkdownRenderer defaultRendererFactory(
+  ScrollController controller,
+  ImagePolicy? images,
+) => FlutterMarkdownPlusRenderer(controller: controller, images: images);
 
 /// The reading surface: notices, the front-matter panel, and the document.
 ///
@@ -34,6 +37,7 @@ class ReaderView extends StatefulWidget {
     this.contentMaxWidth = 760,
     this.fontScale = 1,
     this.onLinkTap,
+    this.allowRemoteImages = false,
     super.key,
   });
 
@@ -62,7 +66,11 @@ class ReaderView extends StatefulWidget {
   /// outline jumps — lives outside. The same shape
   /// `integration_test/perf_gate_test.dart` already uses, so the
   /// `MarkdownRenderer` interface itself is untouched (CLAUDE.md rule 6).
-  final MarkdownRenderer Function(ScrollController controller) rendererFactory;
+  final MarkdownRenderer Function(
+    ScrollController controller,
+    ImagePolicy? images,
+  )
+  rendererFactory;
 
   /// How the front-matter panel opens (`docs/05`).
   final FrontMatterDisplay frontMatterDisplay;
@@ -76,6 +84,11 @@ class ReaderView extends StatefulWidget {
   /// 100% and the platform's own text scale is deliberately not compounded on
   /// top of the user's choice.
   final double fontScale;
+
+  /// `network.allowRemoteImages` (`docs/05_SESSION_AND_SETTINGS.md`), off by
+  /// default. It reaches the renderer as part of the [ImagePolicy], because a
+  /// document naming a host is precisely a tracking beacon (doc 10).
+  final bool allowRemoteImages;
 
   /// Called with a tapped link's raw href (`docs/03_DATA_FLOW.md`).
   ///
@@ -194,7 +207,13 @@ class _ReaderViewState extends State<ReaderView> {
                         minScaleFactor: widget.fontScale,
                         maxScaleFactor: widget.fontScale,
                         child: widget
-                            .rendererFactory(scroller.controller)
+                            .rendererFactory(
+                              scroller.controller,
+                              ImagePolicy(
+                                documentPath: widget.doc.path,
+                                allowRemote: widget.allowRemoteImages,
+                              ),
+                            )
                             .build(
                               context,
                               widget.doc,

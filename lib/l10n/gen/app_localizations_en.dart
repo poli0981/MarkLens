@@ -78,6 +78,27 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get readerImageMissing => 'Image not found';
+
+  @override
+  String get readerImageUnsupported => 'Not a supported image';
+
+  @override
+  String get readerImageRemoteBlocked =>
+      'Remote image blocked. Turn on remote images in Settings to load it.';
+
+  @override
+  String readerImageTooLarge(String name) {
+    return '$name is large, so it is not shown automatically.';
+  }
+
+  @override
+  String get readerImageLoadAnyway => 'Load anyway';
+
+  @override
+  String get readerImageFailed => 'This image could not be displayed.';
+
+  @override
   String get emptyStateDropHint =>
       'Drop a Markdown file here, or open one to begin.';
 

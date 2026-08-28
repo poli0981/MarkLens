@@ -3,6 +3,7 @@ import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
 import 'package:marklens/app/theme/reader_tokens.dart';
 import 'package:marklens/core/markdown/markdown_flavor.dart';
 import 'package:marklens/core/models/doc_model.dart';
+import 'package:marklens/features/reader/images/document_image.dart';
 import 'package:marklens/features/reader/rendering/code_block_builder.dart';
 import 'package:marklens/features/reader/rendering/code_highlighter.dart';
 import 'package:marklens/features/reader/rendering/highlight_js_code_highlighter.dart';
@@ -37,6 +38,7 @@ class FlutterMarkdownPlusRenderer implements MarkdownRenderer {
     this.controller,
     this.onBlockCount,
     this.highlighter,
+    this.images,
   });
 
   /// Scroll controller for the block list.
@@ -53,6 +55,15 @@ class FlutterMarkdownPlusRenderer implements MarkdownRenderer {
   /// test can inject one to render without depending on a grammar.
   final CodeHighlighter? highlighter;
 
+  /// Decides what an image is allowed to be (`docs/04_MARKDOWN_PIPELINE.md`).
+  ///
+  /// The package hands its `imageBuilder` a `Uri` and nothing else, so the two
+  /// things the policy needs — which document the `src` was written in, and
+  /// whether remote images are on — have to arrive this way. Omitted, every
+  /// image is a placeholder, which is what keeps tests independent of disk
+  /// state.
+  final ImagePolicy? images;
+
   @override
   Widget build(
     BuildContext context,
@@ -68,6 +79,7 @@ class FlutterMarkdownPlusRenderer implements MarkdownRenderer {
     codeBlocks: CodeBlockBuilder(
       highlighter: highlighter ?? _highlighterFor(context),
     ),
+    images: images,
     // The package hands back the link's text and title too. Neither is passed
     // on: the router decides from the href alone, and a seam that carried
     // document text would be a seam something could shell out with
@@ -100,6 +112,7 @@ class _BlockListMarkdown extends MarkdownWidget {
     required CodeBlockBuilder codeBlocks,
     required super.styleSheet,
     super.onTapLink,
+    ImagePolicy? images,
     this.controller,
     this.onBlockCount,
     this.wrapBlock,
@@ -109,7 +122,9 @@ class _BlockListMarkdown extends MarkdownWidget {
          // produced gets the collapsed "Raw HTML (not rendered)" box instead
          // (`docs/04_MARKDOWN_PIPELINE.md`).
          builders: <String, MarkdownElementBuilder>{'pre': codeBlocks},
-         imageBuilder: _placeholderImage,
+         imageBuilder: images == null
+             ? _placeholderImage
+             : (uri, title, alt) => images.build(uri, alt),
          // Named, not left to the package's `?? gitHubFlavored` fallback: the
          // pipeline parses the same source with the same set to build the
          // block index, and a silent divergence here would break every anchor
@@ -147,10 +162,12 @@ class _BlockListMarkdown extends MarkdownWidget {
   }
 }
 
+/// What an image is when no [ImagePolicy] was supplied.
+///
 /// Images are resolved by the reader's own policy (`docs/04`), never by the
 /// renderer package: local only by default, extension-checked and size-capped,
-/// with remote sources shown as a blocked placeholder. Until that lands, every
-/// image is a placeholder — which is also what keeps tests independent of disk
-/// state.
+/// with remote sources shown as a blocked placeholder. A renderer built without
+/// one — a widget test, the performance harness — draws this instead, which is
+/// what keeps those independent of disk state.
 Widget _placeholderImage(Uri uri, String? title, String? alt) =>
     const SizedBox(width: 88, height: 20, child: Placeholder());

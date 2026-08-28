@@ -509,6 +509,9 @@ class _Body extends ConsumerWidget {
     // `contentMaxWidth` and `frontMatter` had never been passed at all, so the
     // reader had been showing its constructor defaults since M1.
     final reading = ref.watch(settingsProvider.select((s) => s.reading));
+    final allowRemoteImages = ref.watch(
+      settingsProvider.select((s) => s.network.allowRemoteImages),
+    );
 
     if (doc == null) {
       return Center(
@@ -530,6 +533,7 @@ class _Body extends ConsumerWidget {
       fontScale: reading.fontScale,
       contentMaxWidth: reading.contentMaxWidth.toDouble(),
       frontMatterDisplay: reading.frontMatter,
+      allowRemoteImages: allowRemoteImages,
       onLinkTap: (href) => unawaited(_follow(context, ref, href)),
     );
   }

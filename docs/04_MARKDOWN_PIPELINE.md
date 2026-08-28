@@ -286,6 +286,35 @@ Two accepted gaps, recorded rather than defended against:
   per-image "allow once" in v1 — the zero-network default stays legible.
 - Broken path → placeholder with the resolved path (aids debugging docs).
 
+### What building it settled — M3
+
+- **A `src` with no scheme is not automatically local.** Two shapes reach the
+  local branch and must not: a **protocol-relative URL**
+  (`//example.com/tracker.png`), which has no scheme so it falls through every
+  scheme check ever written; and a **UNC path** (`\server\share\x.png`), which
+  `Uri` does not parse at all. Either one handed to `File.statSync` is Windows
+  opening an SMB connection to a host the *document* chose — invariant 4 by a
+  side door. Both are refused. The corpus carries one of each; that is how this
+  was found, and neither the classifier nor this document had a rule for it
+  before.
+- **`data:` is refused with every other scheme.** An inline payload is a
+  decoder pointed at document content, which is the shape invariant 3 refuses;
+  the size cap and the extension allowlist both mean nothing against it.
+- **Classification is pure; existence and size are not.** `core/images/` reads
+  no disk at all — `imageBuilder` is called on every rebuild and a `ListView`
+  rebuilds as it scrolls, so a `statSync` per image per frame is the sort of
+  thing that is invisible in a test and audible in a 1 MB document. The widget
+  stats once, in `initState`.
+- **A query string is dropped before the extension is read**, or `logo.png?v=2`
+  is a file of type `png?v=2`.
+- **One placeholder shape, five reasons.** Blocked, missing, oversize,
+  unsupported and undecodable are one thing to a reader — *there was a picture
+  here and it is not showing* — so only the words differ, and each set of words
+  says which of the five it was. The alt text rides along, because it is the
+  only part of the image a reader can still get, and the box carries it as its
+  semantics label (`container: true`, or the label merges with the explanation
+  and a screen reader reads the box twice).
+
 ## Heading anchors
 
 GitHub slug algorithm: lowercase, spaces → `-`, strip punctuation, duplicate

@@ -440,7 +440,9 @@ They are v1 scope by the charter, so they are M3:
    that outlives a document switch. Doc 10 invariant 2 is now structural
    rather than a rule to remember — see doc 03. `path` became a direct
    dependency here (rule 10: doc 01 and the notices updated in the same PR).
-4. **Images.**
+4. **Images** ✅ — and the corpus earned its keep: the image fixture already
+   carried a protocol-relative URL, which reached the *local* branch while
+   naming a host. Doc 04 and doc 10 record the rule that was missing.
 5. **Cross-file search** (`Ctrl+Shift+F`).
 6. **Quick switcher** (`Ctrl+P`) **and the recent list**, whose first reader
    it is.

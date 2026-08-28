@@ -106,6 +106,36 @@
       }
     }
   },
+  "readerImageMissing": "Image not found",
+  "@readerImageMissing": {
+    "description": "Placeholder for a local image whose resolved path does not exist. The path is shown beneath, untranslated."
+  },
+  "readerImageUnsupported": "Not a supported image",
+  "@readerImageUnsupported": {
+    "description": "Placeholder for a src outside the extension allowlist, or with a scheme MarkLens does not load (docs/04)."
+  },
+  "readerImageRemoteBlocked": "Remote image blocked. Turn on remote images in Settings to load it.",
+  "@readerImageRemoteBlocked": {
+    "description": "Placeholder for an http(s) image while network.allowRemoteImages is off, which is the default (docs/10)."
+  },
+  "readerImageTooLarge": "{name} is large, so it is not shown automatically.",
+  "@readerImageTooLarge": {
+    "description": "Placeholder for a local image over the size guard, shown with a load-anyway button.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "diagram.png"
+      }
+    }
+  },
+  "readerImageLoadAnyway": "Load anyway",
+  "@readerImageLoadAnyway": {
+    "description": "Button on the oversize-image placeholder. Still local, still user-initiated."
+  },
+  "readerImageFailed": "This image could not be displayed.",
+  "@readerImageFailed": {
+    "description": "Placeholder shown when a decoder gave up on the bytes (CLAUDE.md rule 9)."
+  },
   "emptyStateDropHint": "Drop a Markdown file here, or open one to begin.",
   "@emptyStateDropHint": {
     "description": "First-run empty state, shown when nothing is open."

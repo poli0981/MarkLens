@@ -47,3 +47,13 @@ Local images only by default, extension-allowlisted, size-capped (docs/04).
 ![]()
 ![alt only]()
 ![](../assets/badge.svg)
+![malformed svg](../assets/malformed.svg)
+
+## Network locations wearing a path — refused, never statted
+
+A protocol-relative URL has no scheme, so it falls through every scheme check;
+a UNC path is not parsed as a URI at all. Both are an SMB connection to a host
+the document chose, which is what invariant 4 forbids by default (docs/10).
+
+![protocol relative svg](//example.com/badge.svg)
+![unc](\\server\share\badge.png)
