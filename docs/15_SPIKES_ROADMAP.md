@@ -443,7 +443,10 @@ They are v1 scope by the charter, so they are M3:
 4. **Images** ✅ — and the corpus earned its keep: the image fixture already
    carried a protocol-relative URL, which reached the *local* branch while
    naming a host. Doc 04 and doc 10 record the rule that was missing.
-5. **Cross-file search** (`Ctrl+Shift+F`).
+5. **Cross-file search** (`Ctrl+Shift+F`) ✅ — and doc 08 gains the thing it
+   could not have known: a hit read from disk cannot carry a block index,
+   because the block index describes `sanitizedSource`. A result carries its
+   ordinal, and the click re-finds it in the parsed document.
 6. **Quick switcher** (`Ctrl+P`) **and the recent list**, whose first reader
    it is.
 7. **Update check, About, licenses, diagnostic log.**

@@ -98,6 +98,38 @@ class AppLocalizationsJa extends AppLocalizations {
   String get readerImageFailed => 'この画像は表示できませんでした。';
 
   @override
+  String get searchAcrossHint => '開いているファイルを検索';
+
+  @override
+  String get searchAcrossRunning => '検索中…';
+
+  @override
+  String get searchAcrossNoMatches => '開いているファイルに一致はありません';
+
+  @override
+  String searchAcrossSummary(int matches, int files) {
+    String _temp0 = intl.Intl.pluralLogic(
+      files,
+      locale: localeName,
+      other: '$files 件のファイル',
+    );
+    String _temp1 = intl.Intl.pluralLogic(
+      matches,
+      locale: localeName,
+      other: '$matches 件',
+    );
+    return '$_temp0で$_temp1';
+  }
+
+  @override
+  String searchAcrossTruncated(int count) {
+    return '$count+';
+  }
+
+  @override
+  String get searchAcrossClose => '検索を閉じる';
+
+  @override
   String get emptyStateDropHint => 'Markdown ファイルをここにドロップするか、開いて始めてください。';
 
   @override

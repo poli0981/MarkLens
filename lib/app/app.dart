@@ -12,6 +12,7 @@ import 'package:marklens/core/storage/json_store.dart';
 import 'package:marklens/features/outline/outline_panel.dart';
 import 'package:marklens/features/reader/reader_view.dart';
 import 'package:marklens/features/search/find_bar.dart';
+import 'package:marklens/features/search/search_panel.dart';
 import 'package:marklens/features/sidebar/sidebar_tree.dart';
 import 'package:marklens/features/status/status_bar.dart';
 import 'package:marklens/features/tabs/tab_strip.dart';
@@ -424,8 +425,16 @@ class _AppShellState extends ConsumerState<AppShell> with WindowListener {
               return null;
             },
           ),
+          FindAcrossFilesIntent: CallbackAction<FindAcrossFilesIntent>(
+            onInvoke: (_) {
+              // The panel replaces the sidebar rather than joining it
+              // (`docs/06_UI_UX.md`), so opening it is a chrome change, not a
+              // new surface.
+              ref.read(chromeProvider.notifier).showPanel(SidebarPanel.search);
+              return null;
+            },
+          ),
           QuickSwitcherIntent: _todo(l10n.menuFile),
-          FindAcrossFilesIntent: _todo(l10n.menuFile),
           OpenSettingsIntent: _todo(l10n.menuSettings),
         },
         child: Focus(
@@ -452,7 +461,10 @@ class _AppShellState extends ConsumerState<AppShell> with WindowListener {
                           // session stores it and doc 05 clamps it, and the
                           // shell used to ignore both.
                           width: chrome.sidebarWidth,
-                          child: const SidebarTree(),
+                          child: switch (chrome.sidebarPanel) {
+                            SidebarPanel.files => const SidebarTree(),
+                            SidebarPanel.search => const SearchPanel(),
+                          },
                         ),
                       Expanded(
                         child: Focus(

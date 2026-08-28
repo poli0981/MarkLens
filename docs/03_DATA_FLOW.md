@@ -142,8 +142,8 @@ network failure → silent (log ring buffer only)
 Live after M2, under the names they actually have: `settingsProvider`,
 `sessionLinkProvider`, `openSetProvider`, `activeDocumentProvider`,
 `docCacheProvider`, `chromeProvider`, `readerScrollProvider`,
-`watchLinkProvider` + `watchCoordinatorProvider`, `findProvider`. Still to
-come: `crossSearchState` and `updateBanner` (M3).
+`watchLinkProvider` + `watchCoordinatorProvider`, `findProvider`,
+`crossSearchProvider`, `linkRouterProvider`. Still to come: `updateBanner`.
 
 `outline` never became a provider of its own — it is a field on the `DocModel`
 the active-document provider already holds, so a separate one would be a second

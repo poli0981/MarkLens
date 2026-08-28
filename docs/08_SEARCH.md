@@ -54,9 +54,35 @@ v1 (regex toggle is a v1.x candidate).
 
 Execution: `Isolate.run` — the isolate receives the open-set path list,
 reads files straight from disk (documents don't need to be parsed or cached
-to be searched), scans, and streams grouped hits back. Budget: 1,000 files ×
-~10 KB in **< 300 ms** on the reference machine. Cancellation on query
-change.
+to be searched), scans, and returns grouped hits. Budget: 1,000 files ×
+~10 KB in **< 300 ms** on the reference machine.
+
+### What building it settled — M3
+
+- **A hit carries a line, not an offset, and a click re-finds it.** The scan
+  reads the file *from disk*; `SourceBlock` indexes
+  `DocModel.sanitizedSource`, which has the front matter lifted out, block HTML
+  rewritten and MDX sanitized. A raw offset handed to `blockIndexOf` would name
+  the wrong block, and a raw-to-sanitized map is exactly what this document
+  refused for find-in-file. So a result carries its **ordinal within its file**,
+  and the click activates the tab and re-runs `findInSource` over the parsed
+  document: the *n*th hit there is the *n*th hit here. The two agree exactly
+  whenever the two strings are equal, and stay in step when they are not.
+- **Cancellation is the caller's.** `Isolate.run` cannot be killed from
+  outside, so `CrossSearchController` debounces the query by 150 ms and
+  discards the result of a run it no longer wants, by generation counter. That
+  buys what cancellation buys — no stale results, no scan per keystroke — at a
+  cost of one superseded scan finishing on its own, which against a 300 ms
+  budget is cheaper than the machinery to stop it. The line above used to say
+  "streams grouped hits back"; it returns them once, because a scan that fits
+  the budget has nothing to stream.
+- **The per-file cap is 50, and it is reported.** A file whose list was cut
+  short shows `50+` rather than `50`. A panel that silently shows fifty of nine
+  thousand matches is lying about the document.
+- **The panel does not persist.** `session.json` v1 has no field for which
+  panel is in the sidebar column, and a window reopening three days later still
+  showing a search for "TODO" would be restoring a question nobody is asking.
+  `Ctrl+B` puts the column away and brings back the file list.
 
 ## Quick switcher — `Ctrl+P`
 

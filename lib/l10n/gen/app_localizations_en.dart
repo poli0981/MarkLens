@@ -99,6 +99,40 @@ class AppLocalizationsEn extends AppLocalizations {
   String get readerImageFailed => 'This image could not be displayed.';
 
   @override
+  String get searchAcrossHint => 'Search open files';
+
+  @override
+  String get searchAcrossRunning => 'Searching…';
+
+  @override
+  String get searchAcrossNoMatches => 'No matches in the open files';
+
+  @override
+  String searchAcrossSummary(int matches, int files) {
+    String _temp0 = intl.Intl.pluralLogic(
+      matches,
+      locale: localeName,
+      other: '$matches matches',
+      one: '1 match',
+    );
+    String _temp1 = intl.Intl.pluralLogic(
+      files,
+      locale: localeName,
+      other: '$files files',
+      one: '1 file',
+    );
+    return '$_temp0 in $_temp1';
+  }
+
+  @override
+  String searchAcrossTruncated(int count) {
+    return '$count+';
+  }
+
+  @override
+  String get searchAcrossClose => 'Close search';
+
+  @override
   String get emptyStateDropHint =>
       'Drop a Markdown file here, or open one to begin.';
 

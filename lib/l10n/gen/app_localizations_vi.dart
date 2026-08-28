@@ -98,6 +98,38 @@ class AppLocalizationsVi extends AppLocalizations {
   String get readerImageFailed => 'Không thể hiển thị ảnh này.';
 
   @override
+  String get searchAcrossHint => 'Tìm trong các tệp đang mở';
+
+  @override
+  String get searchAcrossRunning => 'Đang tìm…';
+
+  @override
+  String get searchAcrossNoMatches => 'Không có kết quả trong các tệp đang mở';
+
+  @override
+  String searchAcrossSummary(int matches, int files) {
+    String _temp0 = intl.Intl.pluralLogic(
+      matches,
+      locale: localeName,
+      other: '$matches kết quả',
+    );
+    String _temp1 = intl.Intl.pluralLogic(
+      files,
+      locale: localeName,
+      other: '$files tệp',
+    );
+    return '$_temp0 trong $_temp1';
+  }
+
+  @override
+  String searchAcrossTruncated(int count) {
+    return '$count+';
+  }
+
+  @override
+  String get searchAcrossClose => 'Đóng tìm kiếm';
+
+  @override
   String get emptyStateDropHint =>
       'Kéo thả một tệp Markdown vào đây, hoặc mở một tệp để bắt đầu.';
 

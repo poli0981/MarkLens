@@ -15,13 +15,16 @@ import 'package:marklens/app/window_link.dart';
 import 'package:marklens/core/cache/doc_cache.dart';
 import 'package:marklens/core/files/file_service.dart';
 import 'package:marklens/core/markdown/pipeline.dart';
+import 'package:marklens/core/search/search_service.dart';
 import 'package:marklens/core/session/session_store.dart';
 import 'package:marklens/core/settings/settings_store.dart';
 import 'package:marklens/core/single_instance.dart';
 import 'package:path_provider/path_provider.dart';
 
 export 'package:marklens/app/chrome.dart'
-    show ChromeController, ChromeState, chromeProvider;
+    show ChromeController, ChromeState, SidebarPanel, chromeProvider;
+export 'package:marklens/app/cross_search.dart'
+    show CrossSearchController, CrossSearchState, crossSearchProvider;
 export 'package:marklens/app/documents.dart'
     show ActiveDocument, ActiveDocumentController, activeDocumentProvider;
 export 'package:marklens/app/find.dart'
@@ -92,6 +95,16 @@ final Provider<SessionStore> sessionStoreProvider = Provider<SessionStore>((
 /// there is something that can change them (M3, doc 15).
 final Provider<FileService> fileServiceProvider = Provider<FileService>(
   (ref) => const FileService(),
+);
+
+/// Scans the open set from disk, in an isolate (`docs/08_SEARCH.md`).
+///
+/// A provider so a test can hand the panel a service that answers without
+/// spawning anything: an isolate inside `testWidgets` runs against real time
+/// while the binding drives a fake clock, which is the same trap real sockets
+/// were at M1.
+final Provider<SearchService> searchServiceProvider = Provider<SearchService>(
+  (ref) => const SearchService(),
 );
 
 /// The LRU of parsed documents (CLAUDE.md rule 8).

@@ -232,6 +232,42 @@ abstract class AppLocalizations {
   /// **'This image could not be displayed.'**
   String get readerImageFailed;
 
+  /// Placeholder in the Ctrl+Shift+F panel's query field (docs/08).
+  ///
+  /// In en, this message translates to:
+  /// **'Search open files'**
+  String get searchAcrossHint;
+
+  /// Shown while a cross-file scan is in flight.
+  ///
+  /// In en, this message translates to:
+  /// **'Searching…'**
+  String get searchAcrossRunning;
+
+  /// Shown when a cross-file search found nothing.
+  ///
+  /// In en, this message translates to:
+  /// **'No matches in the open files'**
+  String get searchAcrossNoMatches;
+
+  /// Result count above the cross-file result list.
+  ///
+  /// In en, this message translates to:
+  /// **'{matches, plural, =1{1 match} other{{matches} matches}} in {files, plural, =1{1 file} other{{files} files}}'**
+  String searchAcrossSummary(int matches, int files);
+
+  /// Hit count for a file where the per-file cap cut the list short. Never a silent truncation (docs/08).
+  ///
+  /// In en, this message translates to:
+  /// **'{count}+'**
+  String searchAcrossTruncated(int count);
+
+  /// Tooltip on the button that puts the file list back in the sidebar column.
+  ///
+  /// In en, this message translates to:
+  /// **'Close search'**
+  String get searchAcrossClose;
+
   /// First-run empty state, shown when nothing is open.
   ///
   /// In en, this message translates to:

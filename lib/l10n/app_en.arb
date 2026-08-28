@@ -136,6 +136,46 @@
   "@readerImageFailed": {
     "description": "Placeholder shown when a decoder gave up on the bytes (CLAUDE.md rule 9)."
   },
+  "searchAcrossHint": "Search open files",
+  "@searchAcrossHint": {
+    "description": "Placeholder in the Ctrl+Shift+F panel's query field (docs/08)."
+  },
+  "searchAcrossRunning": "Searching…",
+  "@searchAcrossRunning": {
+    "description": "Shown while a cross-file scan is in flight."
+  },
+  "searchAcrossNoMatches": "No matches in the open files",
+  "@searchAcrossNoMatches": {
+    "description": "Shown when a cross-file search found nothing."
+  },
+  "searchAcrossSummary": "{matches, plural, =1{1 match} other{{matches} matches}} in {files, plural, =1{1 file} other{{files} files}}",
+  "@searchAcrossSummary": {
+    "description": "Result count above the cross-file result list.",
+    "placeholders": {
+      "matches": {
+        "type": "int",
+        "example": "12"
+      },
+      "files": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "searchAcrossTruncated": "{count}+",
+  "@searchAcrossTruncated": {
+    "description": "Hit count for a file where the per-file cap cut the list short. Never a silent truncation (docs/08).",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "50"
+      }
+    }
+  },
+  "searchAcrossClose": "Close search",
+  "@searchAcrossClose": {
+    "description": "Tooltip on the button that puts the file list back in the sidebar column."
+  },
   "emptyStateDropHint": "Drop a Markdown file here, or open one to begin.",
   "@emptyStateDropHint": {
     "description": "First-run empty state, shown when nothing is open."
