@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:marklens/app/providers.dart';
 import 'package:marklens/app/shortcuts.dart';
+import 'package:marklens/core/files/extension_registry.dart';
 import 'package:marklens/core/models/app_settings.dart';
 import 'package:marklens/l10n/gen/app_localizations.dart';
 
@@ -47,6 +48,7 @@ class AppMenuBar extends ConsumerWidget {
     final controller = ref.read(chromeProvider.notifier);
     // Narrow, so choosing a theme does not rebuild the bar for a zoom step.
     final theme = ref.watch(settingsProvider.select((s) => s.theme));
+    final recent = ref.watch(recentFilesProvider);
 
     void todo(String item) {
       ScaffoldMessenger.of(context)
@@ -74,9 +76,32 @@ class AppMenuBar extends ConsumerWidget {
             ),
             SubmenuButton(
               menuChildren: <Widget>[
-                // Disabled on purpose: an empty submenu would be a dead end
-                // with no explanation (docs/06, empty states).
-                MenuItemButton(child: Text(l10n.menuOpenRecentEmpty)),
+                // `session.json` has carried this list since M1 with nothing
+                // reading it back. This is its first reader, alongside Ctrl+P
+                // and the empty state.
+                if (recent.isEmpty)
+                  // Disabled on purpose: an empty submenu would be a dead end
+                  // with no explanation (docs/06, empty states).
+                  MenuItemButton(child: Text(l10n.menuOpenRecentEmpty))
+                else ...<Widget>[
+                  for (final path in recent.take(_recentMenuLimit))
+                    MenuItemButton(
+                      onPressed: () => ref
+                          .read(openSetProvider.notifier)
+                          .openPaths(<String>[path]),
+                      // The full path as a tooltip, because two README.md from
+                      // different projects are one label (docs/06, doc 09).
+                      child: Tooltip(
+                        message: path,
+                        child: Text(ExtensionRegistry.basenameOf(path)),
+                      ),
+                    ),
+                  const Divider(height: 1),
+                  MenuItemButton(
+                    onPressed: ref.read(recentFilesProvider.notifier).clear,
+                    child: Text(l10n.menuOpenRecentClear),
+                  ),
+                ],
               ],
               child: Text(l10n.menuOpenRecent),
             ),
@@ -206,6 +231,12 @@ class AppMenuBar extends ConsumerWidget {
     );
   }
 }
+
+/// How many recent documents the submenu shows.
+///
+/// `settings.recentLimit` bounds the *list* at up to 200 (doc 05), which is a
+/// sensible cap for `Ctrl+P` and an absurd one for a dropdown.
+const int _recentMenuLimit = 10;
 
 /// The activator bound to [T] in [appShortcuts], or `null` if it has none.
 ///

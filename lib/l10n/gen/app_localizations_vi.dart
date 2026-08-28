@@ -130,6 +130,21 @@ class AppLocalizationsVi extends AppLocalizations {
   String get searchAcrossClose => 'Đóng tìm kiếm';
 
   @override
+  String get quickSwitcherHint => 'Đi tới tệp';
+
+  @override
+  String get quickSwitcherEmpty => 'Không có kết quả';
+
+  @override
+  String get quickSwitcherRecentBadge => 'gần đây';
+
+  @override
+  String get menuOpenRecentClear => 'Xóa danh sách gần đây';
+
+  @override
+  String get emptyStateRecent => 'Gần đây';
+
+  @override
   String get emptyStateDropHint =>
       'Kéo thả một tệp Markdown vào đây, hoặc mở một tệp để bắt đầu.';
 

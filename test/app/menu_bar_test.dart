@@ -80,8 +80,16 @@ void main() {
   }
 
   /// The File menu is open when its first item is on screen.
-  bool fileMenuIsOpen(WidgetTester tester, AppLocalizations l10n) =>
-      find.text(l10n.menuOpenFiles).evaluate().isNotEmpty;
+  ///
+  /// Scoped to a menu item rather than to the text: since M3 the first-run
+  /// empty state offers an "Open File(s)…" button of its own (doc 06), and a
+  /// bare `find.text` would report the menu permanently open. The same
+  /// collision the outline caused at M2 — the fix is to say which widget, not
+  /// to rename the button.
+  bool fileMenuIsOpen(WidgetTester tester, AppLocalizations l10n) => find
+      .widgetWithText(MenuItemButton, l10n.menuOpenFiles)
+      .evaluate()
+      .isNotEmpty;
 
   group('keyboard reachability', () {
     testWidgets('Alt opens the File menu', (tester) async {
@@ -159,7 +167,10 @@ void main() {
       await pumpShell(tester);
 
       await tapAlt(tester);
-      expect(find.text(l10n.menuOpenFiles), findsOneWidget);
+      expect(
+        find.widgetWithText(MenuItemButton, l10n.menuOpenFiles),
+        findsOneWidget,
+      );
 
       // Right moves to the next top-level menu, whose items replace them.
       await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
@@ -287,7 +298,10 @@ void main() {
 
       await tapAlt(tester);
 
-      expect(find.text(ja.menuOpenFiles), findsOneWidget);
+      expect(
+        find.widgetWithText(MenuItemButton, ja.menuOpenFiles),
+        findsOneWidget,
+      );
       expect(find.text(ja.menuReload), findsOneWidget);
       expect(find.text('Reload'), findsNothing);
     });

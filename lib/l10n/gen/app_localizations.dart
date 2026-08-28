@@ -268,6 +268,36 @@ abstract class AppLocalizations {
   /// **'Close search'**
   String get searchAcrossClose;
 
+  /// Placeholder in the Ctrl+P quick switcher (docs/08).
+  ///
+  /// In en, this message translates to:
+  /// **'Go to file'**
+  String get quickSwitcherHint;
+
+  /// Shown in the quick switcher when the query matches no open or recent file.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing matches'**
+  String get quickSwitcherEmpty;
+
+  /// Badge on a quick-switcher row for a file that is not open, and will be opened by choosing it.
+  ///
+  /// In en, this message translates to:
+  /// **'recent'**
+  String get quickSwitcherRecentBadge;
+
+  /// Last item of File > Open Recent.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear recent list'**
+  String get menuOpenRecentClear;
+
+  /// Heading above the recent-file list on the first-run empty state (docs/06).
+  ///
+  /// In en, this message translates to:
+  /// **'Recent'**
+  String get emptyStateRecent;
+
   /// First-run empty state, shown when nothing is open.
   ///
   /// In en, this message translates to:

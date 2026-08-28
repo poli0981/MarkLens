@@ -447,8 +447,10 @@ They are v1 scope by the charter, so they are M3:
    could not have known: a hit read from disk cannot carry a block index,
    because the block index describes `sanitizedSource`. A result carries its
    ordinal, and the click re-finds it in the parsed document.
-6. **Quick switcher** (`Ctrl+P`) **and the recent list**, whose first reader
-   it is.
+6. **Quick switcher** (`Ctrl+P`) **and the recent list** ✅, whose first reader
+   it is — and which turned out to be broken rather than merely unread: it was
+   derived from the open set, so closing a file erased it. Doc 08 records what
+   the scorer had to be, and doc 05 what the list now is.
 7. **Update check, About, licenses, diagnostic log.**
 8. **Settings UI** (`Ctrl+,`), after 4 and 7 deliberately, so that every switch
    on the screen has something behind it the day it ships.

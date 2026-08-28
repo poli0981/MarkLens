@@ -1,6 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:marklens/app/providers.dart';
-import 'package:marklens/core/models/open_set.dart';
 import 'package:marklens/core/models/session_state.dart';
 import 'package:marklens/core/storage/json_store.dart';
 
@@ -34,6 +33,9 @@ class SessionLink {
           sidebarWidth: state.sidebarWidth,
           outlineVisible: state.outlineVisible,
         );
+    // The recent list is restored *before* the open set, because opening a
+    // document appends to it and the two would otherwise race.
+    ref.read(recentFilesProvider.notifier).restore(state.recent);
     ref
         .read(openSetProvider.notifier)
         .restore(
@@ -77,7 +79,7 @@ class SessionLink {
                 ),
             ],
             activePath: set.active?.file.path,
-            recent: _recentPaths(set),
+            recent: _recentPaths(),
           ),
         );
   }
@@ -86,21 +88,16 @@ class SessionLink {
   void flush() => ref.read(sessionStoreProvider).flush();
 
   /// The recent list, most recent first, capped by the setting.
-  List<String> _recentPaths(OpenSet set) {
-    final limit = ref.read(settingsProvider).recentLimit;
-    final byIdentity = <String, String>{
-      for (final entry in set.entries) entry.identity: entry.file.path,
-    };
-    final ordered = <String>[
-      for (final identity in set.recentOrder) ?byIdentity[identity],
-      for (final entry in set.entries) entry.file.path,
-    ];
-    final seen = <String>{};
-    return <String>[
-      for (final path in ordered)
-        if (seen.add(path.toLowerCase())) path,
-    ].take(limit).toList();
-  }
+  ///
+  /// **It is not derived from the open set.** It used to be, and that made
+  /// "recent" mean "open": closing a file erased it from the list, so the one
+  /// thing a recent list exists for — getting back to something you closed —
+  /// was the one thing it could not do. `RecentFiles` keeps the history
+  /// instead, and this only reads it (`docs/05_SESSION_AND_SETTINGS.md`).
+  List<String> _recentPaths() => ref
+      .read(recentFilesProvider)
+      .take(ref.read(settingsProvider).recentLimit)
+      .toList();
 }
 
 /// The session link provider.

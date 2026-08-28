@@ -66,7 +66,12 @@ Notes:
   nearest-heading anchor in doc 03 refines it after external changes.
 - Paths are stored absolute, canonicalized; display uses the platform's
   native separators.
-- `recent` caps at `settings.recentLimit`, most recent first, deduped.
+- `recent` caps at `settings.recentLimit`, most recent first, deduped, and is
+  **history rather than a view of the open set**. It was the latter until M3,
+  which made "recent" mean "open": closing a file erased it from the list. It
+  is also deduped case-insensitively, because that is how `OpenedFile.identity`
+  judges sameness on Windows (doc 07) and a list holding `README.md` beside
+  `readme.md` is showing one file twice.
 - Missing files stay in `files[]` (badged at runtime); they are pruned only
   when the user closes them.
 

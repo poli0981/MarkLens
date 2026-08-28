@@ -31,6 +31,7 @@ class OpenSetController extends Notifier<OpenSet> {
       for (final entry in state.entries) entry.identity: entry,
     };
     final order = <String>[for (final entry in state.entries) entry.identity];
+    final opened = <String>[];
     String? firstOpened;
     var resolved = 0;
 
@@ -40,6 +41,7 @@ class OpenSetController extends Notifier<OpenSet> {
         continue;
       }
       resolved++;
+      opened.add(file.path);
       firstOpened ??= file.identity;
       if (byIdentity.containsKey(file.identity)) {
         continue;
@@ -55,6 +57,11 @@ class OpenSetController extends Notifier<OpenSet> {
     state = state.copyWith(
       entries: <OpenEntry>[for (final id in order) byIdentity[id]!],
     );
+    // The recent list is history rather than a view of this state, so it is
+    // told rather than derived (`app/recent_files.dart`). Recorded in reverse
+    // so the *first* path named ends up at the front, which is also the one
+    // that becomes active.
+    opened.reversed.forEach(ref.read(recentFilesProvider.notifier).record);
     if (activate) {
       this.activate(firstOpened);
     }

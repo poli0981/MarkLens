@@ -7,11 +7,13 @@ import 'package:marklens/app/menu/app_menu_bar.dart';
 import 'package:marklens/app/providers.dart';
 import 'package:marklens/app/shortcuts.dart';
 import 'package:marklens/app/theme/app_theme.dart';
+import 'package:marklens/app/theme/reader_tokens.dart';
 import 'package:marklens/core/files/extension_registry.dart';
 import 'package:marklens/core/storage/json_store.dart';
 import 'package:marklens/features/outline/outline_panel.dart';
 import 'package:marklens/features/reader/reader_view.dart';
 import 'package:marklens/features/search/find_bar.dart';
+import 'package:marklens/features/search/quick_switcher.dart';
 import 'package:marklens/features/search/search_panel.dart';
 import 'package:marklens/features/sidebar/sidebar_tree.dart';
 import 'package:marklens/features/status/status_bar.dart';
@@ -434,7 +436,12 @@ class _AppShellState extends ConsumerState<AppShell> with WindowListener {
               return null;
             },
           ),
-          QuickSwitcherIntent: _todo(l10n.menuFile),
+          QuickSwitcherIntent: CallbackAction<QuickSwitcherIntent>(
+            onInvoke: (_) {
+              unawaited(QuickSwitcher.show(context));
+              return null;
+            },
+          ),
           OpenSettingsIntent: _todo(l10n.menuSettings),
         },
         child: Focus(
@@ -509,6 +516,90 @@ class _AppShellState extends ConsumerState<AppShell> with WindowListener {
   );
 }
 
+/// What the window shows before anything is open (`docs/06_UI_UX.md`,
+/// "Empty & edge states"): the drop hint, the two Open buttons, and the recent
+/// list — which is the first-run surface that has been specified since M0 and
+/// showed one line of text until M3.
+class _EmptyState extends ConsumerWidget {
+  const _EmptyState({required this.fontScale});
+
+  final double fontScale;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final tokens = ReaderTokens.of(context);
+    final recent = ref.watch(recentFilesProvider);
+
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 420),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            Text(
+              l10n.emptyStateDropHint,
+              textAlign: TextAlign.center,
+              textScaler: TextScaler.linear(fontScale),
+            ),
+            const SizedBox(height: 16),
+            // `Wrap`, not `Row`: doc 09 asks for no fixed-width boxes around
+            // translated text, and "Mở thư mục…" beside "Mở tệp…" is wider
+            // than the English pair that only just fits.
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              alignment: WrapAlignment.center,
+              children: <Widget>[
+                FilledButton.tonal(
+                  onPressed: () =>
+                      Actions.invoke(context, const OpenFilesIntent()),
+                  child: Text(l10n.menuOpenFiles),
+                ),
+                FilledButton.tonal(
+                  onPressed: () =>
+                      Actions.invoke(context, const OpenFolderIntent()),
+                  child: Text(l10n.menuOpenFolder),
+                ),
+              ],
+            ),
+            if (recent.isNotEmpty) ...<Widget>[
+              const SizedBox(height: 24),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  l10n.emptyStateRecent,
+                  style: Theme.of(
+                    context,
+                  ).textTheme.labelSmall?.copyWith(color: tokens.fgMuted),
+                ),
+              ),
+              for (final path in recent.take(_emptyStateRecentLimit))
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: TextButton(
+                    onPressed: () => ref
+                        .read(openSetProvider.notifier)
+                        .openPaths(<String>[path]),
+                    child: Tooltip(
+                      message: path,
+                      child: Text(ExtensionRegistry.basenameOf(path)),
+                    ),
+                  ),
+                ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// How many recent documents the first-run state offers.
+///
+/// Fewer than the menu: this is a starting point, not a history.
+const int _emptyStateRecentLimit = 5;
+
 /// The reading surface, or the empty state when nothing is open.
 class _Body extends ConsumerWidget {
   const _Body();
@@ -526,13 +617,7 @@ class _Body extends ConsumerWidget {
     );
 
     if (doc == null) {
-      return Center(
-        child: Text(
-          AppLocalizations.of(context).emptyStateDropHint,
-          textAlign: TextAlign.center,
-          textScaler: TextScaler.linear(reading.fontScale),
-        ),
-      );
+      return _EmptyState(fontScale: reading.fontScale);
     }
     final entry = ref.watch(
       openSetProvider.select((set) => set.active),

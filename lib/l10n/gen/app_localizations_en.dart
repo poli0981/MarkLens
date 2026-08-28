@@ -133,6 +133,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get searchAcrossClose => 'Close search';
 
   @override
+  String get quickSwitcherHint => 'Go to file';
+
+  @override
+  String get quickSwitcherEmpty => 'Nothing matches';
+
+  @override
+  String get quickSwitcherRecentBadge => 'recent';
+
+  @override
+  String get menuOpenRecentClear => 'Clear recent list';
+
+  @override
+  String get emptyStateRecent => 'Recent';
+
+  @override
   String get emptyStateDropHint =>
       'Drop a Markdown file here, or open one to begin.';
 

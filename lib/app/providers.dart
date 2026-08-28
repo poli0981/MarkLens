@@ -41,6 +41,8 @@ export 'package:marklens/app/open_set.dart'
     show OpenSetController, openSetProvider;
 export 'package:marklens/app/reader_scroll.dart'
     show BlockScroller, readerScrollProvider;
+export 'package:marklens/app/recent_files.dart'
+    show RecentFiles, recentFilesProvider;
 export 'package:marklens/app/session_link.dart'
     show SessionLink, sessionLinkProvider;
 export 'package:marklens/app/settings_link.dart'

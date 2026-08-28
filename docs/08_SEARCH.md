@@ -91,6 +91,39 @@ scoring (word-boundary and path-segment bonuses), top 20, arrows + Enter.
 This is the intended navigation for a 1,000-entry session — the tab strip is
 for the working few, Ctrl+P is for everything.
 
+### What building it settled — M3
+
+- **The scorer is a dynamic program, not a greedy scan**, and that is what the
+  file `core/search/fuzzy.dart` is for. Greedy matching takes the first place
+  each character fits, so `md` in `markdown/notes.md` matches inside "markdown"
+  and never reaches the extension — every file in the folder scores the same.
+  Two tables (best score ending in a match here, best score reaching here at
+  all) let a match give up an early position for a better one later, which is
+  what makes the word-boundary bonus mean anything.
+- **The score is the best run *ending* in a match**, not the best run carried
+  to the end of the candidate. Reading the latter charges the gap penalty for
+  every character after the last match, so a match near the start of a long
+  name is punished for its own extension — and loses to a worse match in a
+  shorter one. Found by a test, and it is the sort of thing a switcher gets
+  wrong once and is never trusted for again.
+- **The last-segment bonus is why the filename usually wins**, and it is
+  awarded only when *every* matched character is in it. A query that straddles
+  a folder boundary is scored as the path match it is.
+- **Arrow keys are handled on the field's own focus node.** Flutter dispatches
+  a key to the focused node first and only then walks up the focus chain, and
+  `EditableText`'s arrow handling is an ancestor `Shortcuts`. An ancestor
+  `Focus` therefore never sees an arrow at all — the caret moves and the
+  selection does not.
+
+## The recent list
+
+`session.json` has carried `recent` since M1 with **nothing reading it back**,
+and it was rebuilt from the open set on every save — so closing a file erased
+it, and the one thing a recent list exists for was the one thing it could not
+do. Since M3 it is history: `app/recent_files.dart` owns it, `openPaths`
+records into it, the session restores it, and three surfaces read it —
+`Ctrl+P`, File → Open Recent, and doc 06's first-run empty state.
+
 ## Non-goals
 
 No persistent index, no content search of *unopened* folders, no

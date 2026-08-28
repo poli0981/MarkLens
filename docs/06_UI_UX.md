@@ -172,8 +172,11 @@ heading-less docs.
 
 ## Empty & edge states
 
-First-run empty state: drop hint + Open buttons + recent list. Drag-over
-overlay. Cap-exceeded dialog (Open first N / Cancel). Missing-file tab body:
+First-run empty state: drop hint + Open buttons + recent list — all three
+built at M3; until then it was the drop hint alone. The two Open buttons are a
+`Wrap`, not a `Row`: doc 09 asks for no fixed-width boxes around translated
+text, and "Mở thư mục…" beside "Mở tệp…" overflows the width the English pair
+only just fits. Drag-over overlay. Cap-exceeded dialog (Open first N / Cancel). Missing-file tab body:
 explanation + "Remove from session" + "Reveal parent folder".
 
 ## Theming

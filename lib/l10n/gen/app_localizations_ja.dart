@@ -130,6 +130,21 @@ class AppLocalizationsJa extends AppLocalizations {
   String get searchAcrossClose => '検索を閉じる';
 
   @override
+  String get quickSwitcherHint => 'ファイルへ移動';
+
+  @override
+  String get quickSwitcherEmpty => '一致するものがありません';
+
+  @override
+  String get quickSwitcherRecentBadge => '最近';
+
+  @override
+  String get menuOpenRecentClear => '最近使った項目を消去';
+
+  @override
+  String get emptyStateRecent => '最近使った項目';
+
+  @override
   String get emptyStateDropHint => 'Markdown ファイルをここにドロップするか、開いて始めてください。';
 
   @override
