@@ -33,6 +33,7 @@ class ReaderView extends StatefulWidget {
     this.frontMatterDisplay = FrontMatterDisplay.collapsed,
     this.contentMaxWidth = 760,
     this.fontScale = 1,
+    this.onLinkTap,
     super.key,
   });
 
@@ -75,6 +76,13 @@ class ReaderView extends StatefulWidget {
   /// 100% and the platform's own text scale is deliberately not compounded on
   /// top of the user's choice.
   final double fontScale;
+
+  /// Called with a tapped link's raw href (`docs/03_DATA_FLOW.md`).
+  ///
+  /// The reader raises the tap and decides nothing about it: routing needs the
+  /// open set and the launcher, neither of which a feature may reach, so the
+  /// shell hands `LinkRouter` down through here.
+  final LinkTapCallback? onLinkTap;
 
   @override
   State<ReaderView> createState() => _ReaderViewState();
@@ -195,6 +203,7 @@ class _ReaderViewState extends State<ReaderView> {
                                 scroller: scroller,
                                 child: child,
                               ),
+                              onLinkTap: widget.onLinkTap,
                             ),
                       ),
                     ),

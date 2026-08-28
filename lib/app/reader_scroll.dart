@@ -93,6 +93,8 @@ class BlockScroller {
   Timer? _pulse;
   bool _restoring = false;
   bool _disposed = false;
+  String? _pendingIdentity;
+  int? _pendingReveal;
 
   /// Where the reader is, as a 0..1 ratio.
   double get ratio {
@@ -116,6 +118,15 @@ class BlockScroller {
     _identity = identity;
     _blockCount = blockCount;
     invalidateMeasurements();
+
+    // A jump asked for before this document existed (a `file.md#anchor` link,
+    // a cross-file search hit) beats the remembered position: the reader asked
+    // to be somewhere specific, and landing where they last were and then
+    // moving would be two answers to one question.
+    final pending = _pendingIdentity == identity ? _pendingReveal : null;
+    _pendingIdentity = null;
+    _pendingReveal = null;
+
     // The reader adopts a document from `initState` and `didUpdateWidget` —
     // both inside a build. Writing a `ValueNotifier` there marks its listeners
     // dirty while the framework is already building them, which is an error,
@@ -124,9 +135,32 @@ class BlockScroller {
       topBlock.value = -1;
       pulsingBlock.value = -1;
       highlightedBlocks.value = const <int>{};
-      unawaited(restoreRatioPosition(restoreRatio));
+      unawaited(
+        pending == null ? restoreRatioPosition(restoreRatio) : reveal(pending),
+      );
     });
   }
+
+  /// Reveal [blockIndex] as soon as the document with [identity] is adopted.
+  ///
+  /// The primitive behind every jump that crosses documents: the block index
+  /// is known before the reader has the document, and `reveal` cannot run
+  /// until it does — a `ListView` that has not been built has no offsets and a
+  /// block count of zero.
+  ///
+  /// At most one is held. A second call supersedes the first, and **the next
+  /// [adopt] consumes it either way** — if that document is not the one named,
+  /// the jump is dropped rather than saved. A jump is good for the document
+  /// the reader is about to take; one that fired minutes later, after an
+  /// unrelated reload happened to activate the right file, would be a surprise
+  /// rather than a feature.
+  void revealWhenAdopted(String identity, int blockIndex) {
+    _pendingIdentity = identity;
+    _pendingReveal = blockIndex;
+  }
+
+  /// Whether a jump is waiting for its document. Visible for tests.
+  bool get hasPendingReveal => _pendingIdentity != null;
 
   void _afterFrame(VoidCallback action) {
     WidgetsBinding.instance.addPostFrameCallback((_) {

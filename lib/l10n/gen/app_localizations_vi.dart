@@ -57,6 +57,26 @@ class AppLocalizationsVi extends AppLocalizations {
   }
 
   @override
+  String readerLinkUnsupported(String kind) {
+    return 'MarkLens không mở liên kết $kind.';
+  }
+
+  @override
+  String readerLinkMissingTarget(String name) {
+    return '$name không còn ở đó nữa.';
+  }
+
+  @override
+  String readerLinkMissingAnchor(String anchor) {
+    return 'Không có tiêu đề nào khớp #$anchor.';
+  }
+
+  @override
+  String readerLinkLaunchFailed(String host) {
+    return 'Không chuyển được $host sang trình duyệt.';
+  }
+
+  @override
   String get emptyStateDropHint =>
       'Kéo thả một tệp Markdown vào đây, hoặc mở một tệp để bắt đầu.';
 

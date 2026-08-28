@@ -25,10 +25,24 @@ abstract class MarkdownRenderer {
   /// the mapping is not one-to-one: `flutter_markdown_plus` emits `2N-1`
   /// children with a spacer between every pair, and that arithmetic stays
   /// inside the implementation, where it is the only thing that knows it.
-  Widget build(BuildContext context, DocModel doc, {BlockWrapper? wrapBlock});
+  /// [onLinkTap] is called with a link's href exactly as the document wrote
+  /// it, and with nothing else. Deciding what that href *is* — an anchor, a
+  /// document, a URL, or something to refuse — is `core/links/`' job, and
+  /// keeping the seam this narrow is what stops a renderer from ever being the
+  /// thing that hands a `javascript:` href to the operating system
+  /// (`docs/10_SECURITY_PRIVACY.md`, invariant 2).
+  Widget build(
+    BuildContext context,
+    DocModel doc, {
+    BlockWrapper? wrapBlock,
+    LinkTapCallback? onLinkTap,
+  });
 }
 
 /// Wraps one top-level block on its way to the screen.
 ///
 /// [blockIndex] indexes `DocModel.blocks`, never the renderer's child list.
 typedef BlockWrapper = Widget Function(int blockIndex, Widget child);
+
+/// Called when the reader taps a link, with its raw href.
+typedef LinkTapCallback = void Function(String href);

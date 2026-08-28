@@ -47,6 +47,10 @@ dependencies:
   # ── Pure Dart services ──────────────────────────────────────────────────
   watcher: 1.2.1
   args: 2.7.0
+  # Already in the tree via markdown and flutter_markdown_plus, and already on
+  # doc 02's allowlist for core/ — direct since M3, when link routing needed to
+  # resolve a relative path against a document's directory on both platforms.
+  path: 1.9.1
   package_info_plus: 10.2.1
   intl: 0.20.3
 

@@ -20,6 +20,17 @@
    `url_launcher` only after an `http/https` scheme check; `file:`,
    `javascript:`, custom schemes are refused with a notice. Document content
    never reaches a process argument.
+
+   **Made structural at M3**, rather than left as a rule to remember:
+   `classifyLink` in `core/links/` returns a sealed `LinkTarget`, and
+   `ExternalLink` is the only variant carrying a `Uri`. `LauncherLink.open`
+   takes a `Uri`. So the check is not a step that precedes the shell-out — it
+   is the only thing that can produce the argument the shell-out needs. The
+   renderer seam is narrowed to match: it passes the href and neither the link
+   text nor its title, so there is no document text on that path at all.
+   `test/core/link_target_test.dart` fires thirteen schemes at it, and
+   `test/app/link_routing_test.dart` taps a `javascript:` link in a rendered
+   document and asserts the launcher was never called.
 3. **Resource loading allowlist.** Images only, local only by default,
    extension-checked, size-capped (doc 04). A document cannot make the app
    read arbitrary non-image files into memory for display.

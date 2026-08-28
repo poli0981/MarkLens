@@ -172,6 +172,30 @@ abstract class AppLocalizations {
   /// **'Attributes: {names}'**
   String readerMdxComponentAttributes(String names);
 
+  /// Notice after clicking a link that is neither http(s) nor a document MarkLens opens. Never followed (docs/10).
+  ///
+  /// In en, this message translates to:
+  /// **'MarkLens doesn’t open {kind} links.'**
+  String readerLinkUnsupported(String kind);
+
+  /// Notice after clicking a relative link whose target file does not exist.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} isn’t there any more.'**
+  String readerLinkMissingTarget(String name);
+
+  /// Notice after clicking an anchor link with no matching heading slug (docs/04).
+  ///
+  /// In en, this message translates to:
+  /// **'No heading matches #{anchor}.'**
+  String readerLinkMissingAnchor(String anchor);
+
+  /// Notice when the platform refused to open an external URL.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn’t hand {host} to the browser.'**
+  String readerLinkLaunchFailed(String host);
+
   /// First-run empty state, shown when nothing is open.
   ///
   /// In en, this message translates to:

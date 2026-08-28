@@ -58,6 +58,7 @@ class FlutterMarkdownPlusRenderer implements MarkdownRenderer {
     BuildContext context,
     DocModel doc, {
     BlockWrapper? wrapBlock,
+    LinkTapCallback? onLinkTap,
   }) => _BlockListMarkdown(
     data: doc.sanitizedSource,
     controller: controller,
@@ -67,6 +68,17 @@ class FlutterMarkdownPlusRenderer implements MarkdownRenderer {
     codeBlocks: CodeBlockBuilder(
       highlighter: highlighter ?? _highlighterFor(context),
     ),
+    // The package hands back the link's text and title too. Neither is passed
+    // on: the router decides from the href alone, and a seam that carried
+    // document text would be a seam something could shell out with
+    // (`docs/10_SECURITY_PRIVACY.md`).
+    onTapLink: onLinkTap == null
+        ? null
+        : (_, href, _) {
+            if (href != null) {
+              onLinkTap(href);
+            }
+          },
   );
 
   /// The default highlighter: scopes painted from the doc 06 tokens.
@@ -87,6 +99,7 @@ class _BlockListMarkdown extends MarkdownWidget {
     required super.data,
     required CodeBlockBuilder codeBlocks,
     required super.styleSheet,
+    super.onTapLink,
     this.controller,
     this.onBlockCount,
     this.wrapBlock,

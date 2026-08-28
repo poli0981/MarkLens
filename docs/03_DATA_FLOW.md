@@ -94,6 +94,35 @@ http / https           → url_launcher → system browser
 anything else          → notice "link type not supported" (never shell-out)
 ```
 
+Built at M3, in three pieces that each answer one question:
+
+- **`core/links/link_target.dart` decides what a href is**, in pure Dart, and
+  is the whole of doc 10 invariant 2. `ExternalLink` is the only variant that
+  carries a `Uri` at all, so there is no branch anywhere downstream that could
+  hand a `javascript:` href to the operating system — the check cannot be
+  skipped because there is nothing to skip it *with*.
+- **`app/link_router.dart` acts on that**, because acting needs the open set,
+  the file service and the launcher, and no feature may reach those.
+- **`app/launcher_link.dart` is the seam over `url_launcher`**, stubbed in
+  tests like `WindowLink` and `WatchLink` before it.
+
+Four things the four-line table above did not say, and now does:
+
+- **`file.md#anchor` needs a jump that outlives a document switch.** The block
+  index is known as soon as the target is parsed, and `reveal` cannot run until
+  the reader has built the document. `BlockScroller.revealWhenAdopted` holds
+  exactly one, and the next adoption consumes or drops it. It is the same
+  primitive a cross-file search hit needs.
+- **A link into the document already showing is an anchor jump wearing a
+  path**, and is handled as one: the reader only adopts a document when the
+  document changes, so a pending jump would never be consumed.
+- **A relative link to something MarkLens does not open** — an image, a source
+  file, a directory — is refused with a notice rather than guessed at. Which
+  extensions count is the registry's answer, so it follows the setting.
+- **A one-letter scheme is a Windows drive letter, not a protocol.** `Uri`
+  reads `C:/docs/README.md` as scheme `c`; refusing that would refuse an
+  ordinary absolute path on the platform this app was written on.
+
 ## Update check (opt-out, doc 11)
 
 ```

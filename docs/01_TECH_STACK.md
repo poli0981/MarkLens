@@ -99,6 +99,7 @@ moves (rule 10).
 | path_provider | Config directory (resolved in `app/`, injected into core) | BSD-3 | `2.1.6` |
 | url_launcher | External links in system browser | BSD-3 | `6.3.2` |
 | args | CLI argument parsing | BSD-3 | `2.7.0` |
+| path (Dart team) | Path joining/normalizing in `core/` (link routing) | BSD-3 | `1.9.1` |
 | package_info_plus | Version for About/update check | BSD-3 | `10.2.1` — see note |
 | flutter_localizations + intl | i18n | SDK / BSD-3 | SDK / `0.20.3` |
 

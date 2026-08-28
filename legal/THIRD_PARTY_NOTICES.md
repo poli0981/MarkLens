@@ -21,6 +21,7 @@ whenever a pin moves (CLAUDE.md rule 10). Full license texts live in
 | path_provider | App directories | BSD-3-Clause | 2.1.6 |
 | url_launcher | External links | BSD-3-Clause | 6.3.2 |
 | args | CLI parsing | BSD-3-Clause | 2.7.0 |
+| path (Dart team) | Path resolution | BSD-3-Clause | 1.9.1 |
 | package_info_plus | App version info | BSD-3-Clause | 10.2.1 |
 | Noto Sans / Noto Sans JP | UI & body fonts | SIL OFL 1.1 | — |
 | JetBrains Mono | Code font | SIL OFL 1.1 | — |

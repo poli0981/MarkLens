@@ -66,6 +66,46 @@
       }
     }
   },
+  "readerLinkUnsupported": "MarkLens doesn’t open {kind} links.",
+  "@readerLinkUnsupported": {
+    "description": "Notice after clicking a link that is neither http(s) nor a document MarkLens opens. Never followed (docs/10).",
+    "placeholders": {
+      "kind": {
+        "type": "String",
+        "example": "javascript"
+      }
+    }
+  },
+  "readerLinkMissingTarget": "{name} isn’t there any more.",
+  "@readerLinkMissingTarget": {
+    "description": "Notice after clicking a relative link whose target file does not exist.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "ARCHITECTURE.md"
+      }
+    }
+  },
+  "readerLinkMissingAnchor": "No heading matches #{anchor}.",
+  "@readerLinkMissingAnchor": {
+    "description": "Notice after clicking an anchor link with no matching heading slug (docs/04).",
+    "placeholders": {
+      "anchor": {
+        "type": "String",
+        "example": "getting-started"
+      }
+    }
+  },
+  "readerLinkLaunchFailed": "Couldn’t hand {host} to the browser.",
+  "@readerLinkLaunchFailed": {
+    "description": "Notice when the platform refused to open an external URL.",
+    "placeholders": {
+      "host": {
+        "type": "String",
+        "example": "example.com"
+      }
+    }
+  },
   "emptyStateDropHint": "Drop a Markdown file here, or open one to begin.",
   "@emptyStateDropHint": {
     "description": "First-run empty state, shown when nothing is open."

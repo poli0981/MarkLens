@@ -435,8 +435,11 @@ They are v1 scope by the charter, so they are M3:
    five transforms did not settle, of which the load-bearing one is that a
    placeholder card does **not** re-render its children — that would nest a
    selection scope inside the reader's, which S2 made a release gate.
-3. **Link routing + anchor jumps**, which also builds the two primitives later
-   PRs need: the `url_launcher` seam and "open a document, then jump into it".
+3. **Link routing + anchor jumps** ✅, which also built the two primitives
+   later PRs need: the `url_launcher` seam and `revealWhenAdopted`, the jump
+   that outlives a document switch. Doc 10 invariant 2 is now structural
+   rather than a rule to remember — see doc 03. `path` became a direct
+   dependency here (rule 10: doc 01 and the notices updated in the same PR).
 4. **Images.**
 5. **Cross-file search** (`Ctrl+Shift+F`).
 6. **Quick switcher** (`Ctrl+P`) **and the recent list**, whose first reader

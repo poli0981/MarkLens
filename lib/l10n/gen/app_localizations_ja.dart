@@ -57,6 +57,26 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
+  String readerLinkUnsupported(String kind) {
+    return 'MarkLens は $kind リンクを開きません。';
+  }
+
+  @override
+  String readerLinkMissingTarget(String name) {
+    return '$name はもうありません。';
+  }
+
+  @override
+  String readerLinkMissingAnchor(String anchor) {
+    return '#$anchor に一致する見出しがありません。';
+  }
+
+  @override
+  String readerLinkLaunchFailed(String host) {
+    return '$host をブラウザーに渡せませんでした。';
+  }
+
+  @override
   String get emptyStateDropHint => 'Markdown ファイルをここにドロップするか、開いて始めてください。';
 
   @override

@@ -530,6 +530,40 @@ class _Body extends ConsumerWidget {
       fontScale: reading.fontScale,
       contentMaxWidth: reading.contentMaxWidth.toDouble(),
       frontMatterDisplay: reading.frontMatter,
+      onLinkTap: (href) => unawaited(_follow(context, ref, href)),
     );
+  }
+
+  /// Follows a link, and says something when it went nowhere.
+  ///
+  /// The four cases of `docs/03_DATA_FLOW.md` are `LinkRouter`'s; what belongs
+  /// here is only the part that needs a `BuildContext`. A link that worked says
+  /// nothing: the reader can see that it worked.
+  static Future<void> _follow(
+    BuildContext context,
+    WidgetRef ref,
+    String href,
+  ) async {
+    final outcome = await ref.read(linkRouterProvider).follow(href);
+    if (!context.mounted) {
+      return;
+    }
+    final l10n = AppLocalizations.of(context);
+    final detail = outcome.detail ?? '';
+    final message = switch (outcome.kind) {
+      LinkOutcomeKind.unsupported => l10n.readerLinkUnsupported(detail),
+      LinkOutcomeKind.missingTarget => l10n.readerLinkMissingTarget(detail),
+      LinkOutcomeKind.missingAnchor => l10n.readerLinkMissingAnchor(detail),
+      LinkOutcomeKind.launchFailed => l10n.readerLinkLaunchFailed(detail),
+      LinkOutcomeKind.anchor ||
+      LinkOutcomeKind.document ||
+      LinkOutcomeKind.external => null,
+    };
+    if (message == null) {
+      return;
+    }
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(content: Text(message)));
   }
 }

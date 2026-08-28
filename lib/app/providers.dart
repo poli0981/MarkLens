@@ -26,6 +26,14 @@ export 'package:marklens/app/documents.dart'
     show ActiveDocument, ActiveDocumentController, activeDocumentProvider;
 export 'package:marklens/app/find.dart'
     show FindController, FindState, findProvider;
+export 'package:marklens/app/launcher_link.dart'
+    show
+        LauncherLink,
+        PlatformLauncherLink,
+        RecordingLauncherLink,
+        launcherLinkProvider;
+export 'package:marklens/app/link_router.dart'
+    show LinkOutcome, LinkOutcomeKind, LinkRouter, linkRouterProvider;
 export 'package:marklens/app/open_set.dart'
     show OpenSetController, openSetProvider;
 export 'package:marklens/app/reader_scroll.dart'
