@@ -371,21 +371,52 @@ void main() {
       }
     });
 
-    test('an unclosed region does not scan the whole document', () {
-      // Ten thousand unclosed tags, each of which would otherwise scan to the
-      // end of the file looking for a close it will never find.
-      final source = '<A x>\n' * 10000;
+    test('a document of unclosed tags is linear, not quadratic', () {
+      // Every unclosed component costs a search for a close that is not there.
+      // Given a budget each, that is quadratic — measured at 117/396/1557 ms
+      // for 2,500/5,000/10,000 tags, four times the work for twice the input.
+      // The per-region span limit does not help, because it only engages above
+      // 64 KB and that document is 60 KB. One budget for the whole document
+      // makes it linear: the same figures became 12/7/5 ms.
+      //
+      // Forty thousand tags is 240 KB, which the old behaviour would have
+      // taken minutes over — so the ceiling below has three orders of
+      // magnitude of headroom. It catches unboundedness, not a slow runner;
+      // doc 12 is explicit that CI runners are too noisy for anything finer.
+      // The five-second version of this test failed on a shared runner at
+      // 5.22 s, which is how the quadratic was found.
+      final source = '<A x>\n' * 40000;
 
       final stopwatch = Stopwatch()..start();
       final result = const MdxSanitizer().sanitize(source);
       stopwatch.stop();
 
-      expect(result.notices, isNotEmpty);
       expect(
         stopwatch.elapsed,
-        lessThan(const Duration(seconds: 5)),
+        lessThan(const Duration(seconds: 20)),
         reason: 'quadratic rescanning is a denial of service (rule 9)',
       );
+      expect(
+        kindsOf(result),
+        <String>['mdxBailOut'],
+        reason: 'the budget changes how long it takes, never what comes out',
+      );
+    });
+
+    test('and running out of budget still bails out, never truncates', () {
+      // A spent budget gives up *earlier* on finding a close, which is the
+      // same answer doc 04 gives an unbalanced tag anyway. The document still
+      // comes back whole.
+      final source = '<A x>\n' * 5000;
+
+      final result = const MdxSanitizer().sanitize(source);
+
+      expect(
+        '```$mdxBailOutLanguage'.allMatches(result.source).length,
+        5000,
+        reason: 'every one of them is fenced, budget or no budget',
+      );
+      expect(result.source, contains('<A x>'));
     });
   });
 

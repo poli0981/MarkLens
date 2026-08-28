@@ -18,6 +18,20 @@ const String mdxPlaceholderLanguage = 'jsx';
 /// block labelled `mdx`".
 const String mdxBailOutLanguage = 'mdx';
 
+/// The floor on how far one document may be scanned looking for closing tags,
+/// on top of a multiple of its own length.
+///
+/// See [MdxSanitizer.sanitize]: without a *shared* budget, each unclosed
+/// component costs its own scan, and a document that is nothing but unclosed
+/// components is quadratic — measured at 117 ms / 396 ms / 1557 ms for 2,500 /
+/// 5,000 / 10,000 of them, which is four times the work for twice the input.
+/// The per-region `spanLimit` does not help: it only engages above 64 KB, and
+/// the document that showed this was 60 KB.
+const int mdxMinimumScanBudget = 64 * 1024;
+
+/// How much of the document one region scan may cover before it gives up.
+const int mdxRegionSpanLimit = 64 * 1024;
+
 /// How many attribute names a placeholder card summarises before stopping.
 ///
 /// The summary rides the fence's info string, which is one line; a component
@@ -120,6 +134,17 @@ class MdxSanitizer {
     var paragraphOpen = false;
     var i = 0;
 
+    // Every failed search for a closing tag draws on **one budget for the whole
+    // document**, rather than each getting its own. Four times the source plus
+    // a floor: a document's legitimate regions never overlap, so scanning them
+    // all costs the source once and this is generous for the rest. What it
+    // buys is that a file made of nothing but unclosed components is linear
+    // rather than quadratic — and when the budget runs out, the remaining
+    // regions bail out to fenced `mdx` blocks, which is what doc 04 says an
+    // unbalanced tag becomes anyway. The output does not change; only the time
+    // it takes to reach it (CLAUDE.md rule 9, doc 00 principle 3).
+    final budget = _ScanBudget(source.length * 4 + mdxMinimumScanBudget);
+
     while (i < lines.length) {
       final content = lines.contents[i];
       final lineStart = lines.starts[i];
@@ -171,7 +196,7 @@ class MdxSanitizer {
       }
 
       if (content.codeUnitAt(0) == _lessThan) {
-        final block = _blockRegion(lines, i, source);
+        final block = _blockRegion(lines, i, source, budget);
         if (block != null) {
           out
             ..write(source.substring(pending, lineStart))
@@ -217,9 +242,19 @@ class MdxSanitizer {
     SourceLines lines,
     int index,
     String source,
+    _ScanBudget budget,
   ) {
     final start = lines.starts[index];
-    final region = scanJsxRegion(source, start, depthLimit: nestingLimit);
+    final limit = budget.allow(mdxRegionSpanLimit);
+    final region = scanJsxRegion(
+      source,
+      start,
+      depthLimit: nestingLimit,
+      spanLimit: limit,
+    );
+    budget.spend(
+      region != null && region.balanced ? region.end - start : limit,
+    );
     if (region == null) {
       // No tag here at all — or a tag that never terminates, which is doc 04's
       // first bail-out condition rather than something to leave lying around.
@@ -546,6 +581,25 @@ class MdxSanitizer {
       i++;
     }
     return line.length;
+  }
+}
+
+/// One document's shared allowance for searching forward.
+class _ScanBudget {
+  _ScanBudget(this.remaining);
+
+  /// Characters still available. Never negative.
+  int remaining;
+
+  /// The most one scan may cover, at most [ceiling].
+  int allow(int ceiling) => remaining < ceiling ? remaining : ceiling;
+
+  /// Records [spent], which a caller may overshoot on the last scan.
+  void spend(int spent) {
+    remaining -= spent;
+    if (remaining < 0) {
+      remaining = 0;
+    }
   }
 }
 

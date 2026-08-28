@@ -256,11 +256,20 @@ Seven things the spec above did not settle, decided while building it:
   untouched. The approximation is the "after a blank line" part, which is what
   keeps this a line scanner: a lazily indented paragraph continuation reads as
   code and is left alone, which is the safe direction.
-- **A tag may wrap lines but not span a blank one**, and the search for a
-  matching close is bounded (64 KB). Without the first, an unterminated
-  `<Another attr="value"` scans forward to whatever `>` appears next and
-  swallows everything between; without the second, a file of ten thousand
-  unclosed tags is quadratic — which is the shape of input rule 9 exists for.
+- **A tag may wrap lines but not span a blank one.** Without it, an
+  unterminated `<Another attr="value"` scans forward to whatever `>` appears
+  next and swallows everything between.
+- **The searches for a closing tag share one budget for the whole document**,
+  four times its length plus a floor — and CI is what proved a per-region cap
+  was not enough. The 64 KB span limit only engages on a document *larger* than
+  64 KB, so a 60 KB file of ten thousand unclosed components still scanned to
+  the end ten thousand times: 117 ms, 396 ms and 1557 ms for 2,500, 5,000 and
+  10,000 of them, four times the work for twice the input. One shared budget
+  makes it linear — the same figures become 12 ms, 7 ms and 5 ms — and changes
+  nothing about the output, because a region that runs out of budget gives up
+  looking for a close earlier, which is the fenced `mdx` block transform 5
+  already prescribes. Five seconds to open a 60 KB file is a denial of service
+  in the only sense that matters here (rule 9, doc 00 principle 3).
 
 Two accepted gaps, recorded rather than defended against:
 
