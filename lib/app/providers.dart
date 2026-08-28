@@ -11,8 +11,10 @@ import 'dart:io';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:marklens/app/open_files.dart';
+import 'package:marklens/app/settings_link.dart';
 import 'package:marklens/app/window_link.dart';
 import 'package:marklens/core/cache/doc_cache.dart';
+import 'package:marklens/core/files/extension_registry.dart';
 import 'package:marklens/core/files/file_service.dart';
 import 'package:marklens/core/log/log_buffer.dart';
 import 'package:marklens/core/markdown/pipeline.dart';
@@ -111,12 +113,18 @@ final Provider<SessionStore> sessionStoreProvider = Provider<SessionStore>((
 
 /// Finds the documents MarkLens will open (`docs/07_FILES_AND_WATCH.md`).
 ///
-/// Constructed with the defaults for now. Rebuilding it from
-/// `files.extensions` and `files.fileCap` belongs with the Settings UI, where
-/// there is something that can change them (M3, doc 15).
-final Provider<FileService> fileServiceProvider = Provider<FileService>(
-  (ref) => const FileService(),
-);
+/// Built **from the settings**, which is what `files.extensions` and
+/// `files.fileCap` were always for and what neither had until M3. It watches
+/// only those two fields, so a zoom step does not rebuild the file service —
+/// and when they do change, every caller gets the new registry on its next
+/// read, because that is what a `Provider` dependency means.
+final Provider<FileService> fileServiceProvider = Provider<FileService>((ref) {
+  final files = ref.watch(settingsProvider.select((s) => s.files));
+  return FileService(
+    registry: ExtensionRegistry(files.extensions),
+    fileCap: files.fileCap,
+  );
+});
 
 /// The in-memory diagnostic log (`docs/02_ARCHITECTURE.md`, "Logging").
 ///

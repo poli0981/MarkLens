@@ -85,6 +85,46 @@ class AppSettingsController extends Notifier<AppSettings> {
     state.copyWith(reading: state.reading.copyWith(frontMatter: display)),
   );
 
+  /// Sets the UI language (`docs/09_I18N.md`).
+  ///
+  /// `system` maps through the supported locales with an English fallback.
+  void setLanguage(AppLanguage language) =>
+      _apply(state.copyWith(language: language));
+
+  /// Whether the previous session is restored at startup (`docs/05`).
+  void setRestoreSession({required bool restore}) =>
+      _apply(state.copyWith(restoreSession: restore));
+
+  /// How many entries the recent list keeps, 0–200.
+  void setRecentLimit(int limit) => _apply(state.copyWith(recentLimit: limit));
+
+  /// Which extensions MarkLens opens (`docs/07_FILES_AND_WATCH.md`).
+  ///
+  /// An empty list falls back to the defaults rather than being honoured — it
+  /// would open nothing at all, which is never what anyone meant (doc 05).
+  void setExtensions(List<String> extensions) => _apply(
+    state.copyWith(files: state.files.copyWith(extensions: extensions)),
+  );
+
+  /// How many entries one folder scan may open, 100–2000.
+  void setFileCap(int cap) =>
+      _apply(state.copyWith(files: state.files.copyWith(fileCap: cap)));
+
+  /// Whether `http(s)` images load (`docs/04_MARKDOWN_PIPELINE.md`).
+  ///
+  /// Off by default, and the placeholder shows the URL: a document naming a
+  /// host is precisely a tracking beacon (doc 10, invariant 4).
+  void setAllowRemoteImages({required bool allow}) => _apply(
+    state.copyWith(
+      network: state.network.copyWith(allowRemoteImages: allow),
+    ),
+  );
+
+  /// Whether the GitHub Releases check runs (`docs/11_PACKAGING_UPDATE.md`).
+  void setUpdateCheck({required bool enabled}) => _apply(
+    state.copyWith(network: state.network.copyWith(updateCheck: enabled)),
+  );
+
   /// Turns the file watcher on or off (`docs/07_FILES_AND_WATCH.md`).
   void setWatchEnabled({required bool enabled}) => _apply(
     state.copyWith(files: state.files.copyWith(watchEnabled: enabled)),

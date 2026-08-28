@@ -52,14 +52,6 @@ class AppMenuBar extends ConsumerWidget {
     final theme = ref.watch(settingsProvider.select((s) => s.theme));
     final recent = ref.watch(recentFilesProvider);
 
-    void todo(String item) {
-      ScaffoldMessenger.of(context)
-        ..hideCurrentSnackBar()
-        ..showSnackBar(
-          SnackBar(content: Text(l10n.menuNotImplemented(item))),
-        );
-    }
-
     return MenuBar(
       children: <Widget>[
         SubmenuButton(
@@ -130,7 +122,8 @@ class AppMenuBar extends ConsumerWidget {
             ),
             MenuItemButton(
               shortcut: _activatorFor<OpenSettingsIntent>(),
-              onPressed: () => todo(l10n.menuSettings),
+              onPressed: () =>
+                  Actions.invoke(context, const OpenSettingsIntent()),
               child: Text(l10n.menuSettings),
             ),
             MenuItemButton(

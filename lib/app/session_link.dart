@@ -59,7 +59,16 @@ class SessionLink {
   ///
   /// Safe to call on every trigger doc 03 lists — the store coalesces a second
   /// of them into one write (rule 7).
+  ///
+  /// **`restoreSession: false` freezes the file rather than emptying it.** The
+  /// setting reads "reopen last session at startup", and a switch you cannot
+  /// turn back on is not a switch: if this kept writing, the first launch with
+  /// it off would overwrite the session it was told not to restore, and
+  /// turning it back on would give you an empty window forever.
   void save() {
+    if (!ref.read(settingsProvider).restoreSession) {
+      return;
+    }
     final set = ref.read(openSetProvider);
     final chrome = ref.read(chromeProvider);
 
@@ -88,6 +97,9 @@ class SessionLink {
 
   /// Writes immediately, for window close.
   void flush() => ref.read(sessionStoreProvider).flush();
+
+  /// Whether the session is being recorded at all.
+  bool get recording => ref.read(settingsProvider).restoreSession;
 
   /// The recent list, most recent first, capped by the setting.
   ///

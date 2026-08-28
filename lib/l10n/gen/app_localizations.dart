@@ -376,6 +376,156 @@ abstract class AppLocalizations {
   /// **'Couldn’t write the diagnostic log there.'**
   String get logExportFailed;
 
+  /// Title of the settings screen (Ctrl+,).
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get settingsTitle;
+
+  /// Settings section heading.
+  ///
+  /// In en, this message translates to:
+  /// **'General'**
+  String get settingsSectionGeneral;
+
+  /// Settings section heading.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading'**
+  String get settingsSectionReading;
+
+  /// Settings section heading.
+  ///
+  /// In en, this message translates to:
+  /// **'Files'**
+  String get settingsSectionFiles;
+
+  /// Settings section heading. MarkLens makes exactly two network calls, both here.
+  ///
+  /// In en, this message translates to:
+  /// **'Network'**
+  String get settingsSectionNetwork;
+
+  /// UI language setting (docs/09).
+  ///
+  /// In en, this message translates to:
+  /// **'Language'**
+  String get settingsLanguage;
+
+  /// Choice meaning follow the operating system.
+  ///
+  /// In en, this message translates to:
+  /// **'System'**
+  String get settingsFollowSystem;
+
+  /// settings.restoreSession (docs/05).
+  ///
+  /// In en, this message translates to:
+  /// **'Reopen last session at startup'**
+  String get settingsRestoreSession;
+
+  /// settings.recentLimit, 0-200 (docs/05).
+  ///
+  /// In en, this message translates to:
+  /// **'Recent documents kept'**
+  String get settingsRecentLimit;
+
+  /// reading.fontScale, 50-300%. Scales the document, not the window chrome (docs/06).
+  ///
+  /// In en, this message translates to:
+  /// **'Text size'**
+  String get settingsFontScale;
+
+  /// reading.contentMaxWidth in logical pixels, or full width.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading column width'**
+  String get settingsContentWidth;
+
+  /// Shown at the zero end of the column-width slider.
+  ///
+  /// In en, this message translates to:
+  /// **'Full width'**
+  String get settingsContentWidthFull;
+
+  /// reading.frontMatter display mode (docs/04).
+  ///
+  /// In en, this message translates to:
+  /// **'Front matter'**
+  String get settingsFrontMatter;
+
+  /// Front-matter panel opens collapsed.
+  ///
+  /// In en, this message translates to:
+  /// **'Collapsed'**
+  String get settingsFrontMatterCollapsed;
+
+  /// Front-matter panel opens expanded.
+  ///
+  /// In en, this message translates to:
+  /// **'Expanded'**
+  String get settingsFrontMatterExpanded;
+
+  /// Front-matter panel is not shown.
+  ///
+  /// In en, this message translates to:
+  /// **'Hidden'**
+  String get settingsFrontMatterHidden;
+
+  /// files.extensions. Gates folder scans, the dialog filter, drag-drop and CLI args alike (docs/07).
+  ///
+  /// In en, this message translates to:
+  /// **'File extensions MarkLens opens'**
+  String get settingsExtensions;
+
+  /// Placeholder in the add-extension field.
+  ///
+  /// In en, this message translates to:
+  /// **'Add an extension'**
+  String get settingsExtensionsHint;
+
+  /// Button that adds the typed extension.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get settingsAdd;
+
+  /// files.fileCap, 100-2000 (docs/07).
+  ///
+  /// In en, this message translates to:
+  /// **'Most files one folder may open'**
+  String get settingsFileCap;
+
+  /// files.watchEnabled (docs/07).
+  ///
+  /// In en, this message translates to:
+  /// **'Reload documents when they change on disk'**
+  String get settingsWatch;
+
+  /// network.allowRemoteImages, off by default (docs/10).
+  ///
+  /// In en, this message translates to:
+  /// **'Load images from the internet'**
+  String get settingsRemoteImages;
+
+  /// Why remote images default to off - the tracking-beacon reason from doc 10.
+  ///
+  /// In en, this message translates to:
+  /// **'Off by default: a document naming a host can use it to see that you opened it.'**
+  String get settingsRemoteImagesDetail;
+
+  /// network.updateCheck (docs/11).
+  ///
+  /// In en, this message translates to:
+  /// **'Check for new versions'**
+  String get settingsUpdateCheck;
+
+  /// What the update check does, stated where the switch is.
+  ///
+  /// In en, this message translates to:
+  /// **'At most once a day, to GitHub. Nothing about you is sent.'**
+  String get settingsUpdateCheckDetail;
+
   /// First-run empty state, shown when nothing is open.
   ///
   /// In en, this message translates to:
@@ -513,12 +663,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'About MarkLens'**
   String get menuAbout;
-
-  /// Snackbar shown when a prototype menu item has no behaviour yet.
-  ///
-  /// In en, this message translates to:
-  /// **'{item} is not wired up yet'**
-  String menuNotImplemented(String item);
 
   /// Notice bar for DocNoticeKind.invalidUtf8 (docs/04 stage 1).
   ///

@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:marklens/core/files/extension_registry.dart';
 
 /// UI language (`docs/05_SESSION_AND_SETTINGS.md`).
@@ -13,6 +15,25 @@ enum AppLanguage {
 
   /// Japanese.
   ja,
+}
+
+/// What each language means to `MaterialApp.locale`.
+///
+/// An extension rather than a field on the enum, so `core/` stays free of
+/// `package:flutter` (rule 3) — `Locale` comes from `dart:ui`, which is not
+/// Flutter, but the mapping belongs beside the enum either way.
+extension AppLanguageLocale on AppLanguage {
+  /// The locale to force, or `null` to follow the platform.
+  ///
+  /// `system` is `null` on purpose: that is what makes Flutter resolve against
+  /// the operating system's list and fall back to `supportedLocales.first`,
+  /// which doc 09 says is English.
+  Locale? get locale => switch (this) {
+    AppLanguage.system => null,
+    AppLanguage.en => const Locale('en'),
+    AppLanguage.vi => const Locale('vi'),
+    AppLanguage.ja => const Locale('ja'),
+  };
 }
 
 /// Light/dark preference.

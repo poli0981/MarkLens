@@ -193,6 +193,83 @@ class AppLocalizationsEn extends AppLocalizations {
   String get logExportFailed => 'Couldn’t write the diagnostic log there.';
 
   @override
+  String get settingsTitle => 'Settings';
+
+  @override
+  String get settingsSectionGeneral => 'General';
+
+  @override
+  String get settingsSectionReading => 'Reading';
+
+  @override
+  String get settingsSectionFiles => 'Files';
+
+  @override
+  String get settingsSectionNetwork => 'Network';
+
+  @override
+  String get settingsLanguage => 'Language';
+
+  @override
+  String get settingsFollowSystem => 'System';
+
+  @override
+  String get settingsRestoreSession => 'Reopen last session at startup';
+
+  @override
+  String get settingsRecentLimit => 'Recent documents kept';
+
+  @override
+  String get settingsFontScale => 'Text size';
+
+  @override
+  String get settingsContentWidth => 'Reading column width';
+
+  @override
+  String get settingsContentWidthFull => 'Full width';
+
+  @override
+  String get settingsFrontMatter => 'Front matter';
+
+  @override
+  String get settingsFrontMatterCollapsed => 'Collapsed';
+
+  @override
+  String get settingsFrontMatterExpanded => 'Expanded';
+
+  @override
+  String get settingsFrontMatterHidden => 'Hidden';
+
+  @override
+  String get settingsExtensions => 'File extensions MarkLens opens';
+
+  @override
+  String get settingsExtensionsHint => 'Add an extension';
+
+  @override
+  String get settingsAdd => 'Add';
+
+  @override
+  String get settingsFileCap => 'Most files one folder may open';
+
+  @override
+  String get settingsWatch => 'Reload documents when they change on disk';
+
+  @override
+  String get settingsRemoteImages => 'Load images from the internet';
+
+  @override
+  String get settingsRemoteImagesDetail =>
+      'Off by default: a document naming a host can use it to see that you opened it.';
+
+  @override
+  String get settingsUpdateCheck => 'Check for new versions';
+
+  @override
+  String get settingsUpdateCheckDetail =>
+      'At most once a day, to GitHub. Nothing about you is sent.';
+
+  @override
   String get emptyStateDropHint =>
       'Drop a Markdown file here, or open one to begin.';
 
@@ -261,11 +338,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get menuAbout => 'About MarkLens';
-
-  @override
-  String menuNotImplemented(String item) {
-    return '$item is not wired up yet';
-  }
 
   @override
   String get readerNoticeInvalidUtf8 =>

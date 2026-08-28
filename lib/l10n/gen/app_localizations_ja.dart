@@ -190,6 +190,83 @@ class AppLocalizationsJa extends AppLocalizations {
   String get logExportFailed => 'そこには診断ログを書き出せませんでした。';
 
   @override
+  String get settingsTitle => '設定';
+
+  @override
+  String get settingsSectionGeneral => '全般';
+
+  @override
+  String get settingsSectionReading => '表示';
+
+  @override
+  String get settingsSectionFiles => 'ファイル';
+
+  @override
+  String get settingsSectionNetwork => 'ネットワーク';
+
+  @override
+  String get settingsLanguage => '言語';
+
+  @override
+  String get settingsFollowSystem => 'システムに従う';
+
+  @override
+  String get settingsRestoreSession => '起動時に前回のセッションを復元する';
+
+  @override
+  String get settingsRecentLimit => '保持する最近使った文書の数';
+
+  @override
+  String get settingsFontScale => '文字サイズ';
+
+  @override
+  String get settingsContentWidth => '本文の幅';
+
+  @override
+  String get settingsContentWidthFull => '全幅';
+
+  @override
+  String get settingsFrontMatter => 'フロントマター';
+
+  @override
+  String get settingsFrontMatterCollapsed => '折りたたむ';
+
+  @override
+  String get settingsFrontMatterExpanded => '展開する';
+
+  @override
+  String get settingsFrontMatterHidden => '表示しない';
+
+  @override
+  String get settingsExtensions => 'MarkLens が開く拡張子';
+
+  @override
+  String get settingsExtensionsHint => '拡張子を追加';
+
+  @override
+  String get settingsAdd => '追加';
+
+  @override
+  String get settingsFileCap => '1 つのフォルダーで開く上限';
+
+  @override
+  String get settingsWatch => 'ディスク上で変更されたら再読み込みする';
+
+  @override
+  String get settingsRemoteImages => 'インターネットから画像を読み込む';
+
+  @override
+  String get settingsRemoteImagesDetail =>
+      '既定はオフ。ホストを指定した文書は、それを使ってあなたが開いたことを知ることができます。';
+
+  @override
+  String get settingsUpdateCheck => '新しいバージョンを確認する';
+
+  @override
+  String get settingsUpdateCheckDetail =>
+      'GitHub に 1 日 1 回まで。あなたに関する情報は送信しません。';
+
+  @override
   String get emptyStateDropHint => 'Markdown ファイルをここにドロップするか、開いて始めてください。';
 
   @override
@@ -257,11 +334,6 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get menuAbout => 'MarkLens について';
-
-  @override
-  String menuNotImplemented(String item) {
-    return '$item はまだ接続されていません';
-  }
 
   @override
   String get readerNoticeInvalidUtf8 =>

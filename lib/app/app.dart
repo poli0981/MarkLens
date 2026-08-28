@@ -9,12 +9,14 @@ import 'package:marklens/app/shortcuts.dart';
 import 'package:marklens/app/theme/app_theme.dart';
 import 'package:marklens/app/theme/reader_tokens.dart';
 import 'package:marklens/core/files/extension_registry.dart';
+import 'package:marklens/core/models/app_settings.dart';
 import 'package:marklens/core/storage/json_store.dart';
 import 'package:marklens/features/outline/outline_panel.dart';
 import 'package:marklens/features/reader/reader_view.dart';
 import 'package:marklens/features/search/find_bar.dart';
 import 'package:marklens/features/search/quick_switcher.dart';
 import 'package:marklens/features/search/search_panel.dart';
+import 'package:marklens/features/settings_ui/settings_screen.dart';
 import 'package:marklens/features/sidebar/sidebar_tree.dart';
 import 'package:marklens/features/status/status_bar.dart';
 import 'package:marklens/features/tabs/tab_strip.dart';
@@ -37,11 +39,19 @@ class MarkLensApp extends ConsumerWidget {
     final themeMode = ref
         .watch(settingsProvider.select((settings) => settings.theme))
         .mode;
+    // `AppLanguage` has existed since M1 with no reader at all: the app set
+    // `supportedLocales` and never a `locale`, so choosing a language did
+    // nothing whatsoever. `system` stays null, which is what makes Flutter
+    // resolve against the platform and fall back to English (`docs/09_I18N.md`).
+    final locale = ref
+        .watch(settingsProvider.select((settings) => settings.language))
+        .locale;
 
     return MaterialApp(
       onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
+      locale: locale,
       debugShowCheckedModeBanner: false,
       themeMode: themeMode,
       theme: AppTheme.light,
@@ -87,7 +97,13 @@ class _AppShellState extends ConsumerState<AppShell> with WindowListener {
 
   Future<void> _coldStart() async {
     final session = ref.read(sessionLinkProvider);
-    final outcome = session.restore();
+    // `restoreSession` has had no reader since M1 either: the session came
+    // back whatever the setting said. Off means the window opens empty, and
+    // the file itself is left alone — a preference about *this* launch must
+    // not throw away what the last one recorded.
+    final outcome = ref.read(settingsProvider).restoreSession
+        ? session.restore()
+        : JsonLoadOutcome.ok;
 
     final window = ref.read(windowLinkProvider);
     await window.restore(ref.read(windowGeometryProvider));
@@ -325,7 +341,6 @@ class _AppShellState extends ConsumerState<AppShell> with WindowListener {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
     final chrome = ref.watch(chromeProvider);
     final controller = ref.read(chromeProvider.notifier);
 
@@ -447,7 +462,12 @@ class _AppShellState extends ConsumerState<AppShell> with WindowListener {
               return null;
             },
           ),
-          OpenSettingsIntent: _todo(l10n.menuSettings),
+          OpenSettingsIntent: CallbackAction<OpenSettingsIntent>(
+            onInvoke: (_) {
+              unawaited(SettingsScreen.show(context));
+              return null;
+            },
+          ),
         },
         child: Focus(
           autofocus: true,
@@ -515,13 +535,6 @@ class _AppShellState extends ConsumerState<AppShell> with WindowListener {
       ),
     );
   }
-
-  Action<Intent> _todo(String item) => CallbackAction<Intent>(
-    onInvoke: (_) {
-      _notify(AppLocalizations.of(context).menuNotImplemented(item));
-      return null;
-    },
-  );
 }
 
 /// "MarkLens 1.2.0 is available" (`docs/11_PACKAGING_UPDATE.md`).

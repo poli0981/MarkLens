@@ -190,6 +190,83 @@ class AppLocalizationsVi extends AppLocalizations {
   String get logExportFailed => 'Không ghi được nhật ký chẩn đoán vào đó.';
 
   @override
+  String get settingsTitle => 'Cài đặt';
+
+  @override
+  String get settingsSectionGeneral => 'Chung';
+
+  @override
+  String get settingsSectionReading => 'Đọc';
+
+  @override
+  String get settingsSectionFiles => 'Tệp';
+
+  @override
+  String get settingsSectionNetwork => 'Mạng';
+
+  @override
+  String get settingsLanguage => 'Ngôn ngữ';
+
+  @override
+  String get settingsFollowSystem => 'Theo hệ thống';
+
+  @override
+  String get settingsRestoreSession => 'Mở lại phiên trước khi khởi động';
+
+  @override
+  String get settingsRecentLimit => 'Số tài liệu gần đây được giữ';
+
+  @override
+  String get settingsFontScale => 'Cỡ chữ';
+
+  @override
+  String get settingsContentWidth => 'Bề rộng cột đọc';
+
+  @override
+  String get settingsContentWidthFull => 'Toàn bộ bề rộng';
+
+  @override
+  String get settingsFrontMatter => 'Front matter';
+
+  @override
+  String get settingsFrontMatterCollapsed => 'Thu gọn';
+
+  @override
+  String get settingsFrontMatterExpanded => 'Mở rộng';
+
+  @override
+  String get settingsFrontMatterHidden => 'Ẩn';
+
+  @override
+  String get settingsExtensions => 'Phần mở rộng tệp MarkLens mở';
+
+  @override
+  String get settingsExtensionsHint => 'Thêm phần mở rộng';
+
+  @override
+  String get settingsAdd => 'Thêm';
+
+  @override
+  String get settingsFileCap => 'Số tệp tối đa một thư mục được mở';
+
+  @override
+  String get settingsWatch => 'Tải lại tài liệu khi tệp thay đổi trên đĩa';
+
+  @override
+  String get settingsRemoteImages => 'Tải ảnh từ Internet';
+
+  @override
+  String get settingsRemoteImagesDetail =>
+      'Mặc định tắt: tài liệu nêu tên một máy chủ có thể dùng nó để biết bạn đã mở tài liệu.';
+
+  @override
+  String get settingsUpdateCheck => 'Kiểm tra phiên bản mới';
+
+  @override
+  String get settingsUpdateCheckDetail =>
+      'Nhiều nhất mỗi ngày một lần, tới GitHub. Không gửi thông tin gì về bạn.';
+
+  @override
   String get emptyStateDropHint =>
       'Kéo thả một tệp Markdown vào đây, hoặc mở một tệp để bắt đầu.';
 
@@ -258,11 +335,6 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get menuAbout => 'Giới thiệu MarkLens';
-
-  @override
-  String menuNotImplemented(String item) {
-    return '$item chưa được nối';
-  }
 
   @override
   String get readerNoticeInvalidUtf8 =>

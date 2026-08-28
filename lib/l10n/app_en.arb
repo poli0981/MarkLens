@@ -266,6 +266,56 @@
   "@logExportFailed": {
     "description": "Shown when the chosen destination could not be written to."
   },
+  "settingsTitle": "Settings",
+  "@settingsTitle": {"description": "Title of the settings screen (Ctrl+,)."},
+  "settingsSectionGeneral": "General",
+  "@settingsSectionGeneral": {"description": "Settings section heading."},
+  "settingsSectionReading": "Reading",
+  "@settingsSectionReading": {"description": "Settings section heading."},
+  "settingsSectionFiles": "Files",
+  "@settingsSectionFiles": {"description": "Settings section heading."},
+  "settingsSectionNetwork": "Network",
+  "@settingsSectionNetwork": {"description": "Settings section heading. MarkLens makes exactly two network calls, both here."},
+  "settingsLanguage": "Language",
+  "@settingsLanguage": {"description": "UI language setting (docs/09)."},
+  "settingsFollowSystem": "System",
+  "@settingsFollowSystem": {"description": "Choice meaning follow the operating system."},
+  "settingsRestoreSession": "Reopen last session at startup",
+  "@settingsRestoreSession": {"description": "settings.restoreSession (docs/05)."},
+  "settingsRecentLimit": "Recent documents kept",
+  "@settingsRecentLimit": {"description": "settings.recentLimit, 0-200 (docs/05)."},
+  "settingsFontScale": "Text size",
+  "@settingsFontScale": {"description": "reading.fontScale, 50-300%. Scales the document, not the window chrome (docs/06)."},
+  "settingsContentWidth": "Reading column width",
+  "@settingsContentWidth": {"description": "reading.contentMaxWidth in logical pixels, or full width."},
+  "settingsContentWidthFull": "Full width",
+  "@settingsContentWidthFull": {"description": "Shown at the zero end of the column-width slider."},
+  "settingsFrontMatter": "Front matter",
+  "@settingsFrontMatter": {"description": "reading.frontMatter display mode (docs/04)."},
+  "settingsFrontMatterCollapsed": "Collapsed",
+  "@settingsFrontMatterCollapsed": {"description": "Front-matter panel opens collapsed."},
+  "settingsFrontMatterExpanded": "Expanded",
+  "@settingsFrontMatterExpanded": {"description": "Front-matter panel opens expanded."},
+  "settingsFrontMatterHidden": "Hidden",
+  "@settingsFrontMatterHidden": {"description": "Front-matter panel is not shown."},
+  "settingsExtensions": "File extensions MarkLens opens",
+  "@settingsExtensions": {"description": "files.extensions. Gates folder scans, the dialog filter, drag-drop and CLI args alike (docs/07)."},
+  "settingsExtensionsHint": "Add an extension",
+  "@settingsExtensionsHint": {"description": "Placeholder in the add-extension field."},
+  "settingsAdd": "Add",
+  "@settingsAdd": {"description": "Button that adds the typed extension."},
+  "settingsFileCap": "Most files one folder may open",
+  "@settingsFileCap": {"description": "files.fileCap, 100-2000 (docs/07)."},
+  "settingsWatch": "Reload documents when they change on disk",
+  "@settingsWatch": {"description": "files.watchEnabled (docs/07)."},
+  "settingsRemoteImages": "Load images from the internet",
+  "@settingsRemoteImages": {"description": "network.allowRemoteImages, off by default (docs/10)."},
+  "settingsRemoteImagesDetail": "Off by default: a document naming a host can use it to see that you opened it.",
+  "@settingsRemoteImagesDetail": {"description": "Why remote images default to off - the tracking-beacon reason from doc 10."},
+  "settingsUpdateCheck": "Check for new versions",
+  "@settingsUpdateCheck": {"description": "network.updateCheck (docs/11)."},
+  "settingsUpdateCheckDetail": "At most once a day, to GitHub. Nothing about you is sent.",
+  "@settingsUpdateCheckDetail": {"description": "What the update check does, stated where the switch is."},
   "emptyStateDropHint": "Drop a Markdown file here, or open one to begin.",
   "@emptyStateDropHint": {
     "description": "First-run empty state, shown when nothing is open."
@@ -357,16 +407,6 @@
   "menuAbout": "About MarkLens",
   "@menuAbout": {
     "description": "Help menu: version and project information."
-  },
-  "menuNotImplemented": "{item} is not wired up yet",
-  "@menuNotImplemented": {
-    "description": "Snackbar shown when a prototype menu item has no behaviour yet.",
-    "placeholders": {
-      "item": {
-        "type": "String",
-        "example": "Open Folder…"
-      }
-    }
   },
   "readerNoticeInvalidUtf8": "This file is not valid UTF-8. Some characters were replaced.",
   "@readerNoticeInvalidUtf8": {

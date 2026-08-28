@@ -120,6 +120,36 @@ wide enough to hide the document. An empty `files.extensions` list also falls
 back to the default set rather than being honoured — it would open nothing at
 all, which is never what anyone meant.
 
+### What building the Settings screen settled — M3
+
+- **`restoreSession: false` freezes `session.json` rather than emptying it.**
+  Not restoring is not the same as forgetting: if the session kept being
+  written while the setting was off, the first launch with it off would
+  overwrite the session it was told not to restore, and turning it back on
+  would give an empty window forever. A switch you cannot un-flip is not a
+  switch. The cost is that window geometry stops persisting too, which is
+  consistent — the whole file is one feature, "where you were".
+- **Every change is applied and written as it is made**, so the screen has a
+  Close button and no OK/Cancel pair. A Cancel would need a second copy of the
+  state to restore, and the 250 ms coalescing already means a slider drag is
+  one write.
+- **The widget ranges are the model's constants**, not new literals, so the
+  screen cannot offer a value the loader would silently clamp. `contentMaxWidth`
+  is the awkward one: `0` means *full width*, not "narrower than the minimum",
+  so the slider reaches it by stepping one below `minContentWidth` — the only
+  place a "no limit" end can live on a continuous control.
+- **Three settings had no reader at all** until this landed, and had round-
+  tripped through disk since M1 with nobody looking: `language` (the app set
+  `supportedLocales` and never a `locale`), `restoreSession`, and
+  `files.extensions` / `files.fileCap` (the file service was built with its
+  defaults). `fileServiceProvider` is now derived from the settings, watching
+  only `files` so a zoom step does not rebuild it.
+
+  Note what `files.extensions` does *not* gate: `FileService.describe`. The
+  registry decides what a **scan**, the dialog filter and drag-drop consider a
+  document; a path named on the command line opens regardless, because doc 07
+  says user intent wins.
+
 ### Reaching the running app
 
 Settings are loaded once into `settingsProvider` (`app/settings_link.dart`) and

@@ -18,6 +18,7 @@ import 'package:marklens/app/providers.dart';
 import 'package:marklens/app/theme/app_theme.dart';
 import 'package:marklens/core/session/session_store.dart';
 import 'package:marklens/features/reader/reader_view.dart';
+import 'package:marklens/features/settings_ui/settings_screen.dart';
 import 'package:marklens/l10n/gen/app_localizations.dart';
 
 void main() {
@@ -184,8 +185,8 @@ void main() {
     });
   });
 
-  group('nothing in the File menu claims to be unfinished', () {
-    testWidgets('when it is not', (tester) async {
+  group('nothing in the File menu is unfinished any more', () {
+    testWidgets('every item does what it says', (tester) async {
       final path = write('doc.md', '# A\n');
       final container = await pumpShell(tester);
       container.read(openSetProvider.notifier).openPaths(<String>[path]);
@@ -199,7 +200,7 @@ void main() {
       ]) {
         await chooseFile(tester, item);
         expect(
-          find.text(l10n.menuNotImplemented(item)),
+          find.textContaining('not wired'),
           findsNothing,
           reason: '$item is implemented and the menu must not say otherwise',
         );
@@ -208,14 +209,20 @@ void main() {
       }
     });
 
-    testWidgets('and still says so for the ones that are', (tester) async {
+    testWidgets('including Settings, which was the last placeholder', (
+      tester,
+    ) async {
+      // At M2 this test asserted the *opposite*: Settings was genuinely
+      // unfinished and an honest placeholder was the right answer. PR 8 of M3
+      // is what changed it, and `menuNotImplemented` left the ARB with it —
+      // there is nothing left in the app that is not wired.
       await pumpShell(tester);
       final l10n = await strings();
 
-      // Settings is genuinely M3. An honest placeholder is not the defect;
-      // claiming a working item is unfinished was.
       await chooseFile(tester, l10n.menuSettings);
-      expect(find.text(l10n.menuNotImplemented(l10n.menuSettings)), findsOne);
+
+      expect(find.byType(SettingsScreen), findsOneWidget);
+      expect(find.text(l10n.settingsTitle), findsOneWidget);
     });
   });
 }
