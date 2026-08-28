@@ -316,6 +316,30 @@
   "@settingsUpdateCheck": {"description": "network.updateCheck (docs/11)."},
   "settingsUpdateCheckDetail": "At most once a day, to GitHub. Nothing about you is sent.",
   "@settingsUpdateCheckDetail": {"description": "What the update check does, stated where the switch is."},
+  "dropOverlay": "Drop to open",
+  "@dropOverlay": {"description": "Overlay shown while files are dragged over the window (docs/06)."},
+  "openTooLarge": "{name} is too large to open.",
+  "@openTooLarge": {
+    "description": "Dialog when a document is over the 50 MB limit. MarkLens is a viewer, not a log reader (docs/00, docs/04).",
+    "placeholders": {"name": {"type": "String", "example": "server.log.md"}}
+  },
+  "openTooLargeBody": "MarkLens opens documents up to 50 MB. This one is bigger, so it is not a document MarkLens can show you comfortably.",
+  "@openTooLargeBody": {"description": "Explanation under openTooLarge."},
+  "missingFileTitle": "{name} isn’t there any more.",
+  "@missingFileTitle": {
+    "description": "Body shown when the active tab's file has gone (docs/06, edge states).",
+    "placeholders": {"name": {"type": "String", "example": "README.md"}}
+  },
+  "missingFileBody": "It may have been moved, renamed or deleted. The tab stays until you close it, in case it comes back.",
+  "@missingFileBody": {"description": "Explanation under missingFileTitle. Doc 07: entries leave the session only when the user closes them."},
+  "missingFileRemove": "Remove from session",
+  "@missingFileRemove": {"description": "Button on the missing-file body."},
+  "missingFileReveal": "Reveal parent folder",
+  "@missingFileReveal": {"description": "Button on the missing-file body, and the sidebar context menu."},
+  "sidebarReveal": "Reveal in file manager",
+  "@sidebarReveal": {"description": "Sidebar context menu (docs/06)."},
+  "revealFailed": "Couldn’t open that folder.",
+  "@revealFailed": {"description": "Shown when the file manager would not open."},
   "emptyStateDropHint": "Drop a Markdown file here, or open one to begin.",
   "@emptyStateDropHint": {
     "description": "First-run empty state, shown when nothing is open."

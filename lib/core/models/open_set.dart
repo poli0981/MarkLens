@@ -53,6 +53,7 @@ class OpenSet {
     this.recentOrder = const <String>[],
     this.reopenable = const <String>[],
     this.capExceededRoot,
+    this.refusedTooLarge,
   });
 
   /// Nothing open.
@@ -83,6 +84,15 @@ class OpenSet {
 
   /// A root whose scan hit the cap and is waiting on the user's answer.
   final String? capExceededRoot;
+
+  /// A path that was not opened because it is over the size limit
+  /// (`docs/04_MARKDOWN_PIPELINE.md`: "> 50 MB are refused with a friendly
+  /// dialog").
+  ///
+  /// Beside [capExceededRoot] and shaped like it, with one difference: that
+  /// one is a *question* the shell asks, and this is an *answer* it delivers.
+  /// Both are cleared once the shell has said its piece.
+  final String? refusedTooLarge;
 
   /// The active entry, or `null`.
   OpenEntry? get active {
@@ -136,6 +146,8 @@ class OpenSet {
     List<String>? reopenable,
     String? capExceededRoot,
     bool clearCapExceeded = false,
+    String? refusedTooLarge,
+    bool clearRefusedTooLarge = false,
   }) => OpenSet(
     entries: entries ?? this.entries,
     roots: roots ?? this.roots,
@@ -147,5 +159,8 @@ class OpenSet {
     capExceededRoot: clearCapExceeded
         ? null
         : (capExceededRoot ?? this.capExceededRoot),
+    refusedTooLarge: clearRefusedTooLarge
+        ? null
+        : (refusedTooLarge ?? this.refusedTooLarge),
   );
 }

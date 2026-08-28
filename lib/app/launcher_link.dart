@@ -19,6 +19,17 @@ abstract class LauncherLink {
   ///
   /// Returns whether the platform accepted it.
   Future<bool> open(Uri uri);
+
+  /// Shows [directory] in the system file manager.
+  ///
+  /// Doc 06's sidebar context menu and its missing-file body both offer this,
+  /// and it is the one place MarkLens deliberately hands a **local path** to
+  /// the operating system. Doc 10 invariant 2 says document content never
+  /// reaches a process argument, and this is not document content: it is a
+  /// folder the reader opened themselves. It still goes through a `file:` URI
+  /// and `url_launcher` rather than `Process.run`, so there is no command line
+  /// for a filename to be interesting inside of.
+  Future<bool> reveal(String directory);
 }
 
 /// The real launcher.
@@ -42,6 +53,18 @@ class PlatformLauncherLink implements LauncherLink {
       return false;
     }
   }
+
+  @override
+  Future<bool> reveal(String directory) async {
+    try {
+      // `Uri.file` percent-encodes the path, so a folder with a space or a `#`
+      // in its name survives — which is precisely what building the string by
+      // hand would get wrong.
+      return await launchUrl(Uri.file(directory));
+    } on Object {
+      return false;
+    }
+  }
 }
 
 /// What a widget test gets: records what it was asked to open, opens nothing.
@@ -55,9 +78,18 @@ class RecordingLauncherLink implements LauncherLink {
   /// Every URI handed over, in order.
   final List<Uri> opened = <Uri>[];
 
+  /// Every directory it was asked to reveal, in order.
+  final List<String> revealed = <String>[];
+
   @override
   Future<bool> open(Uri uri) async {
     opened.add(uri);
+    return succeeds;
+  }
+
+  @override
+  Future<bool> reveal(String directory) async {
+    revealed.add(directory);
     return succeeds;
   }
 }

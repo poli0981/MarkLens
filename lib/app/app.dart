@@ -12,6 +12,7 @@ import 'package:marklens/core/files/extension_registry.dart';
 import 'package:marklens/core/models/app_settings.dart';
 import 'package:marklens/core/storage/json_store.dart';
 import 'package:marklens/features/outline/outline_panel.dart';
+import 'package:marklens/features/reader/missing_file_body.dart';
 import 'package:marklens/features/reader/reader_view.dart';
 import 'package:marklens/features/search/find_bar.dart';
 import 'package:marklens/features/search/quick_switcher.dart';
@@ -339,6 +340,28 @@ class _AppShellState extends ConsumerState<AppShell> with WindowListener {
       ..showSnackBar(SnackBar(content: Text(message)));
   }
 
+  /// True while files are being dragged over the window.
+  bool _dragging = false;
+
+  /// Doc 04's top size rung, as the friendly dialog doc 06 asks for.
+  Future<void> _explainRefusal(String path) async {
+    final l10n = AppLocalizations.of(context);
+    ref.read(openSetProvider.notifier).acknowledgeRefusal();
+    await showDialog<void>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(l10n.openTooLarge(ExtensionRegistry.basenameOf(path))),
+        content: Text(l10n.openTooLargeBody),
+        actions: <Widget>[
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text(l10n.commonClose),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final chrome = ref.watch(chromeProvider);
@@ -351,7 +374,17 @@ class _AppShellState extends ConsumerState<AppShell> with WindowListener {
     // costs nothing and forgetting a trigger costs the session.
     ref
       ..listen(openSetProvider, (_, _) => ref.read(sessionLinkProvider).save())
-      ..listen(chromeProvider, (_, _) => ref.read(sessionLinkProvider).save());
+      ..listen(chromeProvider, (_, _) => ref.read(sessionLinkProvider).save())
+      // A refusal is an answer the shell delivers once and then forgets, the
+      // way the cap dialog is a question it asks once (doc 07).
+      ..listen(openSetProvider.select((set) => set.refusedTooLarge), (
+        _,
+        refused,
+      ) {
+        if (refused != null) {
+          unawaited(_explainRefusal(refused));
+        }
+      });
 
     return Shortcuts(
       shortcuts: appShortcuts,
@@ -472,63 +505,116 @@ class _AppShellState extends ConsumerState<AppShell> with WindowListener {
         child: Focus(
           autofocus: true,
           onKeyEvent: _onKey,
-          child: Scaffold(
-            body: Column(
-              // Without this the column centres its children, and the menu bar
-              // is the only one that shrink-wraps — Material's MenuBar declares
-              // no minimum width — so it floated in the middle of the window
-              // while everything else filled. Doc 06's layout diagram puts it
-              // at the left, which is where a stretched box leaves it.
-              crossAxisAlignment: CrossAxisAlignment.stretch,
+          child: ref
+              .read(dropTargetProvider)
+              .wrap(
+                onHover: (hovering) => setState(() => _dragging = hovering),
+                // Everything dropped is opened, exactly as the dialog, the
+                // command line and a forwarded launch are — one door,
+                // `openPaths` (`docs/03_DATA_FLOW.md`).
+                onDrop: (paths) =>
+                    ref.read(openSetProvider.notifier).openPaths(paths),
+                child: Stack(
+                  children: <Widget>[
+                    Positioned.fill(child: _shell(chrome, controller)),
+                    if (_dragging) const Positioned.fill(child: _DropOverlay()),
+                  ],
+                ),
+              ),
+        ),
+      ),
+    );
+  }
+
+  Widget _shell(ChromeState chrome, ChromeController controller) {
+    return Scaffold(
+      body: Column(
+        // Without this the column centres its children, and the menu bar
+        // is the only one that shrink-wraps — Material's MenuBar declares
+        // no minimum width — so it floated in the middle of the window
+        // while everything else filled. Doc 06's layout diagram puts it
+        // at the left, which is where a stretched box leaves it.
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: <Widget>[
+          if (!chrome.fullScreen) AppMenuBar(fileMenuController: _fileMenu),
+          // Passive, above the tabs: doc 11 asks for a banner, not a
+          // dialog, and the difference is whether it interrupts.
+          const UpdateBanner(),
+          const TabStrip(),
+          Expanded(
+            child: Row(
               children: <Widget>[
-                if (!chrome.fullScreen)
-                  AppMenuBar(fileMenuController: _fileMenu),
-                // Passive, above the tabs: doc 11 asks for a banner, not a
-                // dialog, and the difference is whether it interrupts.
-                const UpdateBanner(),
-                const TabStrip(),
+                if (chrome.sidebarVisible)
+                  SizedBox(
+                    // The restored width, not a hardcoded one: the
+                    // session stores it and doc 05 clamps it, and the
+                    // shell used to ignore both.
+                    width: chrome.sidebarWidth,
+                    child: switch (chrome.sidebarPanel) {
+                      SidebarPanel.files => const SidebarTree(),
+                      SidebarPanel.search => const SearchPanel(),
+                    },
+                  ),
                 Expanded(
-                  child: Row(
-                    children: <Widget>[
-                      if (chrome.sidebarVisible)
-                        SizedBox(
-                          // The restored width, not a hardcoded one: the
-                          // session stores it and doc 05 clamps it, and the
-                          // shell used to ignore both.
-                          width: chrome.sidebarWidth,
-                          child: switch (chrome.sidebarPanel) {
-                            SidebarPanel.files => const SidebarTree(),
-                            SidebarPanel.search => const SearchPanel(),
-                          },
-                        ),
-                      Expanded(
-                        child: Focus(
-                          focusNode: _body,
-                          // The bar floats over the document rather than
-                          // pushing it down (doc 08): a find that reflows the
-                          // page moves the very text you were looking at.
-                          child: Stack(
-                            children: <Widget>[
-                              const Positioned.fill(child: _Body()),
-                              if (ref.watch(
-                                findProvider.select((find) => find.visible),
-                              ))
-                                const Positioned(
-                                  top: 8,
-                                  right: 16,
-                                  child: FindBar(),
-                                ),
-                            ],
+                  child: Focus(
+                    focusNode: _body,
+                    // The bar floats over the document rather than
+                    // pushing it down (doc 08): a find that reflows the
+                    // page moves the very text you were looking at.
+                    child: Stack(
+                      children: <Widget>[
+                        const Positioned.fill(child: _Body()),
+                        if (ref.watch(
+                          findProvider.select((find) => find.visible),
+                        ))
+                          const Positioned(
+                            top: 8,
+                            right: 16,
+                            child: FindBar(),
                           ),
-                        ),
-                      ),
-                      if (chrome.outlineVisible)
-                        const SizedBox(width: 200, child: OutlinePanel()),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
-                const StatusBar(),
+                if (chrome.outlineVisible)
+                  const SizedBox(width: 200, child: OutlinePanel()),
               ],
+            ),
+          ),
+          const StatusBar(),
+        ],
+      ),
+    );
+  }
+}
+
+/// The "drop to open" veil, while files are over the window
+/// (`docs/06_UI_UX.md`, "Drag-over overlay").
+///
+/// It covers the whole shell rather than a target region: doc 03 lists
+/// drag-drop beside the dialog and the command line, and none of those has a
+/// bullseye either. `IgnorePointer`, so the veil never eats the drop it is
+/// advertising.
+class _DropOverlay extends StatelessWidget {
+  const _DropOverlay();
+
+  @override
+  Widget build(BuildContext context) {
+    final tokens = ReaderTokens.of(context);
+
+    return IgnorePointer(
+      child: ColoredBox(
+        color: tokens.bg.withValues(alpha: 0.82),
+        child: Center(
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+            decoration: BoxDecoration(
+              border: Border.all(color: tokens.accent, width: 2),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Text(
+              AppLocalizations.of(context).dropOverlay,
+              style: Theme.of(context).textTheme.titleMedium,
             ),
           ),
         ),
@@ -692,6 +778,14 @@ class _Body extends ConsumerWidget {
     );
 
     if (doc == null) {
+      final failed = active.failedPath;
+      final identity = active.file?.identity;
+      // `failedPath` has existed since M1 and only the status bar ever read
+      // it, so a file that had gone showed the *first-run* drop hint — as
+      // though nothing were open, which is the opposite of what happened.
+      if (failed != null && identity != null) {
+        return MissingFileBody(path: failed, identity: identity);
+      }
       return _EmptyState(fontScale: reading.fontScale);
     }
     final entry = ref.watch(

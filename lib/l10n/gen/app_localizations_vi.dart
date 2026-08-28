@@ -267,6 +267,48 @@ class AppLocalizationsVi extends AppLocalizations {
       'Nhiều nhất mỗi ngày một lần, tới GitHub. Không gửi thông tin gì về bạn.';
 
   @override
+  String get dropOverlay => 'Thả để mở';
+
+  @override
+  String openTooLarge(String name) {
+    return '$name quá lớn để mở.';
+  }
+
+  @override
+  String get openTooLargeBody =>
+      'MarkLens mở tài liệu tối đa 50 MB. Tệp này lớn hơn nên không phải thứ MarkLens hiển thị thoải mái được.';
+
+  @override
+  String missingFileTitle(String name) {
+    return '$name không còn ở đó nữa.';
+  }
+
+  @override
+  String get missingFileBody =>
+      'Có thể tệp đã bị di chuyển, đổi tên hoặc xóa. Thẻ vẫn ở đây cho tới khi bạn đóng, phòng khi tệp quay lại.';
+
+  @override
+  String get missingFileRemove => 'Bỏ khỏi phiên';
+
+  @override
+  String get missingFileReveal => 'Mở thư mục chứa';
+
+  @override
+  String get sidebarReveal => 'Hiện trong trình quản lý tệp';
+
+  @override
+  String get sidebarPin => 'Ghim';
+
+  @override
+  String get sidebarUnpin => 'Bỏ ghim';
+
+  @override
+  String get sidebarClose => 'Đóng';
+
+  @override
+  String get revealFailed => 'Không mở được thư mục đó.';
+
+  @override
   String get emptyStateDropHint =>
       'Kéo thả một tệp Markdown vào đây, hoặc mở một tệp để bắt đầu.';
 
@@ -388,12 +430,6 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get sidebarEmpty => 'Chưa mở tài liệu nào.';
-
-  @override
-  String get sidebarPin => 'Ghim';
-
-  @override
-  String get sidebarUnpin => 'Bỏ ghim';
 
   @override
   String openFolderCapTitle(int count) {

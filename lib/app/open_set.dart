@@ -35,7 +35,15 @@ class OpenSetController extends Notifier<OpenSet> {
     String? firstOpened;
     var resolved = 0;
 
+    String? refused;
     for (final path in paths) {
+      if (files.isTooLarge(path)) {
+        // Doc 04's size ladder, top rung: a viewer, not a log reader. It is
+        // reported rather than skipped, because a file that simply vanished
+        // from the tab strip would look like a bug.
+        refused ??= path;
+        continue;
+      }
       final file = files.describe(path);
       if (file == null) {
         continue;
@@ -51,11 +59,15 @@ class OpenSetController extends Notifier<OpenSet> {
     }
 
     if (firstOpened == null) {
+      if (refused != null) {
+        state = state.copyWith(refusedTooLarge: refused);
+      }
       return 0;
     }
 
     state = state.copyWith(
       entries: <OpenEntry>[for (final id in order) byIdentity[id]!],
+      refusedTooLarge: refused,
     );
     // The recent list is history rather than a view of this state, so it is
     // told rather than derived (`app/recent_files.dart`). Recorded in reverse
@@ -95,6 +107,31 @@ class OpenSetController extends Notifier<OpenSet> {
 
   /// Drops the pending question without opening anything.
   void cancelCappedScan() => state = state.copyWith(clearCapExceeded: true);
+
+  /// Forgets the refusal, once the shell has explained it.
+  void acknowledgeRefusal() =>
+      state = state.copyWith(clearRefusedTooLarge: true);
+
+  /// Removes [identity] from the session entirely.
+  ///
+  /// Doc 06's missing-file body offers this, and it is the only place a
+  /// missing entry ever leaves: doc 07 says entries are kept and badged until
+  /// the user says otherwise, and this is them saying otherwise. It is
+  /// [close] without the reopen history — a file that is not there is not
+  /// something `Ctrl+Shift+T` should offer to bring back.
+  void remove(String identity) {
+    final entry = state.entryFor(identity);
+    if (entry == null) {
+      return;
+    }
+    close(identity);
+    state = state.copyWith(
+      reopenable: <String>[
+        for (final path in state.reopenable)
+          if (path != entry.file.path) path,
+      ],
+    );
+  }
 
   void _adoptRoot(String root, List<OpenedFile> files) {
     final roots = <String>[

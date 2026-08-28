@@ -77,6 +77,27 @@ class ExtensionRegistry {
   /// Both are checked on both platforms: Windows accepts `/` in paths, and a
   /// path can reach us from a CLI argument, a drop target or a session file
   /// written on the other operating system.
+  /// The directory [path] sits in, or `''` when it has no parent.
+  ///
+  /// Both separators on both platforms, exactly as [basenameOf] accepts both:
+  /// a path reaches us from a CLI argument, a drop target or a session file,
+  /// and Windows accepts `/` too. `SidebarTree` had a private copy of this
+  /// before M3; the missing-file body wanting the same answer is what made it
+  /// worth having once.
+  static String parentOf(String path) {
+    var end = path.length;
+    while (end > 0 && _isSeparator(path.codeUnitAt(end - 1))) {
+      end--;
+    }
+    var start = end;
+    while (start > 0 && !_isSeparator(path.codeUnitAt(start - 1))) {
+      start--;
+    }
+    // Keep the separator when it is the root's own: `/x` lives in `/`, not in
+    // the empty string, and `C:/x` lives in `C:/`.
+    return start <= 1 ? path.substring(0, start) : path.substring(0, start - 1);
+  }
+
   static String basenameOf(String path) {
     var end = path.length;
     // A trailing separator names the same directory, so ignore it.

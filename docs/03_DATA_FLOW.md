@@ -25,6 +25,14 @@ Nothing but the active document is parsed at startup — this is what keeps
 
 ## Open (dialog / drag-drop / CLI / forwarded args)
 
+All four land on `OpenSetController.openPaths`, which is the one door. **Drag
+and drop was the one of the four that did not work** until M3: `desktop_drop`
+was pinned from M0 and imported nowhere. It is behind `DropTargetLink` in
+`app/`, like every other plugin, and the drag-over overlay covers the whole
+window rather than a target region — none of the other three has a bullseye
+either.
+
+
 ```
 paths → FileService
   folder? → scan (doc 07: filter, skip symlinked dirs, natural sort)

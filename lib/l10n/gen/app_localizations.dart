@@ -526,6 +526,78 @@ abstract class AppLocalizations {
   /// **'At most once a day, to GitHub. Nothing about you is sent.'**
   String get settingsUpdateCheckDetail;
 
+  /// Overlay shown while files are dragged over the window (docs/06).
+  ///
+  /// In en, this message translates to:
+  /// **'Drop to open'**
+  String get dropOverlay;
+
+  /// Dialog when a document is over the 50 MB limit. MarkLens is a viewer, not a log reader (docs/00, docs/04).
+  ///
+  /// In en, this message translates to:
+  /// **'{name} is too large to open.'**
+  String openTooLarge(String name);
+
+  /// Explanation under openTooLarge.
+  ///
+  /// In en, this message translates to:
+  /// **'MarkLens opens documents up to 50 MB. This one is bigger, so it is not a document MarkLens can show you comfortably.'**
+  String get openTooLargeBody;
+
+  /// Body shown when the active tab's file has gone (docs/06, edge states).
+  ///
+  /// In en, this message translates to:
+  /// **'{name} isn’t there any more.'**
+  String missingFileTitle(String name);
+
+  /// Explanation under missingFileTitle. Doc 07: entries leave the session only when the user closes them.
+  ///
+  /// In en, this message translates to:
+  /// **'It may have been moved, renamed or deleted. The tab stays until you close it, in case it comes back.'**
+  String get missingFileBody;
+
+  /// Button on the missing-file body.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove from session'**
+  String get missingFileRemove;
+
+  /// Button on the missing-file body, and the sidebar context menu.
+  ///
+  /// In en, this message translates to:
+  /// **'Reveal parent folder'**
+  String get missingFileReveal;
+
+  /// Sidebar context menu (docs/06).
+  ///
+  /// In en, this message translates to:
+  /// **'Reveal in file manager'**
+  String get sidebarReveal;
+
+  /// Sidebar row menu: keep this document at the left of the tab strip.
+  ///
+  /// In en, this message translates to:
+  /// **'Pin'**
+  String get sidebarPin;
+
+  /// Sidebar row menu: stop pinning this document.
+  ///
+  /// In en, this message translates to:
+  /// **'Unpin'**
+  String get sidebarUnpin;
+
+  /// Sidebar context menu: close this document.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get sidebarClose;
+
+  /// Shown when the file manager would not open.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn’t open that folder.'**
+  String get revealFailed;
+
   /// First-run empty state, shown when nothing is open.
   ///
   /// In en, this message translates to:
@@ -741,18 +813,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No documents open.'**
   String get sidebarEmpty;
-
-  /// Sidebar row menu: keep this document at the left of the tab strip.
-  ///
-  /// In en, this message translates to:
-  /// **'Pin'**
-  String get sidebarPin;
-
-  /// Sidebar row menu: stop pinning this document.
-  ///
-  /// In en, this message translates to:
-  /// **'Unpin'**
-  String get sidebarUnpin;
 
   /// Dialog title when a folder scan hits the soft cap (docs/07).
   ///

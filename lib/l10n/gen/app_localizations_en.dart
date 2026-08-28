@@ -270,6 +270,48 @@ class AppLocalizationsEn extends AppLocalizations {
       'At most once a day, to GitHub. Nothing about you is sent.';
 
   @override
+  String get dropOverlay => 'Drop to open';
+
+  @override
+  String openTooLarge(String name) {
+    return '$name is too large to open.';
+  }
+
+  @override
+  String get openTooLargeBody =>
+      'MarkLens opens documents up to 50 MB. This one is bigger, so it is not a document MarkLens can show you comfortably.';
+
+  @override
+  String missingFileTitle(String name) {
+    return '$name isn’t there any more.';
+  }
+
+  @override
+  String get missingFileBody =>
+      'It may have been moved, renamed or deleted. The tab stays until you close it, in case it comes back.';
+
+  @override
+  String get missingFileRemove => 'Remove from session';
+
+  @override
+  String get missingFileReveal => 'Reveal parent folder';
+
+  @override
+  String get sidebarReveal => 'Reveal in file manager';
+
+  @override
+  String get sidebarPin => 'Pin';
+
+  @override
+  String get sidebarUnpin => 'Unpin';
+
+  @override
+  String get sidebarClose => 'Close';
+
+  @override
+  String get revealFailed => 'Couldn’t open that folder.';
+
+  @override
   String get emptyStateDropHint =>
       'Drop a Markdown file here, or open one to begin.';
 
@@ -392,12 +434,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get sidebarEmpty => 'No documents open.';
-
-  @override
-  String get sidebarPin => 'Pin';
-
-  @override
-  String get sidebarUnpin => 'Unpin';
 
   @override
   String openFolderCapTitle(int count) {

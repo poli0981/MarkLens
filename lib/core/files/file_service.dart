@@ -22,13 +22,29 @@ class FileService {
   const FileService({
     this.registry = ExtensionRegistry.standard,
     this.fileCap = defaultFileCap,
+    this.maxDocumentBytes = defaultMaxDocumentBytes,
   });
 
   /// The doc 05 default cap on how many entries one scan may open.
   static const int defaultFileCap = 1000;
 
+  /// The size above which a document is refused outright
+  /// (`docs/04_MARKDOWN_PIPELINE.md`: "> 50 MB are refused with a friendly
+  /// dialog").
+  ///
+  /// A viewer, not a log reader (doc 00). Between 10 MB and this the document
+  /// opens with a banner; above it, opening at all would spend a minute
+  /// parsing something nobody meant to read as prose.
+  static const int defaultMaxDocumentBytes = 50 * 1024 * 1024;
+
   /// Which extensions count.
   final ExtensionRegistry registry;
+
+  /// The size above which a document is refused (`docs/04`).
+  ///
+  /// Injected rather than fixed so a test can exercise the boundary without
+  /// writing fifty megabytes to reach it.
+  final int maxDocumentBytes;
 
   /// How many files a scan will collect before it stops and reports.
   ///
@@ -124,6 +140,21 @@ class FileService {
       modified: stat.modified,
       size: stat.size,
     );
+  }
+
+  /// Whether [path] is larger than this service will open at all.
+  ///
+  /// Separate from [describe] on purpose: the caller needs to tell "not a
+  /// document" from "a document I am refusing", because only the second
+  /// deserves an explanation (`docs/06_UI_UX.md`, edge states).
+  bool isTooLarge(String path) {
+    final absolute = _absolute(path);
+    if (absolute == null) {
+      return false;
+    }
+    final stat = FileStat.statSync(absolute);
+    return stat.type == FileSystemEntityType.file &&
+        stat.size > maxDocumentBytes;
   }
 
   /// Reads a document's bytes, or `null` if it cannot be read.

@@ -462,8 +462,11 @@ They are v1 scope by the charter, so they are M3:
    `session.json` rather than let it be overwritten, or the switch could not be
    un-flipped. Doc 05 records it. `menuNotImplemented` left the ARB with this
    PR: there is nothing in the app that is not wired.
-9. **The shell gaps** — drag & drop, missing-file body, sidebar context menu,
-   the 50 MB refusal.
+9. **The shell gaps** ✅ — drag & drop, missing-file body, sidebar context
+   menu, the 50 MB refusal. All four had their half already built and no
+   caller, which is the M2 pattern one more time. `ExtensionRegistry.parentOf`
+   came out of the sidebar's private copy when the missing-file body wanted the
+   same answer.
 10. **File-association assets**, per the split above.
 11. **i18n vi/ja, the tri-locale pass, the third visual pass**, and the "what M3
     actually was" note that belongs beside the M1 and M2 ones.

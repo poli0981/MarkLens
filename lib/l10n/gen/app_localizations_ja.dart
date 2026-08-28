@@ -267,6 +267,48 @@ class AppLocalizationsJa extends AppLocalizations {
       'GitHub に 1 日 1 回まで。あなたに関する情報は送信しません。';
 
   @override
+  String get dropOverlay => 'ドロップして開く';
+
+  @override
+  String openTooLarge(String name) {
+    return '$name は大きすぎて開けません。';
+  }
+
+  @override
+  String get openTooLargeBody =>
+      'MarkLens が開けるのは 50 MB までです。このファイルはそれより大きく、快適に表示できる文書ではありません。';
+
+  @override
+  String missingFileTitle(String name) {
+    return '$name はもうありません。';
+  }
+
+  @override
+  String get missingFileBody =>
+      '移動、名前の変更、または削除された可能性があります。戻ってくる場合に備えて、閉じるまでタブは残ります。';
+
+  @override
+  String get missingFileRemove => 'セッションから削除';
+
+  @override
+  String get missingFileReveal => '親フォルダーを表示';
+
+  @override
+  String get sidebarReveal => 'ファイルマネージャーで表示';
+
+  @override
+  String get sidebarPin => 'ピン留め';
+
+  @override
+  String get sidebarUnpin => 'ピン留めを解除';
+
+  @override
+  String get sidebarClose => '閉じる';
+
+  @override
+  String get revealFailed => 'そのフォルダーを開けませんでした。';
+
+  @override
   String get emptyStateDropHint => 'Markdown ファイルをここにドロップするか、開いて始めてください。';
 
   @override
@@ -385,12 +427,6 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get sidebarEmpty => '開いている文書はありません。';
-
-  @override
-  String get sidebarPin => 'ピン留め';
-
-  @override
-  String get sidebarUnpin => 'ピン留めを解除';
 
   @override
   String openFolderCapTitle(int count) {

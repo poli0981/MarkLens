@@ -109,8 +109,14 @@ distinguishable at a glance. A file is claimed by exactly one root, so opening
 a folder and then a folder inside it does not list anything twice.
 Virtualized (`ListView.builder`) — 1,000 entries must scroll cold without
 jank. Rows: name, subtle relative path, badges (`missing`, `pinned`,
-`stale`). Context menu: Reveal in file manager · Pin · Close. Natural sort
-(`2.md` before `10.md`).
+`stale`). Natural sort (`2.md` before `10.md`).
+
+**Context menu: Reveal in file manager · Pin · Close**, reached two ways and
+built at M3. Right-click is what this line meant and what anyone reaches for
+in a file list; the `…` button is what makes it discoverable and what works
+with a touchpad. One `MenuAnchor` serves both, because two would be two menus
+to keep in step. Reveal goes through `url_launcher` on a `file:` URI of the
+parent folder rather than `Process.run` — see doc 10 invariant 2.
 
 ## Tabs
 
@@ -176,8 +182,22 @@ First-run empty state: drop hint + Open buttons + recent list — all three
 built at M3; until then it was the drop hint alone. The two Open buttons are a
 `Wrap`, not a `Row`: doc 09 asks for no fixed-width boxes around translated
 text, and "Mở thư mục…" beside "Mở tệp…" overflows the width the English pair
-only just fits. Drag-over overlay. Cap-exceeded dialog (Open first N / Cancel). Missing-file tab body:
-explanation + "Remove from session" + "Reveal parent folder".
+only just fits. Drag-over overlay. Cap-exceeded dialog (Open first N / Cancel).
+
+**Missing-file tab body** — explanation + "Remove from session" + "Reveal
+parent folder", built at M3. `ActiveDocument.failedPath` had existed since M1
+with only the status bar reading it, so a file that had gone showed the
+*first-run* drop hint: as though nothing were open, which is the opposite of
+what happened. "Remove from session" is the only place a missing entry ever
+leaves — doc 07 keeps and badges them until the user says otherwise, and this
+is them saying otherwise — and it does not add the file to the reopen history,
+because `Ctrl+Shift+T` should not offer to bring back something that is not
+there.
+
+**The over-size dialog** (doc 04's top rung, > 50 MB) is shaped like the
+cap-exceeded one with the difference stated: that is a *question* the shell
+asks, this is an *answer* it delivers. One oversize file in a multi-file open
+does not stop the rest.
 
 ## Theming
 

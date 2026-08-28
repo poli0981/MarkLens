@@ -66,6 +66,11 @@ class SidebarTree extends ConsumerWidget {
                   onTogglePin: () => ref
                       .read(openSetProvider.notifier)
                       .togglePin(row.entry!.identity),
+                  onReveal: () => ref
+                      .read(launcherLinkProvider)
+                      .reveal(
+                        ExtensionRegistry.parentOf(row.entry!.file.path),
+                      ),
                   onClose: () => ref
                       .read(openSetProvider.notifier)
                       .close(row.entry!.identity),
@@ -135,7 +140,9 @@ class SidebarTree extends ConsumerWidget {
             label: entry.file.name,
             // The parent folder, so two README.md from different projects are
             // distinguishable at a glance.
-            detail: ExtensionRegistry.basenameOf(_parentOf(entry.file.path)),
+            detail: ExtensionRegistry.basenameOf(
+              ExtensionRegistry.parentOf(entry.file.path),
+            ),
           ),
       ]);
     }
@@ -151,11 +158,6 @@ class SidebarTree extends ConsumerWidget {
   /// Case-insensitive, because Windows paths are.
   static bool _startsWithPath(String path, String prefix) =>
       path.toLowerCase().startsWith(prefix.toLowerCase());
-
-  static String _parentOf(String path) {
-    final cut = path.lastIndexOf(RegExp(r'[/\\]'));
-    return cut <= 0 ? '' : path.substring(0, cut);
-  }
 
   static String _relativeFolder(String path, String prefix) {
     final relative = path.substring(prefix.length);
@@ -225,6 +227,7 @@ class _FileRow extends StatelessWidget {
     required this.row,
     required this.active,
     required this.onActivate,
+    required this.onReveal,
     required this.onTogglePin,
     required this.onClose,
   });
@@ -232,6 +235,7 @@ class _FileRow extends StatelessWidget {
   final SidebarRow row;
   final bool active;
   final VoidCallback onActivate;
+  final VoidCallback onReveal;
   final VoidCallback onTogglePin;
   final VoidCallback onClose;
 
@@ -242,134 +246,131 @@ class _FileRow extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final entry = row.entry!;
 
-    return InkWell(
-      onTap: onActivate,
-      child: Container(
-        color: active ? tokens.bg : null,
-        padding: const EdgeInsets.symmetric(horizontal: 10),
-        child: Row(
-          children: <Widget>[
-            if (entry.pinned)
-              Padding(
-                padding: const EdgeInsets.only(right: 4),
-                child: Icon(Icons.push_pin, size: 11, color: tokens.fgMuted),
-              ),
-            // The name and its folder used to be two `Flexible`s beside a
-            // `Spacer`, which is three flex children of equal weight sharing
-            // the free space in equal thirds — so `README.md` ellipsised to
-            // `README....` with most of the row still empty. `RenderFlex`
-            // hands each loose child its share and never redistributes what
-            // one of them leaves unused, so the split could not come out any
-            // other way.
-            //
-            // Now the pair owns all the leftover width together, and inside it
-            // the folder is a capped non-flexible child. Non-flexible children
-            // are laid out first, so the folder takes what little it needs and
-            // the name — the only flexible child left — takes the rest. Which
-            // is doc 06's intent expressed as layout: the name is the row, the
-            // folder is a hint.
-            Expanded(
-              child: Row(
-                children: <Widget>[
-                  Flexible(
-                    // "Ellipsis + tooltip for paths" (`docs/09_I18N.md`): a
-                    // truncated name is only tolerable if the whole one is
-                    // still reachable, and the sidebar had the ellipsis
-                    // without the tooltip.
-                    child: Tooltip(
-                      message: entry.file.path,
-                      child: Text(
-                        row.label,
-                        overflow: TextOverflow.ellipsis,
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: entry.file.missing
-                              ? tokens.fgMuted
-                              : tokens.fg,
-                          fontStyle: entry.file.missing
-                              ? FontStyle.italic
-                              : null,
-                          fontWeight: active ? FontWeight.w600 : null,
-                        ),
-                      ),
-                    ),
-                  ),
-                  if (row.detail.isNotEmpty)
-                    ConstrainedBox(
-                      constraints: const BoxConstraints(
-                        maxWidth: _detailMaxWidth,
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.only(left: 6),
-                        child: Text(
-                          row.detail,
-                          overflow: TextOverflow.ellipsis,
-                          style: theme.textTheme.labelSmall?.copyWith(
-                            color: tokens.fgMuted,
-                          ),
-                        ),
-                      ),
-                    ),
-                ],
-              ),
-            ),
-            if (entry.file.missing)
-              Tooltip(
-                message: l10n.sidebarMissingBadge,
-                child: Icon(
-                  Icons.link_off,
-                  size: 13,
-                  color: tokens.fgMuted,
-                ),
-              ),
-            if (entry.stale)
-              Padding(
-                padding: const EdgeInsets.only(left: 4),
-                child: Icon(Icons.circle, size: 7, color: tokens.accent),
-              ),
-            _RowMenu(
-              pinned: entry.pinned,
-              onTogglePin: onTogglePin,
-              onClose: onClose,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _RowMenu extends StatelessWidget {
-  const _RowMenu({
-    required this.pinned,
-    required this.onTogglePin,
-    required this.onClose,
-  });
-
-  final bool pinned;
-  final VoidCallback onTogglePin;
-  final VoidCallback onClose;
-
-  @override
-  Widget build(BuildContext context) {
-    final tokens = ReaderTokens.of(context);
-    final l10n = AppLocalizations.of(context);
-
+    // Doc 06's context menu: Reveal in file manager · Pin · Close. One
+    // `MenuAnchor` reached two ways, because it has to be both — right-click
+    // is what doc 06 says and what anyone reaches for in a file list, and the
+    // `…` button is what makes it discoverable and works with a touchpad. Two
+    // anchors would be two menus to keep in step.
     return MenuAnchor(
       menuChildren: <Widget>[
+        MenuItemButton(onPressed: onReveal, child: Text(l10n.sidebarReveal)),
         MenuItemButton(
           onPressed: onTogglePin,
-          child: Text(pinned ? l10n.sidebarUnpin : l10n.sidebarPin),
+          child: Text(entry.pinned ? l10n.sidebarUnpin : l10n.sidebarPin),
         ),
         MenuItemButton(onPressed: onClose, child: Text(l10n.menuCloseTab)),
       ],
-      builder: (context, controller, child) => IconButton(
-        onPressed: () =>
-            controller.isOpen ? controller.close() : controller.open(),
-        iconSize: 13,
-        visualDensity: VisualDensity.compact,
-        padding: EdgeInsets.zero,
-        constraints: const BoxConstraints(minWidth: 22, minHeight: 22),
-        icon: Icon(Icons.more_horiz, color: tokens.fgMuted),
+      builder: (context, controller, _) => GestureDetector(
+        onSecondaryTapDown: (details) =>
+            controller.open(position: details.localPosition),
+        // The same gesture on a touch screen, for one line.
+        onLongPress: controller.open,
+        child: InkWell(
+          onTap: onActivate,
+          child: Container(
+            color: active ? tokens.bg : null,
+            padding: const EdgeInsets.symmetric(horizontal: 10),
+            child: Row(
+              children: <Widget>[
+                if (entry.pinned)
+                  Padding(
+                    padding: const EdgeInsets.only(right: 4),
+                    child: Icon(
+                      Icons.push_pin,
+                      size: 11,
+                      color: tokens.fgMuted,
+                    ),
+                  ),
+                // The name and its folder used to be two `Flexible`s beside a
+                // `Spacer`, which is three flex children of equal weight
+                // sharing the free space in equal thirds — so `README.md`
+                // ellipsised to `README....` with most of the row still empty.
+                // `RenderFlex` hands each loose child its share and never
+                // redistributes what one of them leaves unused, so the split
+                // could not come out any other way.
+                //
+                // Now the pair owns all the leftover width together, and
+                // inside it the folder is a capped non-flexible child.
+                // Non-flexible children are laid out first, so the folder
+                // takes what little it needs and the name — the only flexible
+                // child left — takes the rest. Which is doc 06's intent
+                // expressed as layout: the name is the row, the folder is a
+                // hint.
+                Expanded(
+                  child: Row(
+                    children: <Widget>[
+                      Flexible(
+                        // "Ellipsis + tooltip for paths" (`docs/09_I18N.md`):
+                        // a truncated name is only tolerable if the whole one
+                        // is still reachable, and the sidebar had the ellipsis
+                        // without the tooltip.
+                        child: Tooltip(
+                          message: entry.file.path,
+                          child: Text(
+                            row.label,
+                            overflow: TextOverflow.ellipsis,
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: entry.file.missing
+                                  ? tokens.fgMuted
+                                  : tokens.fg,
+                              fontStyle: entry.file.missing
+                                  ? FontStyle.italic
+                                  : null,
+                              fontWeight: active ? FontWeight.w600 : null,
+                            ),
+                          ),
+                        ),
+                      ),
+                      if (row.detail.isNotEmpty)
+                        ConstrainedBox(
+                          constraints: const BoxConstraints(
+                            maxWidth: _detailMaxWidth,
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.only(left: 6),
+                            child: Text(
+                              row.detail,
+                              overflow: TextOverflow.ellipsis,
+                              style: theme.textTheme.labelSmall?.copyWith(
+                                color: tokens.fgMuted,
+                              ),
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+                if (entry.file.missing)
+                  Tooltip(
+                    message: l10n.sidebarMissingBadge,
+                    child: Icon(
+                      Icons.link_off,
+                      size: 13,
+                      color: tokens.fgMuted,
+                    ),
+                  ),
+                if (entry.stale)
+                  Padding(
+                    padding: const EdgeInsets.only(left: 4),
+                    child: Icon(Icons.circle, size: 7, color: tokens.accent),
+                  ),
+                IconButton(
+                  onPressed: () => controller.isOpen
+                      ? controller.close()
+                      : controller.open(),
+                  iconSize: 13,
+                  visualDensity: VisualDensity.compact,
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(
+                    minWidth: 22,
+                    minHeight: 22,
+                  ),
+                  icon: Icon(Icons.more_horiz, color: tokens.fgMuted),
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }

@@ -10,6 +10,7 @@ library;
 import 'dart:io';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:marklens/app/drop_target.dart';
 import 'package:marklens/app/open_files.dart';
 import 'package:marklens/app/settings_link.dart';
 import 'package:marklens/app/window_link.dart';
@@ -31,6 +32,8 @@ export 'package:marklens/app/cross_search.dart'
     show CrossSearchController, CrossSearchState, crossSearchProvider;
 export 'package:marklens/app/documents.dart'
     show ActiveDocument, ActiveDocumentController, activeDocumentProvider;
+export 'package:marklens/app/drop_target.dart'
+    show DropTargetLink, NoDropTargetLink, PlatformDropTargetLink;
 export 'package:marklens/app/find.dart'
     show FindController, FindState, findProvider;
 export 'package:marklens/app/launcher_link.dart'
@@ -125,6 +128,15 @@ final Provider<FileService> fileServiceProvider = Provider<FileService>((ref) {
     fileCap: files.fileCap,
   );
 });
+
+/// Files dropped onto the window (`docs/03_DATA_FLOW.md`).
+///
+/// Overridden with [NoDropTargetLink] in widget tests: `desktop_drop` has no
+/// platform channel there, and what a drop resolves to — `openPaths` — is
+/// driven directly instead.
+final Provider<DropTargetLink> dropTargetProvider = Provider<DropTargetLink>(
+  (ref) => const PlatformDropTargetLink(),
+);
 
 /// The in-memory diagnostic log (`docs/02_ARCHITECTURE.md`, "Logging").
 ///
