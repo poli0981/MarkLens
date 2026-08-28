@@ -9,6 +9,10 @@ deliberately deferred — see below. Every decision they settled is recorded in
 doc 01 (pins), doc 03 and doc 07 (watching), doc 04 (pipeline) and doc 06
 (selection, menu bar).
 
+**As of 2026-08-28, M0–M3 are closed and merged.** Every feature in the
+charter's v1 scope exists. What is left is M4: artefacts, the two decisions
+blocking them, and the tag — see "Start M4 here".
+
 ## S1 — Renderer bake-off *(the decision spike)*
 
 > **COMPLETE — 2026-08-23.** `flutter_markdown_plus 1.0.12` as the renderer
@@ -178,15 +182,21 @@ false `missing` badges during atomic saves.
 | Milestone | Contents | Est. |
 |---|---|---|
 | **M0** ✅ | Spikes S1, S2, S4, S5 (S3 deferred), pins locked in doc 01, repo + CI scaffolded with the boundary tests | done 2026-08-23 |
-| **M1 — usable daily** | Open file/folder, sidebar + tabs, pipeline + reader, session restore, single instance + CLI | 2 wk |
-| **M2 — comfortable** ✅ | Watch/auto-reload, outline, Ctrl+F, zoom, themes, front-matter panel — plus the first visual pass's eight defects and the repo's first goldens | done |
-| **M3 — complete** | The six items this row used to name, **and the six more the row did not** — images, drag & drop, the update check, About/licenses/log export, Open Recent, and doc 06's edge states. See "M3 build order" | 3 wk |
+| **M1 — usable daily** ✅ | Open file/folder, sidebar + tabs, pipeline + reader, session restore, single instance + CLI | done 2026-08-26 |
+| **M2 — comfortable** ✅ | Watch/auto-reload, outline, Ctrl+F, zoom, themes, front-matter panel — plus the first visual pass's eight defects and the repo's first goldens | done 2026-08-27 |
+| **M3 — complete** ✅ | The six items this row used to name, **and the six more the row did not** — images, drag & drop, the update check, About/licenses/log export, Open Recent, and doc 06's edge states. See "M3 build order" | done 2026-08-28 |
 | **M4 — shipped** | Packaging both OSes — including wiring M3's file-association assets into the installers — A-1 reusable workflow, bundled fonts + renderer goldens, docs polish, v1.0.0 | 1 wk |
 
 ~8.5 focused weeks; solo-dev buffer applies. M1 is the "start living in it"
-gate — daily use from M1 onward is the real QA. The M3 estimate doubled when
-that milestone was surveyed rather than read off its own one-line summary —
-see "M3 build order" below.
+gate — daily use from M1 onward is the real QA.
+
+**Two of these estimates were written before the milestone was surveyed, and
+both were wrong the same way.** M2 turned out to be mostly wiring, and M3's row
+named half its features — its 1.5 wk became 3 wk once the tree was read against
+docs 02–11. M4's "1 wk" has had the same treatment from nobody: it is the
+number this table was born with. Survey it before committing to it, and note
+that it already inherits two blockers (the icon, the bundled fonts) that are
+decisions rather than work — see "Start M4 here".
 
 ## M1 build order
 
@@ -394,6 +404,10 @@ font-dependent renderer goldens doc 12 describes are blocked behind it.
 
 ## M3 build order
 
+**Closed and merged 2026-08-28** — `main` at `1be9c89`, 1161 tests, up from
+847. A fast-forward of eleven commits, one per PR, so `main`'s history stays
+one commit per feature exactly as M1 and M2 left it.
+
 Eleven PRs, dependency-ordered. What M3 turned out to be, which the one-line
 roadmap entry above did not convey: **the roadmap row named half of it.**
 Reading the tree against docs 02–11 before starting found six more features
@@ -588,6 +602,50 @@ The bundled fonts and the renderer goldens behind them stay parked at M4
 packaging, where doc 01's Noto Sans JP size question closes. S3's clean-VM run
 was already deferred to the M4 release checklist. Installer wiring is M4 by the
 decision above.
+
+## Start M4 here
+
+M3 merged to `main` on 2026-08-28 as eleven commits (`1be9c89`), 1161 tests.
+Everything in the charter's v1 scope now exists; M4 is turning it into
+artefacts. Surveyed at the close of M3:
+
+- **Two things block packaging before any of it can start**, and both are
+  decisions somebody has to make rather than code somebody has to write:
+  - **There is no MarkLens icon.** `windows/runner/resources/app_icon.ico` is
+    the Flutter template's, there is no `linux/` icon set, and `packaging/`
+    names `marklens` as the icon while shipping none. An installer forces this
+    rather than tolerating it: registering a file type registers what that type
+    looks like in Explorer and in a file manager, which is the first thing
+    anyone sees of this program.
+  - **The bundled fonts**, on doc 01's open Noto Sans JP size question. There
+    is no `fonts/` directory and no `fonts:` entry in `pubspec.yaml`, so VI/JA
+    render in whatever the OS supplies — against charter principle 1. Doc 12's
+    renderer goldens are blocked behind it, and are still the only kind of
+    golden this repo does not have.
+- **`packaging/` is authored and wired to nothing.** The ProgId table, the
+  `.desktop` entry and the MIME XML are there with their reasons; no installer
+  script, `CMakeLists` or workflow reads them. That is M4's first mechanical
+  job and it is deliberately small.
+- **There is no `release.yml`.** Doc 14 describes the caller stub and the three
+  jobs; `.github/workflows/` has `ci.yml` and `watch-observation.yml` only.
+  Action A-1 — contributing `reusable-flutter-ci.yml` and
+  `reusable-flutter-release.yml` to `poli0981/.github` — is also untouched, and
+  doc 14 says the inline jobs were written lift-and-shift-ready for it.
+- **S3's clean-VM run** has been deferred since M0 and lands here, where it was
+  always scheduled. What is genuinely VM-only is unchanged: font rendering for
+  VI/JA, the file dialogs, and whether the AppImage launches.
+- **`--version` and single-instance forwarding are verified** against the real
+  binary (2026-08-28), so the runtime half of file association needs nothing
+  from M4 but the registration.
+- **The third visual pass is unrun**, and is the largest thing M4 inherits that
+  no test can do for it. M3 added the Settings screen, About, the update
+  banner, the search panel and the quick switcher — all chrome, all translated.
+  `test/l10n/tri_locale_layout_test.dart` proves none of them *overflow* in
+  three locales; it says nothing about whether any of them look right.
+
+The merge was a fast-forward, so `main`'s history stays one commit per feature.
+Doc 13's squash rule was waived for M2 and M3 on that basis — **ask again
+before M4's first PR** rather than assuming a third time.
 
 ## Release checklist (every tag)
 
