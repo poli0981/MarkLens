@@ -404,9 +404,17 @@ font-dependent renderer goldens doc 12 describes are blocked behind it.
 
 ## M3 build order
 
-**Closed and merged 2026-08-28** — `main` at `1be9c89`, 1161 tests, up from
-847. A fast-forward of eleven commits, one per PR, so `main`'s history stays
-one commit per feature exactly as M1 and M2 left it.
+**Closed, merged and pushed 2026-08-28** — `origin/main` at `8abb31e`, 1162
+tests, up from 847. A fast-forward of eleven commits, one per PR, so `main`'s
+history stays one commit per feature exactly as M1 and M2 left it. All six CI
+jobs green, `golden (ubuntu)` included.
+
+The first push was **red**, and worth recording because the failure read like a
+flake and was not. `test (windows-latest)` failed the MDX quadratic guard,
+which asserted five seconds and took 5.22 s — and the cause was a real
+quadratic that a local run had never been slow enough to expose. See doc 04,
+"the searches for a closing tag share one budget". A marginal timing failure is
+a hypothesis about the code before it is a hypothesis about the runner.
 
 Eleven PRs, dependency-ordered. What M3 turned out to be, which the one-line
 roadmap entry above did not convey: **the roadmap row named half of it.**
