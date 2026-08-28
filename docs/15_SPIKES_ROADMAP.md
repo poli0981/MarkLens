@@ -180,11 +180,13 @@ false `missing` badges during atomic saves.
 | **M0** ✅ | Spikes S1, S2, S4, S5 (S3 deferred), pins locked in doc 01, repo + CI scaffolded with the boundary tests | done 2026-08-23 |
 | **M1 — usable daily** | Open file/folder, sidebar + tabs, pipeline + reader, session restore, single instance + CLI | 2 wk |
 | **M2 — comfortable** ✅ | Watch/auto-reload, outline, Ctrl+F, zoom, themes, front-matter panel — plus the first visual pass's eight defects and the repo's first goldens | done |
-| **M3 — complete** | Cross-file search + Ctrl+P, MDX placeholders, link routing, file association, Settings UI, i18n vi/ja | 1.5 wk |
-| **M4 — shipped** | Packaging both OSes, A-1 reusable workflow, docs polish, v1.0.0 | 1 wk |
+| **M3 — complete** | The six items this row used to name, **and the six more the row did not** — images, drag & drop, the update check, About/licenses/log export, Open Recent, and doc 06's edge states. See "M3 build order" | 3 wk |
+| **M4 — shipped** | Packaging both OSes — including wiring M3's file-association assets into the installers — A-1 reusable workflow, bundled fonts + renderer goldens, docs polish, v1.0.0 | 1 wk |
 
-~7 focused weeks; solo-dev buffer applies. M1 is the "start living in it"
-gate — daily use from M1 onward is the real QA.
+~8.5 focused weeks; solo-dev buffer applies. M1 is the "start living in it"
+gate — daily use from M1 onward is the real QA. The M3 estimate doubled when
+that milestone was surveyed rather than read off its own one-line summary —
+see "M3 build order" below.
 
 ## M1 build order
 
@@ -389,6 +391,88 @@ coding session:
 The bundled fonts (defect 8) remain outstanding by decision, not oversight:
 doc 01's Noto Sans JP size question is parked at M4 packaging, and the
 font-dependent renderer goldens doc 12 describes are blocked behind it.
+
+## M3 build order
+
+Eleven PRs, dependency-ordered. What M3 turned out to be, which the one-line
+roadmap entry above did not convey: **the roadmap row named half of it.**
+Reading the tree against docs 02–11 before starting found six more features
+that are fully specified, have no code, and appear in no milestone row at all —
+and since M4 is packaging and the tag, no later milestone covers them.
+They are v1 scope by the charter, so they are M3:
+
+| Gap | How it shows up in the tree |
+|---|---|
+| Images | `_placeholderImage` returns a `Placeholder()` for every image; `flutter_svg` is pinned and imported nowhere; `features/reader/images/` does not exist, though `no_network_test` has reserved that exact path since M0. |
+| Drag & drop | `desktop_drop` pinned, imported nowhere. Doc 03 lists it as one of the four open paths; doc 06 wants the drag-over overlay. |
+| Update check + banner | `core/update/` does not exist — also a path `no_network_test` has reserved from the start. `network.updateCheck` has no reader in `lib/`. |
+| About · licenses · log export | `features/about/` does not exist, and **there is no log ring buffer at all** (doc 02, "Logging"), which is why Export Diagnostic Log has nothing behind it. Help → About is Flutter's bare `showAboutDialog`, without even the version. |
+| Open Recent + the recent list | `session.recent` is written and never read back. Worse, `SessionLink._recentPaths` derives it from the *open set*, so closing a file erases it from "recent" — the opposite of what doc 05 specifies. |
+| Doc 06 edge states | No missing-file tab body (`ActiveDocument.failedPath` reaches only the status bar), no sidebar context menu, and no `> 50 MB` refusal — `MarkdownPipeline`'s own comment says that last one "belongs to the file service", which does not do it. |
+
+### Three decisions taken before the first PR
+
+- **Full v1 close-out.** All twelve items land in M3. The alternative was an
+  M3.5 before the tag, which moves the "complete" gate rather than meeting it.
+  The estimate goes from 1.5 wk to 3 wk, and the roadmap row above says so.
+- **File association splits.** Doc 11 puts registration in the Inno Setup
+  installer and the `.deb`, both of which are M4 work, so M3 cannot own the
+  whole item. M3 authors what those installers will *reference* — icons, the
+  `.desktop` file, the MIME XML, the `MarkLens.Document` ProgId table — and
+  verifies the runtime half, which is single-instance forwarding and already
+  works. M4 is then `iscc` and `dpkg-deb` wiring against assets that exist.
+- **Rebase-merge, as M2.** Doc 13 says squash, and that rule is paired with
+  "PRs small enough to review in one sitting"; `main`'s history is already one
+  commit per feature and each PR below is several self-contained ones. Decided
+  per milestone rather than settled, so ask again at M4.
+
+### The order
+
+1. **This section** — the milestone written down before eleven PRs cite it.
+2. **`MdxSanitizer`** — the largest piece of new logic, and the only one that
+   depends on nothing else.
+3. **Link routing + anchor jumps**, which also builds the two primitives later
+   PRs need: the `url_launcher` seam and "open a document, then jump into it".
+4. **Images.**
+5. **Cross-file search** (`Ctrl+Shift+F`).
+6. **Quick switcher** (`Ctrl+P`) **and the recent list**, whose first reader
+   it is.
+7. **Update check, About, licenses, diagnostic log.**
+8. **Settings UI** (`Ctrl+,`), after 4 and 7 deliberately, so that every switch
+   on the screen has something behind it the day it ships.
+9. **The shell gaps** — drag & drop, missing-file body, sidebar context menu,
+   the 50 MB refusal.
+10. **File-association assets**, per the split above.
+11. **i18n vi/ja, the tri-locale pass, the third visual pass**, and the "what M3
+    actually was" note that belongs beside the M1 and M2 ones.
+
+### The M2 lesson holds, and is most of the route through
+
+M2 was mostly wiring, and so is much of M3: nearly every surface here already
+has its pure-Dart core, its model, its ARB-labelled menu item and its
+keybinding, and **no caller**. Before building an M3 feature, look for the
+missing caller. Verified at the start of M3:
+
+- `Outline.bySlug` — no caller anywhere. It *is* anchor jumps.
+- `MdxSanitizer.sanitize` returns its input unchanged, and says so in its own
+  doc comment.
+- `AppLanguage` has no reader: `MarkLensApp` sets `supportedLocales` and **no
+  `locale:`**, so the language setting has never once done anything.
+- `AppSettings.restoreSession` has no reader; the cold start restores
+  unconditionally.
+- `files.extensions` and `files.fileCap` never reach `FileService`, which is
+  constructed as `const FileService()` with its defaults.
+- `network.allowRemoteImages` and `network.updateCheck` have no readers.
+- `OpenSetController.togglePin` has no caller from the sidebar.
+- `Ctrl+P`, `Ctrl+Shift+F` and `Ctrl+,` are the last three `_todo()` stubs in
+  `app/app.dart`.
+
+### Deliberately not M3
+
+The bundled fonts and the renderer goldens behind them stay parked at M4
+packaging, where doc 01's Noto Sans JP size question closes. S3's clean-VM run
+was already deferred to the M4 release checklist. Installer wiring is M4 by the
+decision above.
 
 ## Release checklist (every tag)
 
