@@ -484,8 +484,82 @@ They are v1 scope by the charter, so they are M3:
 
     So the only thing standing between here and a working association is the
     installer, which is M4's, and the icon.
-11. **i18n vi/ja, the tri-locale pass, the third visual pass**, and the "what M3
-    actually was" note that belongs beside the M1 and M2 ones.
+11. **i18n vi/ja, the tri-locale pass** ✅, and the note below. vi/ja never
+    trailed — every PR translated its own keys, so the release-gate work was
+    an *audit* rather than a backlog, and what came out of it is two tests
+    that make the audit repeatable.
+
+### What M3 actually was
+
+Eleven PRs, 1161 tests, up from 847 at the end of M2. The one-line roadmap
+entry named six of the twelve features; the other six were found by reading the
+tree against docs 02–11 before starting, and are listed at the top of this
+section.
+
+**The M2 pattern held for a third milestone, and harder.** Almost every feature
+here was a missing caller rather than missing code — `Outline.bySlug`,
+`MdxSanitizer`, `AppLanguage`, `restoreSession`, `files.extensions`,
+`network.*`, `SessionState.recent`, `togglePin`, `failedPath`, `desktop_drop`,
+`url_launcher`, `flutter_svg`, `package_info_plus`. Four dependencies had been
+pinned since M0 and imported nowhere. The work was finding what was already
+waiting, not writing it.
+
+**Two of the orphans were not merely unread — they were wrong**, and only
+building a caller could show it. `SessionLink._recentPaths` derived the recent
+list from the *open set*, so closing a file erased it: the one thing a recent
+list exists for was the one thing it could not do. And `restoreSession: false`
+would have overwritten the session it was told not to restore, making the
+switch impossible to un-flip.
+
+**Three invariants came out stronger than they went in**, which was not the
+plan and is the most useful thing here:
+
+- Doc 10 invariant 2 (no shell-out with document-derived data) stopped being a
+  rule and became a type. `ExternalLink` is the only `LinkTarget` carrying a
+  `Uri`, and the launcher takes a `Uri` — the check is not a step before the
+  shell-out, it is the only thing that can produce its argument.
+- Invariant 3 (resource allowlist) took the same shape, with
+  `RemoteImageSource` as the only variant carrying a URL.
+- Invariant 5 (read-only) **lost an allowlist entry rather than using one**.
+  `file_picker` 12's `saveFile` writes the bytes itself, so the diagnostic-log
+  export performs no write, and MarkLens's own code now writes nowhere outside
+  its config directory.
+
+**The torture corpus earned its keep twice.** The image fixture already carried
+a protocol-relative URL, which reached the *local* branch while naming a host —
+`File.statSync` on `//example.com/x.png` is Windows opening an SMB connection to
+a host the document chose. A UNC path does the same. Both are refused now, in
+the link classifier as well as the image one. And the MDX corpus's own prose
+turned out to be wrong about its own expectation (`3 imports hidden` for four
+statements), which is the kind of thing only running it finds.
+
+**Bugs the tests found that reading did not:** `Uri.decodeComponent` throws on
+any code unit above 127, so a Vietnamese anchor took the link classifier down;
+a one-letter URI scheme is a Windows drive letter, so `C:/docs/README.md` was
+being refused as an unknown protocol on the dev machine's own platform; the
+fuzzy scorer charged its gap penalty for characters *after* the last match, so
+a match near the start of a long filename lost to a worse one in a short name.
+
+**Verified against the real binary, 2026-08-28.** A second launch naming a file
+exits 0 and puts that file in the running window as the active tab — which is
+what a double-click on an associated file does — and `session.json` afterwards
+shows the recent list and the update stamp. `--version` still prints and exits.
+
+**Still open, and both now blocking M4:**
+
+- **There is no MarkLens icon.** `app_icon.ico` is the Flutter template's and
+  no Linux set exists. An installer forces this, because registering a file
+  type registers what that type looks like in Explorer.
+- **The bundled fonts**, and doc 12's renderer goldens behind them — unchanged
+  since M1, parked at M4 packaging by doc 01's open Noto Sans JP size question.
+- **The third visual pass** is the maintainer's, and is not something this
+  milestone could do for itself. `test/l10n/tri_locale_layout_test.dart` closes
+  a slice of it — every M3 surface, in all three locales, at a narrow window,
+  asserting nothing overflows — and no more: it cannot see typography, spacing,
+  or whether a sentence reads well. M3 added the Settings screen, the About
+  dialog, the update banner, the search panel and the quick switcher, all of
+  them chrome full of translated text, and layout and copy remain exactly what
+  these tests do not see.
 
 ### The M2 lesson holds, and is most of the route through
 

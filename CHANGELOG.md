@@ -6,6 +6,46 @@ All notable changes to MarkLens are documented here. Format follows
 
 ## [Unreleased]
 
+### Added — M3, "complete"
+
+- **MDX placeholders.** `MdxSanitizer` is doc 04's five transforms rather than
+  a pass-through: ESM lines removed and counted, block components as collapsed
+  placeholder cards, inline components and braced expressions as inert code
+  spans, and a fenced `mdx` bail-out for anything ambiguous.
+- **Link routing.** `#anchor`, relative `.md`/`.mdx`, `http(s)` to the browser,
+  and everything else refused with a notice — with the refusal made structural
+  rather than procedural (doc 10, invariant 2).
+- **Images.** Local by default, extension-allowlisted, size-capped with a
+  load-anyway affordance, SVG, and remote images blocked behind
+  `network.allowRemoteImages`.
+- **Search across open files** (`Ctrl+Shift+F`), isolate-backed, results
+  grouped by file with a context line.
+- **Quick switcher** (`Ctrl+P`) over open and recent documents, with a fuzzy
+  scorer that prefers filenames and word boundaries.
+- **A recent list that survives closing a file**, read by `Ctrl+P`, File →
+  Open Recent, and the first-run empty state.
+- **Update check** — GitHub Releases, at most daily, setting-controlled, no
+  downloading — with a passive banner and a Help menu item that always answers.
+- **About**, third-party licenses, and a diagnostic-log export over a 500-entry
+  in-memory ring buffer.
+- **Settings** (`Ctrl+,`), covering every field in the `settings.json` schema.
+- **Drag and drop**, a missing-file tab body, the sidebar context menu, and the
+  50 MB refusal.
+- **File-association assets** in `packaging/` for the M4 installers.
+
+### Fixed — M3
+
+- The recent list was derived from the open set, so closing a file erased it
+  from "recent".
+- `language`, `restoreSession`, `files.extensions` and `files.fileCap` were
+  written to `settings.json` and read by nothing.
+- A Vietnamese `#anchor` crashed the link classifier: `Uri.decodeComponent`
+  raises on any code unit above 127.
+- A Windows drive letter was read as a URI scheme, so `C:/docs/README.md` was
+  refused as an unknown protocol.
+- A protocol-relative image `src` or a UNC path reached the *local* branch,
+  where statting it opens an SMB connection to a host the document named.
+
 ### Added
 - Initial documentation suite v1.0 (pre-implementation).
 - M0 scaffold: Flutter 3.47.1 project skeleton, exact dependency pins with a
