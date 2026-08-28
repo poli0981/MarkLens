@@ -297,15 +297,6 @@ class AppLocalizationsJa extends AppLocalizations {
   String get sidebarReveal => 'ファイルマネージャーで表示';
 
   @override
-  String get sidebarPin => 'ピン留め';
-
-  @override
-  String get sidebarUnpin => 'ピン留めを解除';
-
-  @override
-  String get sidebarClose => '閉じる';
-
-  @override
   String get revealFailed => 'そのフォルダーを開けませんでした。';
 
   @override
@@ -427,6 +418,12 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get sidebarEmpty => '開いている文書はありません。';
+
+  @override
+  String get sidebarPin => 'ピン留め';
+
+  @override
+  String get sidebarUnpin => 'ピン留めを解除';
 
   @override
   String openFolderCapTitle(int count) {

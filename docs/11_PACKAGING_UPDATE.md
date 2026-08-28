@@ -12,6 +12,40 @@
 
 MSIX and a Flathub submission are post-1.0 candidates, not v1 work.
 
+## File association: the split
+
+Doc 15's M3 decision 2. The **assets** — what the installers reference — were
+authored at M3 and live in `packaging/`; the **wiring** is M4's, because
+`iscc` and `dpkg-deb` are M4's.
+
+| Asset | Wired by | Registers |
+|---|---|---|
+| `packaging/windows/associations.iss` | the Inno Setup script | ProgId `MarkLens.Document`, per-user (`HKCU`) |
+| `packaging/linux/marklens.desktop` | `.deb` postinst, AppImage | `MimeType=text/markdown;text/mdx;` |
+| `packaging/linux/marklens-mime.xml` | `.deb` postinst | the two MIME types and their globs |
+
+Three things those files settled that this document did not say:
+
+- **`text/markdown` cannot be assumed.** It reached shared-mime-info recently
+  and the platform floor is Ubuntu 22.04, so the `.desktop` file would
+  otherwise claim a type nothing on the system produces. The MIME XML ships
+  beside it and is a no-op where the type is already known.
+- **`Exec=marklens %F`**, not `%U` and not `%f`. `%F` is a list of local paths,
+  which is what the CLI takes and what a multi-select hands over; `%U` would
+  allow URLs, and `%f` would start one process per file.
+- **The extension *registry* is not the association list.** `files.extensions`
+  decides what this copy opens when asked; the installer registers `.md` and
+  `.mdx` and no more. Someone who adds `.txt` in Settings has not asked to
+  become the system handler for every text file on the machine.
+
+**Still open, and blocking M4:** there is no MarkLens icon.
+`windows/runner/resources/app_icon.ico` is the Flutter template's, and no Linux
+icon set exists. Both packaging files name `marklens` as the icon and neither
+ships one, because shipping Google's logo as this program's brand is worse than
+shipping nothing. Recorded like the bundled fonts (doc 01): an open decision,
+not an oversight — and one an installer *forces*, because registering a file
+type registers what that type looks like in Explorer.
+
 ## Windows (Inno Setup)
 
 - Per-user (`PrivilegesRequired=lowest`), install under `%LocalAppData%`.

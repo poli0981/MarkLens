@@ -1,0 +1,26 @@
+[Desktop Entry]
+Type=Application
+Name=MarkLens
+GenericName=Markdown Viewer
+Comment=A fast, lightweight, read-only Markdown viewer
+Exec=marklens %F
+Icon=marklens
+Terminal=false
+Categories=Office;Viewer;TextEditor;Utility;
+Keywords=markdown;md;mdx;viewer;reader;
+StartupWMClass=marklens
+
+# %F, not %U and not %f. %F is a list of local paths, which is exactly what the
+# CLI takes (`docs/11_PACKAGING_UPDATE.md`: "marklens README.md docs/ works
+# identically on both OSes") and what a multi-select in a file manager hands
+# over. %U would allow URLs, and MarkLens opens local files only. %f would
+# allow one path, so opening five files would start five processes — the
+# single-instance forwarder would collapse them into one window, but only
+# after paying for five launches.
+MimeType=text/markdown;text/mdx;
+
+# text/markdown is registered by shared-mime-info on recent distributions and
+# absent on older ones, which is why `marklens-mime.xml` ships beside this. On
+# a system that already knows the type the extra definition is a no-op; on one
+# that does not, this line would otherwise associate MarkLens with a MIME type
+# nothing ever produces.

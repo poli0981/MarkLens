@@ -574,24 +574,6 @@ abstract class AppLocalizations {
   /// **'Reveal in file manager'**
   String get sidebarReveal;
 
-  /// Sidebar row menu: keep this document at the left of the tab strip.
-  ///
-  /// In en, this message translates to:
-  /// **'Pin'**
-  String get sidebarPin;
-
-  /// Sidebar row menu: stop pinning this document.
-  ///
-  /// In en, this message translates to:
-  /// **'Unpin'**
-  String get sidebarUnpin;
-
-  /// Sidebar context menu: close this document.
-  ///
-  /// In en, this message translates to:
-  /// **'Close'**
-  String get sidebarClose;
-
   /// Shown when the file manager would not open.
   ///
   /// In en, this message translates to:
@@ -813,6 +795,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No documents open.'**
   String get sidebarEmpty;
+
+  /// Sidebar row menu: keep this document at the left of the tab strip.
+  ///
+  /// In en, this message translates to:
+  /// **'Pin'**
+  String get sidebarPin;
+
+  /// Sidebar row menu: stop pinning this document.
+  ///
+  /// In en, this message translates to:
+  /// **'Unpin'**
+  String get sidebarUnpin;
 
   /// Dialog title when a folder scan hits the soft cap (docs/07).
   ///

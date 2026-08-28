@@ -49,6 +49,21 @@ Packaging (Inno Setup, AppImage, .deb) is documented in
 `docs/11_PACKAGING_UPDATE.md`. Release artifacts for Linux are built in CI,
 not on the Windows dev machine.
 
+## File associations
+
+The Windows installer registers `MarkLens.Document` for `.md` (checked) and
+`.mdx` (unchecked — MDX usually belongs to an editor), per-user, no admin
+rights. The `.deb` installs a `.desktop` entry and its MIME definitions.
+
+**AppImage is the exception**, and it is a property of AppImage rather than of
+MarkLens: an AppImage is a single file that the desktop does not know about
+until something tells it, so file associations need your own integration
+tooling (`appimaged`, Gear Lever, or a hand-written `.desktop`). If you want
+double-click-to-open on Linux, the `.deb` is the integrated path.
+
+Either way, double-clicking a second file while MarkLens is running opens it in
+the window that is already there rather than starting a second one.
+
 ## Documentation map
 
 | Doc | Contents |

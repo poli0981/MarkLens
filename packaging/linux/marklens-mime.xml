@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Installed to /usr/share/mime/packages/marklens.xml by the .deb postinst,
+  followed by update-mime-database (docs/11_PACKAGING_UPDATE.md).
+
+  Why this exists at all: `text/markdown` reached shared-mime-info relatively
+  recently, and MarkLens's platform floor is Ubuntu 22.04 (doc 00). On a system
+  that already defines the type these entries merge harmlessly; on one that does
+  not, `marklens.desktop` would otherwise claim a MIME type nothing produces,
+  and double-clicking a .md file would offer no application at all.
+
+  The extension list is doc 07's default registry. It is deliberately *not*
+  read from `settings.json`: that setting decides what this installed copy will
+  open when asked, and this file decides what the desktop offers to open with
+  it. A user who adds `.txt` in Settings is not asking to become the system
+  handler for every text file on the machine.
+-->
+<mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info">
+  <mime-type type="text/markdown">
+    <comment>Markdown document</comment>
+    <comment xml:lang="vi">Tài liệu Markdown</comment>
+    <comment xml:lang="ja">Markdown 文書</comment>
+    <sub-class-of type="text/plain"/>
+    <glob pattern="*.md"/>
+    <glob pattern="*.markdown"/>
+    <glob pattern="*.mdown"/>
+    <glob pattern="*.mkd"/>
+    <glob pattern="*.mkdn"/>
+    <glob pattern="*.mdwn"/>
+  </mime-type>
+
+  <mime-type type="text/mdx">
+    <comment>MDX document</comment>
+    <comment xml:lang="vi">Tài liệu MDX</comment>
+    <comment xml:lang="ja">MDX 文書</comment>
+    <sub-class-of type="text/plain"/>
+    <glob pattern="*.mdx"/>
+  </mime-type>
+</mime-info>

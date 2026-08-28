@@ -467,7 +467,23 @@ They are v1 scope by the charter, so they are M3:
    caller, which is the M2 pattern one more time. `ExtensionRegistry.parentOf`
    came out of the sidebar's private copy when the missing-file body wanted the
    same answer.
-10. **File-association assets**, per the split above.
+10. **File-association assets** ✅, per the split above — in `packaging/`,
+    with doc 11 recording the three things authoring them settled. It also
+    surfaced a blocker M4 cannot start without: **there is no MarkLens icon**,
+    only the Flutter template's.
+
+    **The runtime half was verified against the real binary, 2026-08-28**, and
+    it verified four PRs at once. `marklens.exe probe.md` opened it;
+    `marklens.exe second.md` while that was running **exited 0**, left one
+    process, and put `second.md` in the running window as the active tab —
+    which is exactly what a double-click on an associated file does. Reading
+    `session.json` afterwards then showed `recent` populated and ordered
+    most-recent-first (PR 6), and `lastUpdateCheck` stamped (PR 7). `--version`
+    still prints and exits rather than sitting there as a blank window, which
+    is the M1 trap.
+
+    So the only thing standing between here and a working association is the
+    installer, which is M4's, and the icon.
 11. **i18n vi/ja, the tri-locale pass, the third visual pass**, and the "what M3
     actually was" note that belongs beside the M1 and M2 ones.
 

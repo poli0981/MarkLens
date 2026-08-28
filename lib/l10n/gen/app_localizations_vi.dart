@@ -297,15 +297,6 @@ class AppLocalizationsVi extends AppLocalizations {
   String get sidebarReveal => 'Hiện trong trình quản lý tệp';
 
   @override
-  String get sidebarPin => 'Ghim';
-
-  @override
-  String get sidebarUnpin => 'Bỏ ghim';
-
-  @override
-  String get sidebarClose => 'Đóng';
-
-  @override
   String get revealFailed => 'Không mở được thư mục đó.';
 
   @override
@@ -430,6 +421,12 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get sidebarEmpty => 'Chưa mở tài liệu nào.';
+
+  @override
+  String get sidebarPin => 'Ghim';
+
+  @override
+  String get sidebarUnpin => 'Bỏ ghim';
 
   @override
   String openFolderCapTitle(int count) {

@@ -300,15 +300,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sidebarReveal => 'Reveal in file manager';
 
   @override
-  String get sidebarPin => 'Pin';
-
-  @override
-  String get sidebarUnpin => 'Unpin';
-
-  @override
-  String get sidebarClose => 'Close';
-
-  @override
   String get revealFailed => 'Couldn’t open that folder.';
 
   @override
@@ -434,6 +425,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get sidebarEmpty => 'No documents open.';
+
+  @override
+  String get sidebarPin => 'Pin';
+
+  @override
+  String get sidebarUnpin => 'Unpin';
 
   @override
   String openFolderCapTitle(int count) {
