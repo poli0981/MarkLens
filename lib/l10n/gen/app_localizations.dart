@@ -298,6 +298,84 @@ abstract class AppLocalizations {
   /// **'Recent'**
   String get emptyStateRecent;
 
+  /// Title of the About dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'About MarkLens'**
+  String get aboutTitle;
+
+  /// Version line in the About dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Version {version}'**
+  String aboutVersion(String version);
+
+  /// One-line description of the app, from pubspec.yaml.
+  ///
+  /// In en, this message translates to:
+  /// **'A fast, lightweight, read-only Markdown viewer.'**
+  String get aboutTagline;
+
+  /// Licence line in the About dialog. Stating it is an obligation, not a courtesy.
+  ///
+  /// In en, this message translates to:
+  /// **'GPL-3.0-only. Free software, with no warranty.'**
+  String get aboutLicense;
+
+  /// Button in the About dialog that opens the repository in the browser.
+  ///
+  /// In en, this message translates to:
+  /// **'Project page'**
+  String get aboutHomepage;
+
+  /// Generic close button.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get commonClose;
+
+  /// Passive banner shown when the release check found a newer version (docs/11).
+  ///
+  /// In en, this message translates to:
+  /// **'MarkLens {version} is available'**
+  String updateAvailable(String version);
+
+  /// Button on the update banner. It opens the release page; MarkLens never downloads anything itself.
+  ///
+  /// In en, this message translates to:
+  /// **'See what changed'**
+  String get updateOpenRelease;
+
+  /// Answer to Help > Check for Updates when there is nothing newer. Only ever shown for a check the user asked for.
+  ///
+  /// In en, this message translates to:
+  /// **'MarkLens is up to date.'**
+  String get updateUpToDate;
+
+  /// Answer to Help > Check for Updates while network.updateCheck is off. The menu item does not override the setting.
+  ///
+  /// In en, this message translates to:
+  /// **'Update checks are turned off in Settings.'**
+  String get updateChecksOff;
+
+  /// Default filename offered by the diagnostic-log save dialog, without its extension.
+  ///
+  /// In en, this message translates to:
+  /// **'marklens-log'**
+  String get logExportSuggestedName;
+
+  /// Confirmation after exporting the diagnostic log.
+  ///
+  /// In en, this message translates to:
+  /// **'Diagnostic log written to {path}.'**
+  String logExportWritten(String path);
+
+  /// Shown when the chosen destination could not be written to.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn’t write the diagnostic log there.'**
+  String get logExportFailed;
+
   /// First-run empty state, shown when nothing is open.
   ///
   /// In en, this message translates to:

@@ -451,7 +451,10 @@ They are v1 scope by the charter, so they are M3:
    it is — and which turned out to be broken rather than merely unread: it was
    derived from the open set, so closing a file erased it. Doc 08 records what
    the scorer had to be, and doc 05 what the list now is.
-7. **Update check, About, licenses, diagnostic log.**
+7. **Update check, About, licenses, diagnostic log** ✅ — and doc 10's
+   invariant 5 got *stronger* rather than gaining an exception: `file_picker`
+   12 writes the exported log itself, so `no_write_test` lost the
+   `features/about/` allowlist entry instead of using it.
 8. **Settings UI** (`Ctrl+,`), after 4 and 7 deliberately, so that every switch
    on the screen has something behind it the day it ships.
 9. **The shell gaps** — drag & drop, missing-file body, sidebar context menu,

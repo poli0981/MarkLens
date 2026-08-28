@@ -6,6 +6,8 @@ import 'package:marklens/app/providers.dart';
 import 'package:marklens/app/shortcuts.dart';
 import 'package:marklens/core/files/extension_registry.dart';
 import 'package:marklens/core/models/app_settings.dart';
+import 'package:marklens/features/about/about_dialog.dart';
+import 'package:marklens/features/about/log_export.dart';
 import 'package:marklens/l10n/gen/app_localizations.dart';
 
 /// MarkLens's menu bar: File · View · Help (`docs/06_UI_UX.md`).
@@ -203,25 +205,24 @@ class AppMenuBar extends ConsumerWidget {
         SubmenuButton(
           menuChildren: <Widget>[
             MenuItemButton(
-              onPressed: () => todo(l10n.menuCheckUpdates),
+              onPressed: () => unawaited(_checkForUpdates(context, ref, l10n)),
               child: Text(l10n.menuCheckUpdates),
             ),
             MenuItemButton(
               onPressed: () => showLicensePage(
                 context: context,
                 applicationName: l10n.appTitle,
+                applicationVersion: appVersion,
+                applicationLegalese: l10n.aboutLicense,
               ),
               child: Text(l10n.menuThirdPartyLicenses),
             ),
             MenuItemButton(
-              onPressed: () => todo(l10n.menuExportLog),
+              onPressed: () => unawaited(_exportLog(context, ref, l10n)),
               child: Text(l10n.menuExportLog),
             ),
             MenuItemButton(
-              onPressed: () => showAboutDialog(
-                context: context,
-                applicationName: l10n.appTitle,
-              ),
+              onPressed: () => unawaited(AboutMarkLens.show(context)),
               child: Text(l10n.menuAbout),
             ),
           ],
@@ -230,6 +231,55 @@ class AppMenuBar extends ConsumerWidget {
       ],
     );
   }
+}
+
+/// Help → Check for Updates.
+///
+/// The manual half of doc 11's check: it ignores the 24-hour interval but
+/// **not** the setting, and unlike the automatic check it always answers —
+/// "up to date" included. A button that says nothing looks broken.
+Future<void> _checkForUpdates(
+  BuildContext context,
+  WidgetRef ref,
+  AppLocalizations l10n,
+) async {
+  await ref.read(updateBannerProvider.notifier).checkNow();
+  if (!context.mounted) {
+    return;
+  }
+  final state = ref.read(updateBannerProvider);
+  if (state.available != null) {
+    // The banner is already saying it; a snackbar too would be saying it
+    // twice.
+    return;
+  }
+  final message = ref.read(settingsProvider).network.updateCheck
+      ? l10n.updateUpToDate
+      : l10n.updateChecksOff;
+  ScaffoldMessenger.of(context)
+    ..hideCurrentSnackBar()
+    ..showSnackBar(SnackBar(content: Text(message)));
+}
+
+/// Help → Export Diagnostic Log.
+Future<void> _exportLog(
+  BuildContext context,
+  WidgetRef ref,
+  AppLocalizations l10n,
+) async {
+  final result = await const LogExporter().export(
+    prompt: ref.read(saveFilePromptProvider),
+    buffer: ref.read(logBufferProvider),
+  );
+  if (!context.mounted || result.outcome == LogExportOutcome.cancelled) {
+    // A cancelled dialog is an answer, not an error.
+    return;
+  }
+  ScaffoldMessenger.of(context)
+    ..hideCurrentSnackBar()
+    ..showSnackBar(
+      SnackBar(content: Text(l10n.logExportWritten(result.path!))),
+    );
 }
 
 /// How many recent documents the submenu shows.

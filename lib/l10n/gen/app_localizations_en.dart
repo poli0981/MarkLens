@@ -148,6 +148,51 @@ class AppLocalizationsEn extends AppLocalizations {
   String get emptyStateRecent => 'Recent';
 
   @override
+  String get aboutTitle => 'About MarkLens';
+
+  @override
+  String aboutVersion(String version) {
+    return 'Version $version';
+  }
+
+  @override
+  String get aboutTagline => 'A fast, lightweight, read-only Markdown viewer.';
+
+  @override
+  String get aboutLicense => 'GPL-3.0-only. Free software, with no warranty.';
+
+  @override
+  String get aboutHomepage => 'Project page';
+
+  @override
+  String get commonClose => 'Close';
+
+  @override
+  String updateAvailable(String version) {
+    return 'MarkLens $version is available';
+  }
+
+  @override
+  String get updateOpenRelease => 'See what changed';
+
+  @override
+  String get updateUpToDate => 'MarkLens is up to date.';
+
+  @override
+  String get updateChecksOff => 'Update checks are turned off in Settings.';
+
+  @override
+  String get logExportSuggestedName => 'marklens-log';
+
+  @override
+  String logExportWritten(String path) {
+    return 'Diagnostic log written to $path.';
+  }
+
+  @override
+  String get logExportFailed => 'Couldn’t write the diagnostic log there.';
+
+  @override
   String get emptyStateDropHint =>
       'Drop a Markdown file here, or open one to begin.';
 

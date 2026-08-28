@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter_test/flutter_test.dart';
 
 import 'source_scan.dart';
@@ -41,9 +43,6 @@ const List<String> writeAllowedPrefixes = <String>[
   // directory, injected the same way, and asserted by
   // test/core/single_instance_test.dart to write nothing outside it.
   'lib/core/single_instance.dart',
-  // Help → Export diagnostic log: the one user-pointed write outside the
-  // config dir (docs/02_ARCHITECTURE.md, "Logging").
-  'lib/features/about/',
 ];
 
 void main() {
@@ -52,6 +51,27 @@ void main() {
 
     test('there is source to check', () {
       expect(sources, isNotEmpty, reason: 'lib/ is empty.');
+    });
+
+    test('the log export is not an exception, because it is not a write', () {
+      // `lib/features/about/` was allowlisted here from M0 for Help → Export
+      // Diagnostic Log, and at M3 the entry was **removed** rather than used.
+      // `file_picker` 12's `saveFile` takes the bytes and writes them where
+      // the reader pointed, so MarkLens's own code performs no file write
+      // outside its config directory at all — which is a stronger statement of
+      // rule 1 than the allowlist was (`docs/10_SECURITY_PRIVACY.md`).
+      expect(
+        writeAllowedPrefixes,
+        isNot(contains('lib/features/about/')),
+        reason:
+            'if this is being added back, the export started writing again — '
+            'and that needs a reason in the PR description',
+      );
+      expect(
+        File('lib/features/about/log_export.dart').existsSync(),
+        isTrue,
+        reason: 'the export still exists; it just does not write',
+      );
     });
 
     test('no write-mode file API outside the allowed directories', () {
@@ -66,10 +86,10 @@ void main() {
               '${file.path} uses $found.\n'
               'MarkLens never writes user files (CLAUDE.md rule 1). If this is '
               'a legitimate config-directory write, it belongs in '
-              'core/storage/, core/session/ or core/settings/; if it is the '
-              'log export, it '
-              'belongs in features/about/. Widening this allowlist needs a '
-              'reason in the PR description.',
+              'core/storage/, core/session/ or core/settings/. The '
+              'diagnostic-log export is not a counter-example: it hands bytes '
+              'to the platform save dialog and writes nothing itself. '
+              'Widening this allowlist needs a reason in the PR description.',
         );
       }
     });

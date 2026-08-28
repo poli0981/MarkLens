@@ -36,6 +36,7 @@ class SessionLink {
     // The recent list is restored *before* the open set, because opening a
     // document appends to it and the two would otherwise race.
     ref.read(recentFilesProvider.notifier).restore(state.recent);
+    ref.read(lastUpdateCheckProvider.notifier).restore(state.lastUpdateCheck);
     ref
         .read(openSetProvider.notifier)
         .restore(
@@ -80,6 +81,7 @@ class SessionLink {
             ],
             activePath: set.active?.file.path,
             recent: _recentPaths(),
+            lastUpdateCheck: ref.read(lastUpdateCheckProvider),
           ),
         );
   }

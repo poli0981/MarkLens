@@ -177,6 +177,13 @@ app process itself must be unkillable by file content.
 ## Logging
 
 In-memory ring buffer (500 entries, plain structs, no PII beyond file paths
-the user opened). Help → "Export diagnostic log" writes a `.log` file via a
-save dialog — the one user-initiated write outside the config dir, and it is
-user-pointed. No log files on disk otherwise.
+the user opened) — `core/log/log_buffer.dart`, built at M3. Help → "Export
+diagnostic log" offers it through a save dialog, and that is the only way an
+entry ever leaves the process. No log files on disk, ever.
+
+This used to say the export was "the one user-initiated write outside the
+config dir". It is not a write of ours at all: `file_picker` 12's `saveFile`
+takes the bytes and writes them where the reader pointed, so
+`features/about/log_export.dart` encodes and hands over. Doc 10 invariant 5 is
+correspondingly stronger, and `no_write_test` lost an allowlist entry rather
+than gaining a user.

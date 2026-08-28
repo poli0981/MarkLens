@@ -145,6 +145,51 @@ class AppLocalizationsJa extends AppLocalizations {
   String get emptyStateRecent => '最近使った項目';
 
   @override
+  String get aboutTitle => 'MarkLens について';
+
+  @override
+  String aboutVersion(String version) {
+    return 'バージョン $version';
+  }
+
+  @override
+  String get aboutTagline => '軽快で読み取り専用の Markdown ビューアー。';
+
+  @override
+  String get aboutLicense => 'GPL-3.0-only。無保証のフリーソフトウェアです。';
+
+  @override
+  String get aboutHomepage => 'プロジェクトページ';
+
+  @override
+  String get commonClose => '閉じる';
+
+  @override
+  String updateAvailable(String version) {
+    return 'MarkLens $version が利用できます';
+  }
+
+  @override
+  String get updateOpenRelease => '変更点を見る';
+
+  @override
+  String get updateUpToDate => 'MarkLens は最新です。';
+
+  @override
+  String get updateChecksOff => '更新の確認は設定でオフになっています。';
+
+  @override
+  String get logExportSuggestedName => 'marklens-log';
+
+  @override
+  String logExportWritten(String path) {
+    return '診断ログを $path に書き出しました。';
+  }
+
+  @override
+  String get logExportFailed => 'そこには診断ログを書き出せませんでした。';
+
+  @override
   String get emptyStateDropHint => 'Markdown ファイルをここにドロップするか、開いて始めてください。';
 
   @override

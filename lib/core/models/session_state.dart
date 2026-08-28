@@ -135,6 +135,7 @@ class SessionState {
     this.documents = const <SessionDocument>[],
     this.activePath,
     this.recent = const <String>[],
+    this.lastUpdateCheck,
   });
 
   /// Reads a session from [json].
@@ -159,6 +160,7 @@ class SessionState {
       // leave the reader pointing at nothing.
       activePath: active is String && paths.contains(active) ? active : null,
       recent: _readPaths(json['recent']),
+      lastUpdateCheck: _readTime(json['lastUpdateCheck']),
     );
   }
 
@@ -195,6 +197,16 @@ class SessionState {
   /// Recently opened paths, most recent first.
   final List<String> recent;
 
+  /// When the update check last ran, in UTC, or `null` if it never has.
+  ///
+  /// **State, not a setting**, so it lives here rather than in
+  /// `settings.json` — and it is what makes doc 11's "at most once per 24 h"
+  /// survive a restart instead of meaning "once per launch". Added inside
+  /// schema v1 rather than bumping it: the field is advisory, an older build
+  /// that drops it costs exactly one extra HTTPS request, and a migration
+  /// fixture for that would be ceremony (`docs/05_SESSION_AND_SETTINGS.md`).
+  final DateTime? lastUpdateCheck;
+
   /// This session as JSON, including the schema version.
   Map<String, Object?> toJson() => <String, Object?>{
     'version': schemaVersion,
@@ -207,6 +219,7 @@ class SessionState {
     ],
     'activePath': ?activePath,
     'recent': recent,
+    'lastUpdateCheck': ?lastUpdateCheck?.toUtc().toIso8601String(),
   };
 
   static List<Object?> _readList(Object? value) =>
@@ -221,6 +234,13 @@ class SessionState {
           entry,
     ];
   }
+
+  /// A timestamp, or `null` when it is missing or unreadable.
+  ///
+  /// Total like everything else here: a hand-edited nonsense date means the
+  /// check runs once more than it had to, which is not worth failing a load.
+  static DateTime? _readTime(Object? value) =>
+      value is String ? DateTime.tryParse(value)?.toUtc() : null;
 
   static double _readWidth(Object? value, double fallback) {
     final width = switch (value) {

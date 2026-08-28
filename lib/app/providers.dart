@@ -14,11 +14,13 @@ import 'package:marklens/app/open_files.dart';
 import 'package:marklens/app/window_link.dart';
 import 'package:marklens/core/cache/doc_cache.dart';
 import 'package:marklens/core/files/file_service.dart';
+import 'package:marklens/core/log/log_buffer.dart';
 import 'package:marklens/core/markdown/pipeline.dart';
 import 'package:marklens/core/search/search_service.dart';
 import 'package:marklens/core/session/session_store.dart';
 import 'package:marklens/core/settings/settings_store.dart';
 import 'package:marklens/core/single_instance.dart';
+import 'package:marklens/core/update/update_service.dart';
 import 'package:path_provider/path_provider.dart';
 
 export 'package:marklens/app/chrome.dart'
@@ -43,10 +45,27 @@ export 'package:marklens/app/reader_scroll.dart'
     show BlockScroller, readerScrollProvider;
 export 'package:marklens/app/recent_files.dart'
     show RecentFiles, recentFilesProvider;
+export 'package:marklens/app/save_file.dart'
+    show
+        PlatformSaveFilePrompt,
+        SaveFilePrompt,
+        StubSaveFilePrompt,
+        saveFilePromptProvider;
 export 'package:marklens/app/session_link.dart'
     show SessionLink, sessionLinkProvider;
 export 'package:marklens/app/settings_link.dart'
     show AppSettingsController, settingsProvider;
+export 'package:marklens/app/update_banner.dart'
+    show
+        LastUpdateCheck,
+        UpdateBannerController,
+        UpdateBannerState,
+        lastUpdateCheckProvider,
+        updateBannerProvider;
+// The version string, so About can show it without reaching past this door.
+// A compile-time constant rather than app state, which is exactly why it is
+// re-exported rather than wrapped in a provider.
+export 'package:marklens/app/version.dart' show appVersion;
 export 'package:marklens/app/watch_coordinator.dart'
     show WatchCoordinator, watchCoordinatorProvider;
 export 'package:marklens/app/watch_link.dart'
@@ -97,6 +116,23 @@ final Provider<SessionStore> sessionStoreProvider = Provider<SessionStore>((
 /// there is something that can change them (M3, doc 15).
 final Provider<FileService> fileServiceProvider = Provider<FileService>(
   (ref) => const FileService(),
+);
+
+/// The in-memory diagnostic log (`docs/02_ARCHITECTURE.md`, "Logging").
+///
+/// One buffer for the whole app, and the only thing that ever leaves it is
+/// Help → Export Diagnostic Log, to a file the reader points at.
+final Provider<LogBuffer> logBufferProvider = Provider<LogBuffer>(
+  (ref) => LogBuffer(),
+);
+
+/// The GitHub Releases tag check (`docs/11_PACKAGING_UPDATE.md`).
+///
+/// A provider so a widget test can hand over a transport that answers without
+/// a socket — real network I/O inside `testWidgets` stalls against the test
+/// binding's clock, the same trap real sockets were at M1.
+final Provider<UpdateService> updateServiceProvider = Provider<UpdateService>(
+  (ref) => UpdateService(),
 );
 
 /// Scans the open set from disk, in an isolate (`docs/08_SEARCH.md`).

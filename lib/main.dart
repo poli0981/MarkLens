@@ -5,7 +5,6 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:marklens/app/app.dart';
 import 'package:marklens/app/providers.dart';
-import 'package:marklens/app/version.dart';
 import 'package:marklens/core/cli/launch_arguments.dart';
 import 'package:marklens/core/single_instance.dart';
 

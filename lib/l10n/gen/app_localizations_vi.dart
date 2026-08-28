@@ -145,6 +145,51 @@ class AppLocalizationsVi extends AppLocalizations {
   String get emptyStateRecent => 'Gần đây';
 
   @override
+  String get aboutTitle => 'Giới thiệu MarkLens';
+
+  @override
+  String aboutVersion(String version) {
+    return 'Phiên bản $version';
+  }
+
+  @override
+  String get aboutTagline => 'Trình xem Markdown nhanh, nhẹ, chỉ đọc.';
+
+  @override
+  String get aboutLicense => 'GPL-3.0-only. Phần mềm tự do, không bảo hành.';
+
+  @override
+  String get aboutHomepage => 'Trang dự án';
+
+  @override
+  String get commonClose => 'Đóng';
+
+  @override
+  String updateAvailable(String version) {
+    return 'Đã có MarkLens $version';
+  }
+
+  @override
+  String get updateOpenRelease => 'Xem thay đổi';
+
+  @override
+  String get updateUpToDate => 'MarkLens đã là bản mới nhất.';
+
+  @override
+  String get updateChecksOff => 'Kiểm tra cập nhật đang tắt trong Cài đặt.';
+
+  @override
+  String get logExportSuggestedName => 'marklens-log';
+
+  @override
+  String logExportWritten(String path) {
+    return 'Đã ghi nhật ký chẩn đoán vào $path.';
+  }
+
+  @override
+  String get logExportFailed => 'Không ghi được nhật ký chẩn đoán vào đó.';
+
+  @override
   String get emptyStateDropHint =>
       'Kéo thả một tệp Markdown vào đây, hoặc mở một tệp để bắt đầu.';
 

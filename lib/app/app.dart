@@ -109,6 +109,11 @@ class _AppShellState extends ConsumerState<AppShell> with WindowListener {
 
     ref.read(watchCoordinatorProvider).start();
 
+    // Doc 03's launch check: setting on, and not in the last 24 hours. It runs
+    // unawaited because nothing waits on it — a check nobody asked for must
+    // never delay the window (`docs/11_PACKAGING_UPDATE.md`).
+    unawaited(ref.read(updateBannerProvider.notifier).checkOnLaunch());
+
     if (!mounted) {
       return;
     }
@@ -458,6 +463,9 @@ class _AppShellState extends ConsumerState<AppShell> with WindowListener {
               children: <Widget>[
                 if (!chrome.fullScreen)
                   AppMenuBar(fileMenuController: _fileMenu),
+                // Passive, above the tabs: doc 11 asks for a banner, not a
+                // dialog, and the difference is whether it interrupts.
+                const UpdateBanner(),
                 const TabStrip(),
                 Expanded(
                   child: Row(
@@ -514,6 +522,60 @@ class _AppShellState extends ConsumerState<AppShell> with WindowListener {
       return null;
     },
   );
+}
+
+/// "MarkLens 1.2.0 is available" (`docs/11_PACKAGING_UPDATE.md`).
+///
+/// Passive by design: it says what it found, offers the release page, and goes
+/// away when dismissed. MarkLens never downloads anything itself, so there is
+/// no "install" to offer — clicking opens the page in the browser, through the
+/// same launcher seam and the same scheme check as any other external link.
+class UpdateBanner extends ConsumerWidget {
+  /// Creates the banner.
+  const UpdateBanner({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final state = ref.watch(updateBannerProvider);
+    final available = state.available;
+    if (available == null) {
+      return const SizedBox.shrink();
+    }
+
+    final l10n = AppLocalizations.of(context);
+    final tokens = ReaderTokens.of(context);
+
+    return Material(
+      color: tokens.bgAlt,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(12, 4, 4, 4),
+        child: Row(
+          children: <Widget>[
+            Expanded(
+              child: Text(
+                l10n.updateAvailable(available.version.toString()),
+                style: Theme.of(context).textTheme.bodySmall,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            TextButton(
+              onPressed: () => unawaited(
+                ref.read(launcherLinkProvider).open(available.page),
+              ),
+              child: Text(l10n.updateOpenRelease),
+            ),
+            IconButton(
+              onPressed: ref.read(updateBannerProvider.notifier).dismiss,
+              iconSize: 18,
+              visualDensity: VisualDensity.compact,
+              tooltip: l10n.commonClose,
+              icon: const Icon(Icons.close),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
 /// What the window shows before anything is open (`docs/06_UI_UX.md`,

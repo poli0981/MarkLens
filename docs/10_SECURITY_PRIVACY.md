@@ -55,11 +55,19 @@
    remote-image path. This matters concretely: `flutter_svg` pulls `http`
    transitively (doc 01), so a network-capable API is sitting in the binary
    one autocomplete away from being used by accident.
-5. **Read-only enforcement.** The only `File`/`IOSink` writes in the
-   codebase live in SessionStore/SettingsStore (config dir) and the
-   user-pointed log export. `test/architecture/no_write_test.dart` asserts no
-   other write-mode file opens exist; a manual Process Monitor (Windows) /
-   `strace` (Linux) pass is on the release checklist.
+5. **Read-only enforcement.** The only `File`/`IOSink` writes in the codebase
+   live in SessionStore/SettingsStore and the single-instance lock — **all
+   inside the config directory**. `test/architecture/no_write_test.dart`
+   asserts no other write-mode file opens exist; a manual Process Monitor
+   (Windows) / `strace` (Linux) pass is on the release checklist.
+
+   **Stronger since M3.** This used to end "and the user-pointed log export",
+   with `lib/features/about/` allowlisted for it. `file_picker` 12's `saveFile`
+   takes the bytes and writes them itself, so the export hands over an encoded
+   string and performs no write at all — the allowlist entry was **removed**
+   rather than used, and MarkLens's own code now writes nowhere outside its
+   config directory. The export is still the only way a log entry leaves the
+   process, and it still takes an explicit action every time.
 6. **Crash-resistance.** Torture corpus (doc 12) includes malformed UTF-8,
    pathological nesting, gigantic tables, adversarial MDX. Parser exceptions
    degrade to plain text (rule 9).

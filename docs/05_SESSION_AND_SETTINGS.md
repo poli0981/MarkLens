@@ -54,7 +54,8 @@ mocking, which is exactly what doc 12 asks of them.
     { "path": "D:/dev/omnideck/docs/README.md", "scroll": 0.42, "pinned": true }
   ],
   "activePath": "D:/dev/omnideck/docs/README.md",
-  "recent": ["D:/notes/todo.md"]
+  "recent": ["D:/notes/todo.md"],
+  "lastUpdateCheck": "2026-08-28T09:30:00.000Z"
 }
 ```
 
@@ -74,6 +75,11 @@ Notes:
   `readme.md` is showing one file twice.
 - Missing files stay in `files[]` (badged at runtime); they are pruned only
   when the user closes them.
+- `lastUpdateCheck` is what makes doc 11's "at most once per 24 h" survive a
+  restart rather than meaning "once per launch". Added at M3 **inside schema
+  v1**, deliberately: the field is advisory, an older build that drops it costs
+  one extra HTTPS request, and a migration fixture for that would be ceremony.
+  A schema bump is for a field whose loss costs something.
 
 ## settings.json (schema v1)
 

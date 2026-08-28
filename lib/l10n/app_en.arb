@@ -196,6 +196,76 @@
   "@emptyStateRecent": {
     "description": "Heading above the recent-file list on the first-run empty state (docs/06)."
   },
+  "aboutTitle": "About MarkLens",
+  "@aboutTitle": {
+    "description": "Title of the About dialog."
+  },
+  "aboutVersion": "Version {version}",
+  "@aboutVersion": {
+    "description": "Version line in the About dialog.",
+    "placeholders": {
+      "version": {
+        "type": "String",
+        "example": "0.1.0"
+      }
+    }
+  },
+  "aboutTagline": "A fast, lightweight, read-only Markdown viewer.",
+  "@aboutTagline": {
+    "description": "One-line description of the app, from pubspec.yaml."
+  },
+  "aboutLicense": "GPL-3.0-only. Free software, with no warranty.",
+  "@aboutLicense": {
+    "description": "Licence line in the About dialog. Stating it is an obligation, not a courtesy."
+  },
+  "aboutHomepage": "Project page",
+  "@aboutHomepage": {
+    "description": "Button in the About dialog that opens the repository in the browser."
+  },
+  "commonClose": "Close",
+  "@commonClose": {
+    "description": "Generic close button."
+  },
+  "updateAvailable": "MarkLens {version} is available",
+  "@updateAvailable": {
+    "description": "Passive banner shown when the release check found a newer version (docs/11).",
+    "placeholders": {
+      "version": {
+        "type": "String",
+        "example": "1.2.0"
+      }
+    }
+  },
+  "updateOpenRelease": "See what changed",
+  "@updateOpenRelease": {
+    "description": "Button on the update banner. It opens the release page; MarkLens never downloads anything itself."
+  },
+  "updateUpToDate": "MarkLens is up to date.",
+  "@updateUpToDate": {
+    "description": "Answer to Help > Check for Updates when there is nothing newer. Only ever shown for a check the user asked for."
+  },
+  "updateChecksOff": "Update checks are turned off in Settings.",
+  "@updateChecksOff": {
+    "description": "Answer to Help > Check for Updates while network.updateCheck is off. The menu item does not override the setting."
+  },
+  "logExportSuggestedName": "marklens-log",
+  "@logExportSuggestedName": {
+    "description": "Default filename offered by the diagnostic-log save dialog, without its extension."
+  },
+  "logExportWritten": "Diagnostic log written to {path}.",
+  "@logExportWritten": {
+    "description": "Confirmation after exporting the diagnostic log.",
+    "placeholders": {
+      "path": {
+        "type": "String",
+        "example": "C:/Users/me/marklens-log.log"
+      }
+    }
+  },
+  "logExportFailed": "Couldn’t write the diagnostic log there.",
+  "@logExportFailed": {
+    "description": "Shown when the chosen destination could not be written to."
+  },
   "emptyStateDropHint": "Drop a Markdown file here, or open one to begin.",
   "@emptyStateDropHint": {
     "description": "First-run empty state, shown when nothing is open."

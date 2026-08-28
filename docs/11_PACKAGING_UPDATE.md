@@ -58,6 +58,31 @@ update check.
   the trust story stays clean.
 - Failures (offline, rate-limited) are silent; logged to the ring buffer.
 
+### What building it settled — M3
+
+- **The interval needs somewhere to live**, or "at most once per 24 h" means
+  "once per launch" and twenty launches in a day are twenty requests.
+  `session.json` gains `lastUpdateCheck` — state, not a setting, so it belongs
+  there rather than in `settings.json`. Added *inside* schema v1 rather than
+  bumping it: the field is advisory, an older build that drops it costs exactly
+  one extra request, and a migration fixture for that would be ceremony
+  (doc 05).
+- **The stamp is written whatever the answer was**, failures included. The
+  interval exists to bound *requests*, and retrying on every launch because the
+  last one was offline is the behaviour it is there to prevent.
+- **Help → Check for Updates ignores the interval but not the setting.**
+  Turning checks off is a statement about network traffic, and a menu item that
+  overrode it would make the setting advice. It also always answers — "up to
+  date" included — because the automatic check is silent by design and a button
+  that says nothing looks broken. That one bit, "was this asked for", is the
+  only difference between the two paths.
+- **The request carries nothing but itself.** No version, no identifier, no
+  header of ours beyond the `Accept` and `User-Agent` GitHub needs to answer
+  properly. The only thing the server learns is that somebody asked.
+- **A draft or a prerelease is not an upgrade**, and neither is `1.0.0-rc.1`
+  for someone running `1.0.0` — SemVer §11, and the one comparison that would
+  be embarrassing to get backwards.
+
 ## House-convention note
 
 Velopack is the usual update pipeline in this portfolio; it has no
