@@ -3,18 +3,25 @@ import 'package:flutter/services.dart';
 import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
 import 'package:markdown/markdown.dart' as md;
 import 'package:marklens/app/theme/reader_tokens.dart';
+import 'package:marklens/core/markdown/mdx_sanitizer.dart';
 import 'package:marklens/core/markdown/raw_block_rewriter.dart';
 import 'package:marklens/features/reader/rendering/code_highlighter.dart';
 import 'package:marklens/l10n/gen/app_localizations.dart';
 
-/// Draws every `pre` block: fenced code, and the "Raw HTML (not rendered)"
-/// box that `RawBlockRewriter` produces upstream.
+/// Draws every `pre` block: fenced code, the "Raw HTML (not rendered)" box
+/// that `RawBlockRewriter` produces upstream, and the MDX placeholder card
+/// that `MdxSanitizer` does.
 ///
-/// Both arrive as the same AST shape — `pre > code` — and are told apart by
-/// the metadata the rewriter puts in the fence's info string. That is the
-/// whole reason the info string carries two words: the first keeps the body
-/// highlighting as HTML, the second says where the block came from
+/// All three arrive as the same AST shape — `pre > code` — and are told apart
+/// by the metadata their fence's info string carries. That is the whole reason
+/// the info string has more than one word: the first keeps the body
+/// highlighting, the rest says where the block came from
 /// (`docs/04_MARKDOWN_PIPELINE.md`).
+///
+/// The two rescued kinds open **collapsed**, because the box itself is the
+/// signal that something was there and neither of them is content the reader
+/// asked to look at. A code block the author wrote is never collapsible: hiding
+/// content behind a click is not a reader's job (`docs/06_UI_UX.md`).
 class CodeBlockBuilder extends MarkdownElementBuilder {
   /// Creates a builder that colours code with [highlighter].
   CodeBlockBuilder({required this.highlighter});
@@ -39,12 +46,13 @@ class CodeBlockBuilder extends MarkdownElementBuilder {
     );
     final source = _withoutTrailingNewline(code?.textContent ?? '');
     final language = _languageOf(code);
-    final isRawHtml = element.attributes['data-metadata'] == rawBlockMetadata;
+    final metadata = element.attributes['data-metadata'];
 
     return _CodeBlock(
       source: source,
       language: language,
-      isRawHtml: isRawHtml,
+      isRawHtml: metadata == rawBlockMetadata,
+      placeholder: mdxPlaceholderOf(metadata),
       highlighter: highlighter,
     );
   }
@@ -70,22 +78,31 @@ class _CodeBlock extends StatefulWidget {
     required this.source,
     required this.language,
     required this.isRawHtml,
+    required this.placeholder,
     required this.highlighter,
   });
 
   final String source;
   final String? language;
   final bool isRawHtml;
+
+  /// The component this block stands in for, or `null` when it stands in for
+  /// nothing (`docs/04_MARKDOWN_PIPELINE.md`, MDX transform 2).
+  final MdxPlaceholder? placeholder;
+
   final CodeHighlighter highlighter;
+
+  /// Whether this block was rescued rather than written by the author.
+  bool get isRescued => isRawHtml || placeholder != null;
 
   @override
   State<_CodeBlock> createState() => _CodeBlockState();
 }
 
 class _CodeBlockState extends State<_CodeBlock> {
-  /// Raw HTML opens collapsed — doc 04 calls it a collapsed box, and the point
-  /// of it is to say "there was something here", not to show it by default.
-  late bool _expanded = !widget.isRawHtml;
+  /// A rescued block opens collapsed — doc 04 calls it a collapsed box, and the
+  /// point of it is to say "there was something here", not to show it.
+  late bool _expanded = !widget.isRescued;
   bool _copied = false;
 
   Future<void> _copy() async {
@@ -100,9 +117,18 @@ class _CodeBlockState extends State<_CodeBlock> {
   Widget build(BuildContext context) {
     final tokens = ReaderTokens.of(context);
     final l10n = AppLocalizations.of(context);
-    final label = widget.isRawHtml
-        ? l10n.readerRawHtmlTitle
-        : (widget.language ?? '');
+    final placeholder = widget.placeholder;
+    final label = switch (placeholder) {
+      final MdxPlaceholder p => l10n.readerMdxComponentTitle(p.name),
+      _ when widget.isRawHtml => l10n.readerRawHtmlTitle,
+      _ => widget.language ?? '',
+    };
+    // Attribute *names*, which is all the sanitizer carries through the fence:
+    // a value can hold a backtick or a newline, and an info string is one line
+    // that may not contain one (`docs/04_MARKDOWN_PIPELINE.md`).
+    final detail = placeholder == null || placeholder.attributes.isEmpty
+        ? null
+        : placeholder.attributes.join(' ');
 
     return Container(
       decoration: BoxDecoration(
@@ -116,12 +142,13 @@ class _CodeBlockState extends State<_CodeBlock> {
         children: <Widget>[
           _Header(
             label: label,
+            detail: detail,
             expanded: _expanded,
             copied: _copied,
-            // Only the raw-HTML box is collapsible. A code block the author
+            // Only a rescued block is collapsible. A code block the author
             // wrote is content, and hiding content behind a click is not a
             // reader's job.
-            onToggle: widget.isRawHtml
+            onToggle: widget.isRescued
                 ? () => setState(() => _expanded = !_expanded)
                 : null,
             onCopy: _copy,
@@ -141,6 +168,7 @@ class _CodeBlockState extends State<_CodeBlock> {
 class _Header extends StatelessWidget {
   const _Header({
     required this.label,
+    required this.detail,
     required this.expanded,
     required this.copied,
     required this.onToggle,
@@ -148,6 +176,10 @@ class _Header extends StatelessWidget {
   });
 
   final String label;
+
+  /// A component's attribute names, or `null`.
+  final String? detail;
+
   final bool expanded;
   final bool copied;
   final VoidCallback? onToggle;
@@ -186,6 +218,20 @@ class _Header extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
             ),
           ),
+          if (detail != null)
+            Flexible(
+              child: Tooltip(
+                message: l10n.readerMdxComponentAttributes(detail!),
+                child: Text(
+                  detail!,
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    color: tokens.fgMuted,
+                    fontStyle: FontStyle.italic,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ),
           IconButton(
             onPressed: onCopy,
             iconSize: 18,

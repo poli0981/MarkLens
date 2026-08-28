@@ -46,6 +46,26 @@
       }
     }
   },
+  "readerMdxComponentTitle": "{name} (MDX component, not rendered)",
+  "@readerMdxComponentTitle": {
+    "description": "Title of the collapsed placeholder card standing in for an MDX component. Render, not run (docs/04).",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Callout"
+      }
+    }
+  },
+  "readerMdxComponentAttributes": "Attributes: {names}",
+  "@readerMdxComponentAttributes": {
+    "description": "Tooltip over the attribute-name summary on an MDX placeholder card.",
+    "placeholders": {
+      "names": {
+        "type": "String",
+        "example": "type title"
+      }
+    }
+  },
   "emptyStateDropHint": "Drop a Markdown file here, or open one to begin.",
   "@emptyStateDropHint": {
     "description": "First-run empty state, shown when nothing is open."

@@ -55,7 +55,10 @@ lib/
                              #   renderer — a divergence here breaks every
                              #   anchor and every search hit
       front_matter.dart      # leading --- block → panel model
-      mdx_sanitizer.dart     # tolerant JSX → placeholder transform
+      mdx_sanitizer.dart     # tolerant JSX → placeholder transform (doc 04)
+      jsx_scanner.dart       # the lexical half of it: where a tag ends and
+                             #   where a region closes. Bounded and
+                             #   non-recursive, because .mdx is untrusted
       raw_block_rewriter.dart # block HTML → inert fenced block (doc 04)
       recording_syntaxes.dart # position-recording subclasses of markdown's
                              #   own block syntaxes; how the index gets the
@@ -127,7 +130,8 @@ So the pipeline is cut in half:
 core/markdown/            (pure Dart, unit-testable without a Flutter binding)
   bytes → decode → front-matter split → [mdx sanitize]
         → markdown.Document parse → outline + slugs + block index
-        → DocModel { frontMatter, sanitizedSource, blocks, outline, notices }
+        → DocModel { frontMatter, sanitizedSource, blocks, outline, notices,
+                     mdxImportsHidden }
 
 features/reader/rendering/   (widget layer — the only place renderer packages exist)
   MarkdownRenderer.build(DocModel, RenderStyle) → Widget

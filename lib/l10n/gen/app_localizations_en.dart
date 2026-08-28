@@ -48,6 +48,16 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String readerMdxComponentTitle(String name) {
+    return '$name (MDX component, not rendered)';
+  }
+
+  @override
+  String readerMdxComponentAttributes(String names) {
+    return 'Attributes: $names';
+  }
+
+  @override
   String get emptyStateDropHint =>
       'Drop a Markdown file here, or open one to begin.';
 

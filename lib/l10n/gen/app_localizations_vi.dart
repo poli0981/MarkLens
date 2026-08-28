@@ -47,6 +47,16 @@ class AppLocalizationsVi extends AppLocalizations {
   }
 
   @override
+  String readerMdxComponentTitle(String name) {
+    return '$name (thành phần MDX, không kết xuất)';
+  }
+
+  @override
+  String readerMdxComponentAttributes(String names) {
+    return 'Thuộc tính: $names';
+  }
+
+  @override
   String get emptyStateDropHint =>
       'Kéo thả một tệp Markdown vào đây, hoặc mở một tệp để bắt đầu.';
 

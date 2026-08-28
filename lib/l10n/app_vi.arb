@@ -10,6 +10,8 @@
   "sidebarMissingBadge": "không còn",
   "readerRawHtmlTitle": "HTML thô (không kết xuất)",
   "readerMdxImportsHidden": "MDX · {count, plural, other{đã ẩn {count} import}}",
+  "readerMdxComponentTitle": "{name} (thành phần MDX, không kết xuất)",
+  "readerMdxComponentAttributes": "Thuộc tính: {names}",
   "emptyStateDropHint": "Kéo thả một tệp Markdown vào đây, hoặc mở một tệp để bắt đầu.",
   "menuOpenRecent": "Mở gần đây",
   "menuOpenRecentEmpty": "Chưa có tài liệu nào",

@@ -160,6 +160,18 @@ abstract class AppLocalizations {
   /// **'MDX · {count, plural, =1{1 import hidden} other{{count} imports hidden}}'**
   String readerMdxImportsHidden(int count);
 
+  /// Title of the collapsed placeholder card standing in for an MDX component. Render, not run (docs/04).
+  ///
+  /// In en, this message translates to:
+  /// **'{name} (MDX component, not rendered)'**
+  String readerMdxComponentTitle(String name);
+
+  /// Tooltip over the attribute-name summary on an MDX placeholder card.
+  ///
+  /// In en, this message translates to:
+  /// **'Attributes: {names}'**
+  String readerMdxComponentAttributes(String names);
+
   /// First-run empty state, shown when nothing is open.
   ///
   /// In en, this message translates to:

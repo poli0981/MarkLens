@@ -25,6 +25,7 @@ class DocModel {
     required this.blocks,
     this.frontMatter,
     this.notices = const <DocNotice>[],
+    this.mdxImportsHidden = 0,
   }) : wordCount = countWords(sanitizedSource);
 
   /// Canonical absolute path of the source file. Identity for the open set,
@@ -73,6 +74,16 @@ class DocModel {
   /// Counted rather than split on whitespace, so Japanese does not report one
   /// word per paragraph — see `countWords`.
   final int wordCount;
+
+  /// How many top-level ESM statements `MdxSanitizer` removed from an `.mdx`
+  /// document, and zero for everything else.
+  ///
+  /// The one thing doc 04's placeholder spec asks for that a rewritten source
+  /// string cannot carry. Every other transform becomes a fence or a code span
+  /// and travels inside [sanitizedSource]; the header chip
+  /// ("MDX · 3 imports hidden", ARB key `readerMdxImportsHidden`) is a count of
+  /// text that is no longer there, so it has to travel beside it.
+  final int mdxImportsHidden;
 }
 
 /// A top-level block of the source, located by line and character offset.

@@ -8,6 +8,7 @@ import 'package:marklens/features/reader/front_matter_panel.dart';
 import 'package:marklens/features/reader/notice_bar.dart';
 import 'package:marklens/features/reader/rendering/flutter_markdown_plus_renderer.dart';
 import 'package:marklens/features/reader/rendering/markdown_renderer.dart';
+import 'package:marklens/l10n/gen/app_localizations.dart';
 
 /// The renderer the app actually reads with, wired to the reader's controller.
 ///
@@ -149,6 +150,12 @@ class _ReaderViewState extends State<ReaderView> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: <Widget>[
+                  // Doc 04's MDX transform 1: the statements are gone from the
+                  // flow, and the chip is the only thing that says so. It sits
+                  // above the front-matter panel because both are document
+                  // header rather than document.
+                  if (widget.doc.mdxImportsHidden > 0)
+                    _MdxChip(count: widget.doc.mdxImportsHidden),
                   if (frontMatter != null)
                     // Above the document rather than scrolling with it. The
                     // renderer owns its own scroll view — that is what makes
@@ -197,6 +204,42 @@ class _ReaderViewState extends State<ReaderView> {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// "MDX · 3 imports hidden" — the one thing `MdxSanitizer` removes that leaves
+/// no trace in the document (`docs/04_MARKDOWN_PIPELINE.md`, transform 1).
+///
+/// A chip rather than a notice: nothing went wrong, and doc 06's notice bar
+/// shows one problem at a time with the rest counted. Hiding ESM statements is
+/// the feature working.
+class _MdxChip extends StatelessWidget {
+  const _MdxChip({required this.count});
+
+  final int count;
+
+  @override
+  Widget build(BuildContext context) {
+    final tokens = ReaderTokens.of(context);
+
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+        decoration: BoxDecoration(
+          color: tokens.bgAlt,
+          border: Border.all(color: tokens.border),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Text(
+          AppLocalizations.of(context).readerMdxImportsHidden(count),
+          style: Theme.of(
+            context,
+          ).textTheme.labelSmall?.copyWith(color: tokens.fgMuted),
+        ),
       ),
     );
   }

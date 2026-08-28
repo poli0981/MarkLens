@@ -25,6 +25,34 @@ const String rawBlockFenceInfo = '$rawBlockLanguage $rawBlockMetadata';
 /// The result of rewriting a document's block HTML.
 typedef RawBlockRewrite = ({String source, int rewritten});
 
+/// The backtick run to fence [body] with.
+///
+/// CommonMark closes a fence only with a run at least as long as the opening
+/// one, so one more backtick than the longest run inside makes the content
+/// uncloseable — which matters, because the things this project fences are
+/// exactly the things that quote code: raw HTML, and MDX components.
+///
+/// Shared by `RawBlockRewriter` and `MdxSanitizer` rather than written twice.
+/// Both of them depend on it for the same reason, and a copy that fell one
+/// backtick short would let a document close its own placeholder and put the
+/// rest of the file inside a code block.
+String markdownFenceMarker(String body) {
+  const backtick = 0x60;
+  var longestRun = 0;
+  var run = 0;
+  for (var i = 0; i < body.length; i++) {
+    if (body.codeUnitAt(i) == backtick) {
+      run++;
+      if (run > longestRun) {
+        longestRun = run;
+      }
+    } else {
+      run = 0;
+    }
+  }
+  return '`' * (longestRun >= 3 ? longestRun + 1 : 3);
+}
+
 /// Rewrites block-level HTML into fenced code blocks before the renderer sees
 /// the document.
 ///
@@ -55,11 +83,12 @@ typedef RawBlockRewrite = ({String source, int rewritten});
 /// **MDX.** A block-level `<Component>` on a line of its own is an HTML block
 /// by CommonMark start condition 7 — the tag-name pattern is
 /// `[a-zA-Z][a-zA-Z0-9-]*`, which capitalized names match — so the renderer
-/// deletes it exactly like a `<div>`, and it is rescued here by exactly the
-/// same code path, with no MDX-specific rule. A *dotted* tag such as
-/// `<Foo.Bar />` is not an HTML block at all, because `.` is not legal in an
-/// HTML tag name; it stays a paragraph and already renders as literal text, so
-/// it is left alone until `MdxSanitizer` lands in M3.
+/// deletes it exactly like a `<div>`. Between M1 and M3 this class rescued it
+/// incidentally, with no MDX-specific rule. **`MdxSanitizer` owns it now**: it
+/// runs first (`docs/03_DATA_FLOW.md`), so on an `.mdx` document every
+/// capitalized or dotted block tag is already a fence by the time this runs,
+/// and what is left is genuine lowercase HTML. Nothing changes for `.md`, where
+/// this is still the only thing standing between block HTML and deletion.
 ///
 /// Known gap, recorded in doc 04: HTML nested inside a list item or block quote
 /// still disappears. It does not break the block arithmetic — the enclosing
@@ -69,7 +98,6 @@ class RawBlockRewriter {
   /// Creates a rewriter.
   const RawBlockRewriter();
 
-  static const int _backtick = 0x60;
   static const int _lineFeed = 0x0A;
 
   /// Rewrites every top-level block-HTML region of [source].
@@ -117,7 +145,7 @@ class RawBlockRewriter {
       final body = source.substring(start, end);
       final bodyEol = _trailingTerminator(body);
       final eol = bodyEol ?? fallbackEol;
-      final marker = _fenceMarker(body);
+      final marker = markdownFenceMarker(body);
 
       buffer
         ..write(source.substring(cursor, start))
@@ -137,28 +165,6 @@ class RawBlockRewriter {
     buffer.write(source.substring(cursor));
 
     return (source: buffer.toString(), rewritten: regions.length);
-  }
-
-  /// The backtick run to fence [body] with.
-  ///
-  /// CommonMark closes a fence only with a run at least as long as the opening
-  /// one, so one more backtick than the longest run inside makes the content
-  /// uncloseable — which matters, because raw HTML is exactly the kind of thing
-  /// that ends up quoting a code sample.
-  static String _fenceMarker(String body) {
-    var longestRun = 0;
-    var run = 0;
-    for (var i = 0; i < body.length; i++) {
-      if (body.codeUnitAt(i) == _backtick) {
-        run++;
-        if (run > longestRun) {
-          longestRun = run;
-        }
-      } else {
-        run = 0;
-      }
-    }
-    return '`' * (longestRun >= 3 ? longestRun + 1 : 3);
   }
 
   /// The line terminator [text] ends with, or `null` if it ends mid-line.

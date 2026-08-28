@@ -167,14 +167,19 @@ Two accepted gaps:
 - A document that literally contains a fence labelled `html marklens-raw` gets
   the raw-HTML styling. Recorded rather than defended against.
 
-**MDX, before the sanitizer exists.** A block-level `<Component>` alone on a
+**MDX and this rewriter, since M3.** A block-level `<Component>` alone on a
 line is an HTML block by start condition 7 — the tag-name pattern is
 `[a-zA-Z][a-zA-Z0-9-]*`, which capitalized names match — so the renderer used
-to delete it exactly like a `<div>`. It is now rescued by the same code path,
-with no MDX-specific rule. A *dotted* tag such as `<Foo.Bar />` is not an HTML
-block at all, since `.` is not legal in an HTML tag name; it stays a paragraph
-and already renders as literal text, so it is left alone until the sanitizer
-lands in M3.
+to delete it exactly like a `<div>`, and between M1 and M3 it was rescued here
+with no MDX-specific rule. **`MdxSanitizer` now owns it.** It runs first, so by
+the time this rewriter sees an `.mdx` document every capitalized or dotted
+block tag is already a fence, and what is left is genuine lowercase HTML. The
+rescue path is unchanged for `.md`, where it is still the only thing standing
+between block HTML and deletion.
+
+A *dotted* tag such as `<Foo.Bar />` was never an HTML block at all, since `.`
+is not legal in an HTML tag name, so it was never rescued here. The sanitizer
+picks it up by the component heuristic below.
 
 ## MDX placeholder spec (render, not run)
 
@@ -192,7 +197,9 @@ Transforms, in order:
    of its attributes, and an expandable escaped raw-source section. Children
    that are plain markdown are rendered *inside* the card when trivially
    extractable; otherwise the raw source expansion carries them.
-3. **Inline JSX** inside a paragraph → inline chip `⟨Component⟩`.
+3. **Inline JSX** inside a paragraph → inline chip `⟨Component⟩`, written as
+   an inline code span. A closing tag keeps its slash (`⟨/Component⟩`) so an
+   open/close pair still reads as a pair.
 4. **Braced expressions** `{expr}` in text → inline-code style, literal.
 5. **Ambiguity bail-out.** Unbalanced tags, nesting deeper than 20, or any
    construct the scanner can't classify within its rules → that region is
@@ -206,6 +213,66 @@ scanner operates outside fenced code blocks and inline code only.
 Test corpus: `test/fixtures/torture/mdx/` includes adversarial cases —
 unterminated tags, JSX inside blockquotes, code fences containing fake JSX,
 10,000 sibling components, `{}` inside links.
+
+### What building it settled — M3
+
+**It is a source-to-source rewrite**, like `RawBlockRewriter` and for the same
+reason: `core/markdown/` is pure Dart and ends at a string (doc 02's seam), so
+every transform above has to be expressible as inert Markdown. Four of them are
+fences or code spans, and the placeholder card rides the same
+`data-metadata` rail the raw-HTML box does — `` ```jsx marklens-mdx Callout type
+title ``. The fifth, the count of hidden ESM statements, is a count of text that
+is no longer there, so it travels beside the string as `DocModel.mdxImportsHidden`
+rather than inside it.
+
+Seven things the spec above did not settle, decided while building it:
+
+- **The card does not re-render its children.** Transform 2 used to say plain
+  markdown children are rendered *inside* the card "when trivially
+  extractable". They are not, and the raw-source expansion carries them
+  instead. Rendering them would mean a second `MarkdownWidget` nested inside a
+  block, which nests a scroll view and a selection scope inside the one the
+  reader owns — and a nested selection scope ending a drag at the top of a
+  block is precisely what S2 made a release gate
+  (`docs/spike-results/S2-selection.md`).
+- **The attribute summary is attribute *names*.** The summary rides the
+  fence's info string, which is one line and, for a backtick fence, may not
+  contain a backtick — and an attribute *value* can hold both. Names are
+  identifiers, so they are safe there; the body still carries the whole tag.
+  Capped at eight, because a card header is not a place to read forty of them.
+- **Block-level means the region is the whole line.** `<Foo /> and then prose`
+  is a paragraph containing a component, and gets the chip. Only a region that
+  ends its line becomes a card.
+- **A bail-out covers the opening tag, not the rest of the file.** For an
+  unclosed `<Callout>`, the fence holds that tag alone and the heading and
+  prose below it survive — the fixture asks for exactly this, "rather than
+  guessing where it ends". A region that *does* close but nests too deep is
+  fenced whole, since its bounds are known.
+- **An unbalanced brace is not an expression.** `{unclosed` is left as the
+  literal text it already renders as. Transform 5 is for regions; emitting a
+  fenced block over a stray character would destroy the paragraph around it.
+- **Indented code is skipped too**, not only fenced and inline code. Four
+  spaces after a blank line is code by CommonMark and the corpus expects it
+  untouched. The approximation is the "after a blank line" part, which is what
+  keeps this a line scanner: a lazily indented paragraph continuation reads as
+  code and is left alone, which is the safe direction.
+- **A tag may wrap lines but not span a blank one**, and the search for a
+  matching close is bounded (64 KB). Without the first, an unterminated
+  `<Another attr="value"` scans forward to whatever `>` appears next and
+  swallows everything between; without the second, a file of ten thousand
+  unclosed tags is quadratic — which is the shape of input rule 9 exists for.
+
+Two accepted gaps, recorded rather than defended against:
+
+- A lowercase *dotted* tag is a component by the locked heuristic, so a
+  hypothetical `<example.com>` would be read as one. Real autolinks are not
+  affected: a tag name must be followed by whitespace, `/` or `>`, and
+  `<https://example.com>` and `<a@b.example>` both fail that.
+- The ESM count includes `export` statements, because they are what the
+  transform removes; the chip's wording ("imports hidden") is the shorthand
+  doc 04 has always used for them. `esm_imports.mdx` was corrected from 3 to 4
+  when the multi-line `export default` at its foot turned out to be a
+  statement like any other.
 
 ## Images
 

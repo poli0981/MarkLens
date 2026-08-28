@@ -4,8 +4,10 @@ export const meta = { title: 'ESM lines' }
 
 # ESM lines are removed from the flow
 
-The header must show a chip reading "MDX · 3 imports hidden" (docs/04
-transform 1). None of the statements above may appear as body text.
+The header must show a chip reading "MDX · 4 imports hidden" (docs/04
+transform 1): the three statements above, and the multi-line `export
+default` below, which is an ESM statement like any other. None of them may
+appear as body text.
 
 export default function Layout({ children }) {
   return <main>{children}</main>

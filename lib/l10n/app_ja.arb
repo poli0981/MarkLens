@@ -10,6 +10,8 @@
   "sidebarMissingBadge": "見つかりません",
   "readerRawHtmlTitle": "生の HTML（描画しません）",
   "readerMdxImportsHidden": "MDX · {count, plural, other{{count} 件の import を非表示}}",
+  "readerMdxComponentTitle": "{name}（MDX コンポーネント、描画しません）",
+  "readerMdxComponentAttributes": "属性: {names}",
   "emptyStateDropHint": "Markdown ファイルをここにドロップするか、開いて始めてください。",
   "menuOpenRecent": "最近使った項目",
   "menuOpenRecentEmpty": "最近使った文書はありません",

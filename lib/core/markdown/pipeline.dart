@@ -84,10 +84,12 @@ class MarkdownPipeline {
     }
 
     var source = split.body;
+    var mdxImportsHidden = 0;
     if (isMdx) {
       final sanitized = mdxSanitizer.sanitize(source);
       source = sanitized.source;
       notices.addAll(sanitized.notices);
+      mdxImportsHidden = sanitized.esmRemoved;
     }
 
     // Block HTML is rewritten before the index is built, not after. While it
@@ -110,6 +112,7 @@ class MarkdownPipeline {
         blocks: const <SourceBlock>[],
         frontMatter: split.frontMatter,
         notices: notices,
+        mdxImportsHidden: mdxImportsHidden,
       );
     }
 
@@ -121,6 +124,7 @@ class MarkdownPipeline {
       blocks: index.blocks,
       frontMatter: split.frontMatter,
       notices: notices,
+      mdxImportsHidden: mdxImportsHidden,
     );
   }
 

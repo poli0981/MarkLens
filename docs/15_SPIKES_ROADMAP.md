@@ -429,8 +429,12 @@ They are v1 scope by the charter, so they are M3:
 ### The order
 
 1. **This section** — the milestone written down before eleven PRs cite it.
-2. **`MdxSanitizer`** — the largest piece of new logic, and the only one that
-   depends on nothing else.
+2. **`MdxSanitizer`** ✅ — the largest piece of new logic, and the only one
+   that depends on nothing else. It turned out to be a source-to-source
+   rewrite, like `RawBlockRewriter`: doc 04 now records the seven things its
+   five transforms did not settle, of which the load-bearing one is that a
+   placeholder card does **not** re-render its children — that would nest a
+   selection scope inside the reader's, which S2 made a release gate.
 3. **Link routing + anchor jumps**, which also builds the two primitives later
    PRs need: the `url_launcher` seam and "open a document, then jump into it".
 4. **Images.**
