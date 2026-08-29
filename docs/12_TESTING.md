@@ -22,8 +22,9 @@
    quality** (`test/features/reader_selection_test.dart`) — cross-block copy,
    Vietnamese and Japanese, code indentation, and auto-scroll drag. That last
    group is a release gate (doc 15, S2).
-3. **Golden tests.** Two kinds, and the distinction matters because only one
-   of them exists yet.
+3. **Golden tests.** Two kinds, and the distinction matters even now that both
+   exist: one pins geometry and is font-free, the other pins typography and
+   therefore loads the fonts itself.
 
    **Layout goldens** — `test/goldens/shell_chrome_golden_test.dart`, the first
    goldens in the repo, added at M2. They pin the chrome the first visual pass
@@ -117,6 +118,9 @@
 4. **Integration smoke** (`integration_test`, both OS runners): launch →
    open fixture folder → activate file → assert rendered text → restart →
    assert session restored.
+
+   **Not written as of M4.** See "What actually gates" below for what stands in
+   its place and why the restart half cannot simply be one `integration_test`.
 5. **Architecture tests**: import-boundary scan (doc 02) + the
    no-stray-write-mode grep (doc 10).
 6. **Performance gate** — the charter's scroll and first-paint budgets,
@@ -144,14 +148,40 @@ badge row.
 
 ## Coverage & gates
 
-Core ≥ **85%** lines, overall ≥ **70%**, reported as a CI artifact
-(doc 14). Goldens and integration smoke are release-blocking; unit failures
-block every PR.
+Core ≥ **85%** lines, overall ≥ **70%**, reported as a CI artifact (doc 14).
+Unit failures block every PR.
 
-The numeric gate switches on at **M1**. Through M0 the tree is mostly
-interface stubs, where a line-coverage percentage measures nothing worth
-blocking a PR over — but coverage is still uploaded every run, so the number
-is visible the whole way rather than appearing from nowhere at M1.
+### What actually gates, as of M4
+
+This section described intent for four milestones and is now written against
+the pipeline that exists, because a gate nobody enforces is worse than an
+absent one — it is an absent one that people believe in.
+
+| Gate | State |
+|---|---|
+| Unit, widget, architecture and repo tests | **Enforced**, both runners, every PR |
+| Goldens (layout and renderer) | **Enforced**, `golden (ubuntu-24.04)`, every PR |
+| l10n parity and tri-locale layout | **Enforced**, part of the ordinary suite |
+| Artefacts build and start | **Enforced** by `release.yml` — `dpkg -i`, then `--version` under `xvfb`, for the `.deb` and the AppImage |
+| Coverage thresholds | **Not enforced.** `coverage/lcov.info` is uploaded every run and gated by nothing. This has said "switches on at M1" since M0 |
+| Integration smoke (pyramid item 4) | **Not written.** See below |
+| Performance gate | Deliberately never in CI — profile mode, reference machine |
+
+**The integration smoke is the one real hole**, and it is worth being precise
+about its shape rather than implying it is covered. Item 4 wants *launch → open
+fixture folder → activate file → assert rendered text → restart → assert
+session restored*, and none of that exists as an automated test. What does
+exist: the release workflow proves the packaged binaries start and answer
+`--version`, and the maintainer verified the full path — a second launch
+forwarding its arguments, `session.json` afterwards — against the real binary
+by hand at M1 and again at M3 (doc 15).
+
+The restart half is also the half that cannot simply be written as one
+`integration_test`: a "restart" inside one test process reuses the same isolate
+and the same open file handles, so it would pass while the real thing was
+broken. It needs a script that runs the built binary twice against a temp
+config directory. That is real work, it is not done, and doc 15 records it as
+outstanding rather than this document implying otherwise.
 
 ## Definition of Done (per feature)
 

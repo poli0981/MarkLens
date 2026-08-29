@@ -9,9 +9,12 @@ deliberately deferred — see below. Every decision they settled is recorded in
 doc 01 (pins), doc 03 and doc 07 (watching), doc 04 (pipeline) and doc 06
 (selection, menu bar).
 
-**As of 2026-08-28, M0–M3 are closed and merged.** Every feature in the
-charter's v1 scope exists. What is left is M4: artefacts, the two decisions
-blocking them, and the tag — see "Start M4 here".
+**As of 2026-08-29, M0–M4's coded work is done and on `main`.** Every feature in
+the charter's v1 scope exists, both M4 blockers are closed, all four release
+artefacts build in CI, and the release pipeline has been rehearsed against
+`main` without a tag. What remains before `v1.0.0` is the half no pipeline can
+do — S3's clean-VM run, the read-only audit and the third visual pass — plus the
+integration smoke doc 12 lists and nobody has written. See "M4 build order".
 
 ## S1 — Renderer bake-off *(the decision spike)*
 
@@ -815,6 +818,46 @@ back out of the git index, which is the only place it is visible from Windows.
 permissive than the target proves the logic and says nothing about the
 permissions — and this repo's dev machine is more permissive than its runners in
 at least three independent ways.
+
+### What M4 actually was
+
+Fifteen commits, 1250 tests, up from 1162 at the end of M3. The roadmap row
+named packaging, the fonts, the goldens, docs polish and the tag; what it did
+not convey is that **M4 is the first milestone where most of the work happened
+outside `lib/`.** Six of the fifteen commits touch no Dart at all, and the new
+test directory — `test/repo/`, seven files — asserts things about the *repo*
+rather than about the app: that a resource script and a desktop entry agree on
+the program's name, that two Dockerfiles and four workflows agree on a Flutter
+version, that a shell script is executable in the index.
+
+That family exists because the four `test/architecture/` tests scan `lib/` and
+nothing else, and M4 put load-bearing behaviour in `packaging/`, `tool/` and
+`.github/` for the first time.
+
+**The M2/M3 pattern did not hold, and its opposite did.** Those milestones kept
+finding features that were built and had no caller. M4 found three things that
+were deliberately *not* built — the icon, the fonts, the installers — each
+parked behind a decision, plus a release pipeline that existed only as prose.
+Nothing was waiting to be discovered; everything had to be authored.
+
+**Three defects came out of things this repo had already written down and
+believed.** `app_icon.ico` was byte-identical to the Flutter template's, which a
+hash proved in a second and four milestones of review had not. `StartupWMClass`
+had never matched the class GTK actually advertises. And `LegalCopyright` said
+"All rights reserved" on a GPL-3.0-only binary — a false licence statement in
+the one place no reader of `LICENSE` would look.
+
+**Two measurements contradicted the plan**, which is the useful kind. Removing a
+dead dependency saved ninety bytes, because the tree-shaker had already removed
+it and the only remaining cost was its line in the compressed notices; the
+reason to remove it was supply chain, not size. And bundling fonts changed no
+layout golden at all, because `flutter test` substitutes its own font for every
+family — including invented ones — so the renderer goldens had to load the real
+fonts themselves or photograph nothing.
+
+**The release rehearsal is recorded above** and is the most transferable thing
+here: three red runs, all three a permission or environment difference the dev
+machine cannot express.
 
 ### What only a person can do
 

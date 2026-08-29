@@ -4,8 +4,8 @@
 **Repo:** `poli0981/MarkLens`
 **Platforms:** Windows 10+ · Ubuntu 22.04+ (Linux desktop)
 **Stack:** Flutter 3.47.1 stable / Dart 3.13.1 · **License:** GPL-3.0-only
-**Suite version:** 1.0 · **Date:** 2026-08-23
-**Status:** M0–M3 complete (2026-08-28) — every feature in the charter's v1 scope exists. M4 (packaging, artefacts, v1.0.0) is in progress; S3's clean-VM run lands with it.
+**Suite version:** 1.0 · **Date:** 2026-08-29
+**Status:** M0–M4 complete — every feature in the charter's v1 scope exists and all four release artefacts build in CI. What remains before the v1.0.0 tag is the part no pipeline can do: S3's clean-VM run, the read-only audit, and the third visual pass (`docs/15_SPIKES_ROADMAP.md`).
 
 MarkLens opens `.md` / `.mdx` files or whole folders and renders them
 faithfully — nothing more. It is a *viewer*, the way SumatraPDF is a viewer:
@@ -35,6 +35,39 @@ open in-app · full keyboard navigation · EN/VI/JA interface.
 Non-goals for v1: editing of any kind, sync/cloud, plugins, export,
 WYSIWYG. See `docs/00_CHARTER.md`.
 
+## Install
+
+Downloads are on the [releases page](https://github.com/poli0981/MarkLens/releases).
+
+| File | For |
+|---|---|
+| `MarkLens-Setup-x.y.z.exe` | Windows. Per-user, no administrator rights, registers `.md` |
+| `MarkLens-x.y.z-win-x64-portable.zip` | Windows, unzip and run. No registration |
+| `marklens_x.y.z_amd64.deb` | Debian/Ubuntu. The integrated Linux path |
+| `MarkLens-x.y.z-x86_64.AppImage` | Any Linux. One file, `chmod +x` and run |
+
+Every release ships `SHA256SUMS`. Download it beside the file you want and:
+
+```bash
+sha256sum -c SHA256SUMS --ignore-missing
+```
+
+Two things about the Windows installer that are worth knowing before they
+surprise you, because neither is something an installer can fix:
+
+- **SmartScreen will warn on the download.** The installer is not code-signed;
+  a certificate is a cost and a process that a v1 of a free viewer has not
+  taken on. The checksum above is the verification that is actually available.
+- **Windows may still ask "How do you want to open this?" the first time.** The
+  installer registers MarkLens as a handler, but the *default* handler is
+  recorded with a hash Windows reserves for a choice you make yourself. Pick
+  MarkLens once and it sticks.
+
+Config lives in `%APPDATA%\poli0981\MarkLens\marklens\` on Windows and
+`$XDG_DATA_HOME/dev.poli0981.marklens/marklens/` on Linux — two small JSON
+files, and the only thing MarkLens ever writes. Uninstalling leaves them; the
+Windows uninstaller offers to remove them, unchecked.
+
 ## Build quickstart
 
 ```bash
@@ -45,9 +78,16 @@ flutter test
 flutter build windows    # or: flutter build linux
 ```
 
-Packaging (Inno Setup, AppImage, .deb) is documented in
-`docs/11_PACKAGING_UPDATE.md`. Release artifacts for Linux are built in CI,
-not on the Windows dev machine.
+Packaging is documented in `docs/11_PACKAGING_UPDATE.md` and lives in
+`packaging/`: an Inno Setup script and a PowerShell driver for Windows, and
+`build-deb.sh` / `build-appimage.sh` for Linux. The Linux artefacts are built
+inside the `tool/linux` container — an `ubuntu:22.04` image, because the glibc
+a binary links against is the glibc of the machine that built it and 22.04 is
+the platform floor. `tool/linux/README.md` has the commands.
+
+`tool/` also holds the two generators whose output is committed: the icon set
+(`tool/icons/`) and the subset fonts (`tool/fonts/`). Edit the script, not the
+output.
 
 ## File associations
 
@@ -83,9 +123,11 @@ the window that is already there rather than starting a second one.
 | `docs/11_PACKAGING_UPDATE.md` | Installers, file association, update check |
 | `docs/12_TESTING.md` | Test pyramid, torture corpus, golden policy, DoD |
 | `docs/13_CODE_QUALITY.md` | Lints, naming, commit conventions |
-| `docs/14_CI_CD.md` | Caller stubs, reusable-workflow gap, release pipeline |
+| `docs/14_CI_CD.md` | CI jobs, the release pipeline, pinning non-negotiables |
 | `docs/15_SPIKES_ROADMAP.md` | P0 spikes S1–S5, milestones M0–M4, release checklist |
-| `legal/` | PRIVACY, EULA, DISCLAIMER, THIRD_PARTY_NOTICES |
+| `legal/` | PRIVACY, EULA, DISCLAIMER, THIRD_PARTY_NOTICES, licence texts |
+| `packaging/` | What the installers reference, and the scripts that build them |
+| `tool/` | Generators and containers: icons, fonts, goldens, Linux artefacts |
 
 ## License
 
