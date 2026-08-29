@@ -188,10 +188,16 @@ false `missing` badges during atomic saves.
 | **M1 — usable daily** ✅ | Open file/folder, sidebar + tabs, pipeline + reader, session restore, single instance + CLI | done 2026-08-26 |
 | **M2 — comfortable** ✅ | Watch/auto-reload, outline, Ctrl+F, zoom, themes, front-matter panel — plus the first visual pass's eight defects and the repo's first goldens | done 2026-08-27 |
 | **M3 — complete** ✅ | The six items this row used to name, **and the six more the row did not** — images, drag & drop, the update check, About/licenses/log export, Open Recent, and doc 06's edge states. See "M3 build order" | done 2026-08-28 |
-| **M4 — shipped** | Packaging both OSes — including wiring M3's file-association assets into the installers — the icon, bundled fonts + renderer goldens, `release.yml`, docs polish, v1.0.0 | 4 wk |
+| **M4 — shipped** ◐ | Packaging both OSes — including wiring M3's file-association assets into the installers — the icon, bundled fonts + renderer goldens, `release.yml`, docs polish, v1.0.0 | coded 2026-08-29; tag pending the manual checklist |
 
 ~8.5 focused weeks; solo-dev buffer applies. M1 is the "start living in it"
 gate — daily use from M1 onward is the real QA.
+
+**M4 is ◐ rather than ✅ on purpose.** Its coded work is on `main` and the
+version is bumped, but "shipped" means a published tag, and three items between
+here and there are a person's rather than a pipeline's: the clean-VM run, the
+read-only audit and the third visual pass. Marking the row done before those
+would make the roadmap agree with the code and disagree with reality.
 
 **Three of these estimates were written before the milestone was surveyed, and
 all three were wrong the same way.** M2 turned out to be mostly wiring, and M3's

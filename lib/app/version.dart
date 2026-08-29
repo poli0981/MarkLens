@@ -9,4 +9,4 @@
 /// `test/app/version_test.dart` reads `pubspec.yaml` and fails if the two
 /// drift, so "kept in step" is checked rather than remembered. The release
 /// checklist in doc 15 bumps both together.
-const String appVersion = '0.1.0';
+const String appVersion = '1.0.0';

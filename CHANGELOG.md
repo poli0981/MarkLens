@@ -4,7 +4,51 @@ All notable changes to MarkLens are documented here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versioning is
 [SemVer](https://semver.org/).
 
-## [Unreleased]
+## [1.0.0] - 2026-08-29
+
+The first release. Everything in the charter's v1 scope, packaged for both
+operating systems.
+
+### Added — M4, "shipped"
+
+- **Four release artefacts**, built and started in CI on every release run: an
+  Inno Setup installer and a portable zip for Windows, a `.deb` and an AppImage
+  for Linux, with `SHA256SUMS` over all of them. The Linux pair is built inside
+  an `ubuntu:22.04` container rather than on a runner of that name, so the
+  glibc floor is a property of an image this repo pins.
+- **A MarkLens icon.** `windows/runner/resources/app_icon.ico` had been
+  byte-identical to the Flutter template's since M0. The set is now generated
+  from one master, including the Linux hicolor sizes and a scalable SVG.
+- **Bundled fonts** — Noto Sans, Noto Sans JP and JetBrains Mono, subset to
+  5.4 MB from 12.3 MB, closing doc 01's Noto Sans JP size question with
+  measurements. Vietnamese and Japanese now render identically on both
+  operating systems, which is the charter's first principle.
+- **Renderer goldens**, the kind doc 12 has described since M0 and could not
+  have until the fonts landed: eleven pages including Vietnamese and Japanese.
+- **`release.yml`**, with `contents: write` scoped to a single publish job, both
+  build tools pinned by digest, and a draft that only a person can publish.
+- **File associations wired**, not merely authored: the ProgId for `.md` and
+  `.mdx` on Windows, and the desktop entry, MIME definitions and AppStream
+  metadata on Linux.
+
+### Fixed — M4
+
+- The program called itself `marklens` in the taskbar, in alt-tab and in
+  Explorer's Description column. It is `MarkLens` now; the executable stays
+  lowercase.
+- `LegalCopyright` claimed "All rights reserved" on a GPL-3.0-only binary — a
+  false licence statement inside the exe's own metadata.
+- `StartupWMClass` had never matched the class GTK actually advertises, so the
+  Linux window did not group under its own launcher.
+- Twelve golden *failure* dumps had been committed since M2 and nothing noticed,
+  because a binary file nobody opens is invisible in review.
+
+### Removed — M4
+
+- `package_info_plus`, pinned since M0 and imported by nothing. Removing it
+  saved ninety bytes, because the tree-shaker had already removed the code; the
+  reason to remove it was one less unreviewed dependency and one less version
+  constraint.
 
 ### Added — M3, "complete"
 
