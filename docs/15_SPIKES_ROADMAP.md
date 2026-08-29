@@ -782,6 +782,40 @@ Both are about the ground moving under a doc that was correct when written.
 15. **The README and everything that still says M0.**
 16. **v1.0.0** — the version in its three places, and the CHANGELOG.
 
+### The release rehearsal was red three times, and each one was a mode
+
+M4's pipeline was dispatched against `main` before any tag existed, which is
+what the checklist below now requires of every release. It failed three times,
+and the three failures share a shape worth naming: **every one was a permission
+or an environment difference that the dev machine could not express.** The
+logic was right each time.
+
+1. **Exit 126, "Permission denied".** `build-deb.sh` was `100644` in the index.
+   `core.fileMode` is `false` on Windows, so `chmod +x` succeeded and recorded
+   nothing. Every local run had been `bash packaging/linux/build-deb.sh`, naming
+   the interpreter and making the mode irrelevant; the workflow was the only
+   caller that did not, and the only caller that had never run.
+2. **`cp: Permission denied`, after building both artefacts.** The container
+   runs as `builder` because Flutter refuses to run as root, and a bind-mounted
+   output directory belongs to whoever created it. Docker Desktop on Windows
+   hides that mismatch completely.
+3. **A hang with no output at all.** The image had `libgl1` — the loader — and
+   no Mesa DRI driver, so under `xvfb` the software-GL fallback stopped rather
+   than failed. The fix for the driver is one package; the fix that matters is
+   that every command in that step is now bounded by `timeout`, announced, and
+   reads from `/dev/null`. A smoke check that can block is worse than none: it
+   costs a job slot for as long as the timeout allows and reports nothing.
+
+The fourth run was green end to end, with all four artefacts uploaded at the
+names doc 11's table promises, and `publish` correctly skipped for a
+`workflow_dispatch`. `test/repo/script_mode_test.dart` now reads the execute bit
+back out of the git index, which is the only place it is visible from Windows.
+
+**The lesson generalises past this milestone.** A local environment that is more
+permissive than the target proves the logic and says nothing about the
+permissions — and this repo's dev machine is more permissive than its runners in
+at least three independent ways.
+
 ### What only a person can do
 
 Unchanged from what "Start M4 here" inherited, and none of it is a PR: S3's
