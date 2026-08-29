@@ -10,7 +10,14 @@ Comment[ja]=軽快で読み取り専用の Markdown ビューアー
 Exec=marklens %F
 Icon=marklens
 Terminal=false
-Categories=Office;Viewer;TextEditor;Utility;
+# One main category and one additional one, which took two passes to get right
+# and desktop-file-validate found both. The original Office;Viewer;TextEditor;
+# Utility; had *two* main categories, so the application could appear twice in
+# the menu. Pairing TextEditor with Utility, as the spec wants, would fix that
+# and assert something false: MarkLens does not edit text, and a menu entry
+# under Text Editors is a promise it breaks the moment somebody tries. Viewer
+# with Office above it says what this is.
+Categories=Office;Viewer;
 Keywords=markdown;md;mdx;viewer;reader;
 Keywords[vi]=markdown;md;mdx;xem;tài liệu;
 Keywords[ja]=markdown;md;mdx;ビューアー;文書;

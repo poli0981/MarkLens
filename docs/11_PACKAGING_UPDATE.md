@@ -195,15 +195,68 @@ when the entire state is two small files.
 
 ## Linux
 
-- **AppImage** built on the oldest supported base (Ubuntu 22.04 runner) for
-  glibc compatibility. Known limitation, documented in the README: desktop
-  integration/file association for AppImages requires the user's
-  integration tooling; the `.deb` is the integrated path.
-- **.deb**: installs `/usr/bin/marklens`, `dev.poli0981.marklens.desktop`
-  (`MimeType=text/markdown;`), icon set, and runs
-  `update-desktop-database` in postinst. Depends on GTK 3 per Flutter Linux
-  requirements.
+- **AppImage** built on the oldest supported base for glibc compatibility — an
+  `ubuntu:22.04` **container**, not the runner of that name; see below. Known
+  limitation, documented in the README: desktop integration and file
+  association for AppImages require the user's own tooling; the `.deb` is the
+  integrated path.
+- **.deb**: installs `/usr/bin/marklens`, the desktop entry, the MIME XML, the
+  AppStream metadata and the icon set, and refreshes three caches in postinst.
 - CLI symmetry: `marklens README.md docs/` works identically on both OSes.
+
+### Wired at M4
+
+`packaging/linux/build-deb.sh` and `build-appimage.sh`, both run inside
+`tool/linux`, which is where every Linux artefact is built (`tool/linux/README.md`).
+**The bundle is built once and packaged twice**, so a `.deb` and an AppImage
+from one release are the same binary rather than two builds that agree.
+
+| Path | Contents |
+|---|---|
+| `/usr/lib/marklens/` | the whole Flutter bundle — `marklens`, `lib/`, `data/` |
+| `/usr/bin/marklens` | a relative symlink into it |
+| `/usr/share/applications/dev.poli0981.marklens.desktop` | the launcher |
+| `/usr/share/mime/packages/marklens.xml` | the two MIME types |
+| `/usr/share/metainfo/dev.poli0981.marklens.metainfo.xml` | AppStream, for GNOME Software and friends |
+| `/usr/share/icons/hicolor/*/apps/marklens.*` | nine PNGs and the SVG |
+| `/usr/share/doc/marklens/copyright` | the GPL text |
+
+**The bundle cannot go straight into `/usr/bin`.** `linux/CMakeLists.txt` sets
+`CMAKE_INSTALL_RPATH` to `$ORIGIN/lib`, so the executable has to sit beside its
+own `lib/`; `/usr/bin/marklens` is a symlink and glibc resolves `$ORIGIN` from
+the real path. Verified by installing the package and running it, not by
+reading the linker documentation — and worth knowing that `ldd /usr/bin/marklens`
+reports five libraries as "not found" while the program runs perfectly, because
+`ldd` resolves `$ORIGIN` against the path it is handed. `tool/linux/README.md`
+has the transcript.
+
+**`Depends` is derived, not written down.** `dpkg-shlibdeps` reads what the
+executable and every bundled `.so` actually need, so the list is a fact about
+the build. It emits warnings about `$ORIGIN` and about analysing binaries
+outside a `debian/` tree; those are a consequence of packaging a Flutter bundle
+by hand rather than with `dh`, and the derived list is correct.
+
+**Removal leaves `session.json` and `settings.json` alone**, on both `remove`
+and `purge`. They are the user's, not the package's (doc 05) — the same answer
+the Windows uninstaller's unchecked checkbox gives.
+
+### Why a container rather than the `ubuntu-22.04` runner
+
+Doc 14 originally specified the runner, and those images **begin deprecation on
+2026-09-17 and are unsupported from 2027-04-17** — a release pipeline with a
+seven-month life. Pinning the *image* makes the glibc floor a property of
+something this repo controls, and reuses the arrangement `tool/goldens/` already
+proved.
+
+### What "CLI symmetry" does not mean
+
+`marklens --version` needs a display on Linux. GTK creates the window before the
+Dart entrypoint sees `argv`, so on a headless machine it exits 1 with
+`cannot open display` rather than printing a version. That is a property of the
+Flutter Linux embedder rather than of MarkLens's argument parsing — under
+`xvfb` the same binary prints `MarkLens 0.1.0` and exits 0 — but it is worth
+writing down, because "run `--version` to check the install" is the first thing
+anyone tries over SSH.
 
 ## Build hosts
 

@@ -1,0 +1,24 @@
+Package: marklens
+Version: @VERSION@
+Section: text
+Priority: optional
+Architecture: amd64
+Depends: @DEPENDS@
+Installed-Size: @INSTALLED_SIZE@
+Maintainer: @MAINTAINER@
+Homepage: https://github.com/poli0981/MarkLens
+Description: fast, lightweight, read-only Markdown viewer
+ MarkLens opens .md and .mdx files, or whole folders, and renders them
+ faithfully - nothing more. It is a viewer the way SumatraPDF is a viewer:
+ instant to open, it remembers where you were, and it never writes to your
+ documents.
+ .
+ GitHub-flavoured Markdown with syntax-highlighted code blocks, SVG images and
+ a YAML front-matter panel. Sidebar, tabs and a quick switcher; an outline
+ panel; find in file and across open files; auto-reload when a document changes
+ on disk; light and dark themes; and an English, Vietnamese or Japanese
+ interface.
+ .
+ MDX components and embedded HTML are displayed as inert placeholders. There is
+ no JavaScript engine and no webview, and the only network traffic is an opt-in
+ update check.

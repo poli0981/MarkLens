@@ -1,0 +1,29 @@
+#!/bin/sh
+# The same three caches, after the files have gone.
+#
+# On `remove` the desktop entry and the MIME XML are already deleted, so these
+# runs are what stop a removed application from still appearing in a menu or
+# still claiming text/markdown.
+#
+# MarkLens's own config directory is NOT touched. session.json and settings.json
+# live under $XDG_DATA_HOME (doc 05) and belong to the user, not to the package;
+# `apt remove` and `apt purge` both leave them, which is what the Windows
+# uninstaller's unchecked checkbox says too. Removing a viewer should not lose
+# somebody's tabs.
+set -e
+
+case "$1" in
+  remove|purge|upgrade|disappear)
+    if command -v update-desktop-database >/dev/null 2>&1; then
+      update-desktop-database -q /usr/share/applications || true
+    fi
+    if command -v update-mime-database >/dev/null 2>&1; then
+      update-mime-database /usr/share/mime || true
+    fi
+    if command -v gtk-update-icon-cache >/dev/null 2>&1; then
+      gtk-update-icon-cache -f -t -q /usr/share/icons/hicolor || true
+    fi
+    ;;
+esac
+
+exit 0

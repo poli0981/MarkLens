@@ -24,6 +24,7 @@ const Map<String, String> _flutterPinSources = <String, String>{
   '.github/workflows/ci.yml': r'FLUTTER_VERSION:\s*"([\d.]+)"',
   '.github/workflows/watch-observation.yml': r'flutter-version:\s*"([\d.]+)"',
   'tool/goldens/Dockerfile': r'ARG\s+FLUTTER_VERSION=([\d.]+)',
+  'tool/linux/Dockerfile': r'ARG\s+FLUTTER_VERSION=([\d.]+)',
   'docs/01_TECH_STACK.md': r'\*\*Flutter\s+([\d.]+)\s+stable\*\*',
 };
 

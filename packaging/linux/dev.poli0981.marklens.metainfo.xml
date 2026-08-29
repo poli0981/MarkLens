@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  AppStream metadata. Installed to /usr/share/metainfo/ by the .deb and placed
+  in the AppDir by the AppImage build; appimagetool warns when it is absent.
+
+  This is what GNOME Software, KDE Discover and an AppImage catalogue read, so
+  it is the Linux equivalent of the Windows version block (doc 11, "Product
+  strings") rather than optional paperwork - and like that block, the strings
+  here have to agree with the ones the app itself shows.
+  test/repo/deb_control_test.dart holds them together.
+
+  There is deliberately no <releases> block. It would be a sixth copy of the
+  version - after pubspec.yaml, lib/app/version.dart, the git tag, the .iss and
+  the Debian control - and AppStream treats it as optional. A number nobody can
+  forget to bump is worth more than a changelog entry in a file no human reads.
+-->
+<component type="desktop-application">
+  <id>dev.poli0981.marklens</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>GPL-3.0-only</project_license>
+
+  <name>MarkLens</name>
+  <summary>Fast, lightweight, read-only Markdown viewer</summary>
+  <summary xml:lang="vi">Trình xem Markdown nhanh, nhẹ, chỉ đọc</summary>
+  <summary xml:lang="ja">軽快で読み取り専用の Markdown ビューアー</summary>
+
+  <description>
+    <p>
+      MarkLens opens .md and .mdx files, or whole folders, and renders them
+      faithfully - nothing more. It is a viewer the way SumatraPDF is a viewer:
+      instant to open, it remembers where you were, and it never writes to your
+      documents.
+    </p>
+    <p>
+      GitHub-flavoured Markdown with syntax-highlighted code blocks, SVG images
+      and a YAML front-matter panel. Sidebar, tabs and a quick switcher; an
+      outline panel; find in file and across open files; auto-reload when a
+      document changes on disk; light and dark themes.
+    </p>
+    <p>
+      MDX components and embedded HTML are displayed as inert placeholders.
+      There is no JavaScript engine and no webview, and the only network traffic
+      is an opt-in update check.
+    </p>
+  </description>
+
+  <launchable type="desktop-id">dev.poli0981.marklens.desktop</launchable>
+  <provides>
+    <binary>marklens</binary>
+  </provides>
+
+  <categories>
+    <category>Office</category>
+    <category>Viewer</category>
+    <category>Utility</category>
+  </categories>
+
+  <keywords>
+    <keyword>markdown</keyword>
+    <keyword>md</keyword>
+    <keyword>mdx</keyword>
+    <keyword>viewer</keyword>
+    <keyword>reader</keyword>
+  </keywords>
+
+  <url type="homepage">https://github.com/poli0981/MarkLens</url>
+  <url type="bugtracker">https://github.com/poli0981/MarkLens/issues</url>
+  <url type="vcs-browser">https://github.com/poli0981/MarkLens</url>
+
+  <developer id="dev.poli0981">
+    <name>poli0981</name>
+  </developer>
+
+  <!-- Nothing to rate: no violence, no gambling, no chat, no advertising, and
+       no network access that a document can cause (doc 10, invariant 4). -->
+  <content_rating type="oars-1.1"/>
+</component>

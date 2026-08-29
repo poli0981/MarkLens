@@ -1,0 +1,13 @@
+#!/bin/sh
+# Nothing to stop, nothing to unregister.
+#
+# MarkLens installs no service, no daemon and no system-wide state: everything
+# it registers is a file, and dpkg removes files itself. The caches are
+# refreshed in postrm, after the files are actually gone - doing it here would
+# rebuild them while the entry was still present.
+#
+# The script exists rather than being omitted so that the set of maintainer
+# scripts is complete and reviewable, and so the next person does not wonder
+# whether it was forgotten.
+set -e
+exit 0

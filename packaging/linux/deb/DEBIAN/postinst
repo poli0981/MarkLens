@@ -1,0 +1,32 @@
+#!/bin/sh
+# Refresh the three caches that decide whether a freshly installed application
+# is visible at all.
+#
+# None of these is optional-but-nice. Without update-desktop-database the
+# MimeType= line in the desktop entry is not indexed, so double-clicking a .md
+# offers nothing; without update-mime-database the type text/markdown may not
+# exist on an older system (doc 11 explains why the XML ships at all); without
+# gtk-update-icon-cache GNOME shows a generic icon for an application that
+# installed nine sizes of its own.
+#
+# Every one is `|| true`. A stale cache is a cosmetic problem; a maintainer
+# script that exits non-zero leaves the package half-configured, which is not.
+set -e
+
+case "$1" in
+  configure)
+    if command -v update-desktop-database >/dev/null 2>&1; then
+      update-desktop-database -q /usr/share/applications || true
+    fi
+    if command -v update-mime-database >/dev/null 2>&1; then
+      update-mime-database /usr/share/mime || true
+    fi
+    if command -v gtk-update-icon-cache >/dev/null 2>&1; then
+      gtk-update-icon-cache -f -t -q /usr/share/icons/hicolor || true
+    fi
+    ;;
+  abort-upgrade|abort-remove|abort-deconfigure)
+    ;;
+esac
+
+exit 0

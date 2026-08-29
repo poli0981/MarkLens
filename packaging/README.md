@@ -4,17 +4,22 @@ What the M4 installers reference. Authored at M3 so that M4 is `iscc` and
 `dpkg-deb` wiring against files that already exist, rather than authoring and
 wiring at once — see `docs/15_SPIKES_ROADMAP.md`, "M3 build order", decision 2.
 
-**The Windows half runs.** `windows/marklens.iss` is the installer script and
-`#include`s `associations.iss`; `windows/build.ps1` builds it and the portable
-zip together. The icons are generated rather than authored. The Linux side is
-still assets waiting for the `.deb` and the AppImage.
+**All of it runs.** `windows/marklens.iss` is the installer and `#include`s
+`associations.iss`; `windows/build.ps1` builds it and the portable zip.
+`linux/build-deb.sh` and `linux/build-appimage.sh` build the two Linux
+artefacts, inside the `tool/linux` container. The icons are generated rather
+than authored.
 
 | File | Consumed by | Registers |
 |---|---|---|
 | `windows/marklens.iss` | `windows/build.ps1` → `iscc` | the installer itself |
 | `windows/associations.iss` | `#include`d by `marklens.iss` | ProgId `MarkLens.Document` for `.md` and `.mdx` |
-| `linux/dev.poli0981.marklens.desktop` | `.deb` postinst, AppImage (still M4) | `MimeType=text/markdown;text/mdx;` |
-| `linux/marklens-mime.xml` | `.deb` postinst (still M4) | `text/markdown` and `text/mdx` glob patterns |
+| `linux/build-deb.sh` | `tool/linux` container | `marklens_x.y.z_amd64.deb` |
+| `linux/build-appimage.sh` | the same | `MarkLens-x.y.z-x86_64.AppImage` |
+| `linux/dev.poli0981.marklens.desktop` | both Linux builds | `MimeType=text/markdown;text/mdx;` |
+| `linux/marklens-mime.xml` | the `.deb` | `text/markdown` and `text/mdx` glob patterns |
+| `linux/dev.poli0981.marklens.metainfo.xml` | both Linux builds | AppStream metadata for software centres |
+| `linux/AppRun` | the AppImage | its entry point |
 
 ## The icon, which used to be deliberately not here
 
