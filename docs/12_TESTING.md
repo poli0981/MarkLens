@@ -46,9 +46,17 @@
    byte-for-byte**, so they would have failed the CI job on its first
    activation. Nothing about the layout was wrong on either platform.
 
-   `tool/goldens/` holds a container matching `ubuntu-latest` with the doc 01
-   Flutter pin, and the two commands — one to rewrite the references, one to
-   check them the way CI does. Use it; do not regenerate on Windows.
+   `tool/goldens/` holds an `ubuntu:24.04` container with the doc 01 Flutter
+   pin, and the two commands — one to rewrite the references, one to check them
+   the way CI does. Use it; do not regenerate on Windows.
+
+   **The CI job pins `ubuntu-24.04` to match that container**, and the match is
+   the whole point rather than a detail. `ubuntu-latest` is 24.04 today and
+   26.04 images already exist; a label that moves would fail every golden
+   simultaneously, byte-for-byte, with every layout still correct — which is
+   the same failure the Windows-versus-Ubuntu generation produced, and it reads
+   like a flake both times. `test/repo/pin_agreement_test.dart` asserts the
+   job's image and the Dockerfile's `FROM` tag are the same number.
 
    **`test/goldens/goldens/` is source; `test/goldens/failures/` is not.**
    `flutter_test` dumps four PNGs per failing golden into the second — master,

@@ -1,9 +1,16 @@
 # docs/14_CI_CD.md.
 #
 # House convention is a thin caller stub delegating to a reusable workflow in
-# poli0981/.github. That suite has no Dart/Flutter stack yet (action A-1), so
-# these jobs live here inline — written lift-and-shift-ready, with the same job
-# names and inputs the future reusable will take.
+# poli0981/.github. That suite has no Dart/Flutter stack, and action A-1 — which
+# was to contribute one — is dropped from v1 (docs/15, "M4 build order",
+# decision 5): designing a reusable release interface before this repo has ever
+# run a release would abstract something nobody here has done yet. So these jobs
+# are the real ones rather than a placeholder for them, and doc 14 says so.
+#
+# Caching is the action's, not ours. `cache: true` also enables the pub cache
+# unless pub-cache is set explicitly, and the action keys that on
+# hashFiles('**/pubspec.lock') itself — so doc 14's "caches keyed on the
+# lockfile" is already true and a second actions/cache step would only fight it.
 name: ci
 
 on:
@@ -77,8 +84,11 @@ jobs:
           channel: stable
           cache: true
       - run: flutter pub get
-      # Goldens are stable only on the ubuntu runner with the bundled fonts,
-      # so they are excluded everywhere else (docs/12_TESTING.md).
+      # Goldens are byte comparisons against references generated on one
+      # image, so they run only on the pinned ubuntu job and are excluded here
+      # (docs/12_TESTING.md). The difference is rasterization, not fonts: the
+      # first goldens were generated on Windows and four of five differed from
+      # the Ubuntu render while both layouts were correct.
       - name: Unit, widget and architecture tests
         # watcher-live touches the real filesystem and sleeps in real time to
         # observe platform watcher behaviour (spike S5). Shared runners are the
@@ -94,9 +104,16 @@ jobs:
           if-no-files-found: error
 
   golden:
-    name: golden (ubuntu)
+    name: golden (ubuntu-24.04)
     needs: test
-    runs-on: ubuntu-latest
+    # Pinned, not `ubuntu-latest`, and the pin is load-bearing rather than
+    # tidiness: tool/goldens/Dockerfile is FROM ubuntu:24.04, and the image that
+    # compares a golden has to be the image that made it. `ubuntu-latest` is
+    # 24.04 today and ubuntu-26.04 images already exist; the day the label moves,
+    # every golden fails byte-for-byte with nothing wrong in any layout, and it
+    # reads like a flake. test/repo/pin_agreement_test.dart holds the two
+    # numbers together (docs/12_TESTING.md).
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5

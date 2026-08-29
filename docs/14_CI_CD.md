@@ -1,43 +1,67 @@
 # 14 · CI / CD
 
-## House pattern
+## House pattern, and where MarkLens leaves it
 
-Thin **caller stubs** in this repo delegate to reusable workflows in
-`poli0981/.github`, with an explicit `permissions:` block on every caller
-and actions pinned by SHA per ops-repo convention.
+The convention elsewhere in this portfolio is a thin **caller stub** delegating
+to a reusable workflow in `poli0981/.github`, with an explicit `permissions:`
+block on every caller and actions pinned by SHA. That ops suite exists and is
+public; it carries twelve `reusable-*.yml` across nine language stacks, and
+**none of them is Dart or Flutter**.
 
-**Gap:** the ops suite (13 reusable workflows, 9 language stacks) does not
-yet cover Dart/Flutter. → **Action A-1: contribute a
-`reusable-flutter-ci.yml` (and `reusable-flutter-release.yml`) to
-`poli0981/.github`**, following the suite's existing input/secret shape and
-naming. Until A-1 lands, MarkLens carries the same jobs as inline workflows
-written lift-and-shift-ready (job names and inputs already matching the
-future reusable).
+**Action A-1 — contributing `reusable-flutter-ci.yml` and
+`reusable-flutter-release.yml` to `poli0981/.github` — is dropped from v1**
+(doc 15, "M4 build order", decision 5). Through M0–M3 this document described
+the inline jobs as a placeholder "written lift-and-shift-ready", which was a
+reasonable thing to plan and a poor thing to keep believing: designing the
+input and secret interface of a reusable *release* workflow before this repo
+has ever cut a release means abstracting something nobody here has done. The
+inline workflows are therefore the real ones, not a stand-in for them, and this
+document describes what is in `.github/workflows/` rather than what might
+replace it. A-1 becomes worth doing when a second Flutter project appears, at
+which point there will be one working pipeline to generalise from instead of
+zero.
+
+What survives from the convention, because it is what the convention was for:
+an explicit least-privilege `permissions:` block on every workflow, every
+third-party action pinned by 40-character SHA, and a timeout on every job.
 
 ## CI (every PR + main)
 
-```yaml
-# .github/workflows/ci.yml (caller stub, target shape)
-name: ci
-on: [push, pull_request]
-permissions:
-  contents: read
-concurrency:
-  group: ci-${{ github.ref }}
-  cancel-in-progress: true
-jobs:
-  flutter-ci:
-    uses: poli0981/.github/.github/workflows/reusable-flutter-ci.yml@<pin>
-    with:
-      flutter-version: "3.47.1"   # exact pin recorded in doc 01
-```
+`.github/workflows/ci.yml`. Four jobs:
 
-Reusable-side jobs: `analyze` (analyze + format check + a `gen-l10n`
-no-diff check) → `test` (unit/widget + architecture tests, coverage artifact,
-thresholds from doc 12; windows runs `--exclude-tags golden`) → `golden`
-(ubuntu only) → `build-smoke`
-(matrix: `windows-latest`, `ubuntu-latest`; debug build boots). Timeouts on
-every job; Flutter/pub caches keyed on the lockfile.
+`analyze` → `test` → `golden`, with `build-smoke` branching off `analyze`.
+
+- **`analyze`** (ubuntu): `flutter analyze`, `dart format --set-exit-if-changed`,
+  a `gen-l10n` no-diff check (generated ARB output is committed, so
+  regenerating must produce no diff), and an assertion that no golden failure
+  dump is tracked (doc 12).
+- **`test`** (matrix `ubuntu-latest` + `windows-latest`): unit, widget and
+  architecture tests with `--exclude-tags "golden || watcher-live"`, coverage
+  uploaded as an artifact from the ubuntu leg. The doc 12 coverage thresholds
+  are **not** enforced here yet — see the note below rather than assuming they
+  are.
+- **`golden`** (`ubuntu-24.04`, pinned): activates itself by grepping for the
+  literal `@Tags(['golden'])`, so a golden costs nothing until one exists.
+- **`build-smoke`** (matrix): a debug build boots on both platforms.
+
+**The Flutter version is `env.FLUTTER_VERSION`, and it is duplicated** — into
+`watch-observation.yml`, into `tool/goldens/Dockerfile`, and into doc 01, which
+is the source of truth. Doc 01 says the four "must never disagree"; since M4
+that is a test rather than a rule, in `test/repo/pin_agreement_test.dart`.
+
+**Caching belongs to `subosito/flutter-action` and should stay there.** Setting
+`cache: true` and leaving `pub-cache` unset enables *both* caches, and the
+action keys the pub one on `hashFiles('**/pubspec.lock')` itself. So "caches
+keyed on the lockfile" is already true, and adding an `actions/cache` step to
+make it true would give the same path two owners. Read the action before
+changing this; the absence of a visible cache step in `ci.yml` is not the
+absence of a cache.
+
+**Known gap, stated rather than implied:** doc 12 says the coverage thresholds
+(core ≥ 85%, overall ≥ 70%) switch on at M1. They did not. `coverage/lcov.info`
+is uploaded every run and gated by nothing. M4 prints the real numbers before
+deciding whether to enforce them or amend doc 12 — turning `main` red on an
+unmeasured threshold during a release week is not a gate, it is an accident.
 
 ## Release (tag `v*`)
 
@@ -56,5 +80,13 @@ contents: write` scoped to the publish job only.
 ## Non-negotiables
 
 Least-privilege permissions everywhere, no long-lived secrets (release uses
-the ephemeral `GITHUB_TOKEN`), SHA-pinned third-party actions, goldens only
-on ubuntu, Linux artifacts never built outside CI.
+the ephemeral `GITHUB_TOKEN`), SHA-pinned third-party actions, and Linux
+artifacts never built outside CI.
+
+**Goldens run only on the *pinned* ubuntu image**, not merely "on ubuntu". A
+golden is a byte comparison, so the image that checks one has to be the image
+that made it, and `-latest` labels move: `ubuntu-latest` is 24.04 today with
+26.04 images already published. The day it moves, every golden fails at once
+with nothing wrong in any layout — a failure that reads like a flake and is
+not. The job pins `ubuntu-24.04`, `tool/goldens/Dockerfile` builds `FROM
+ubuntu:24.04`, and a test asserts the two agree.

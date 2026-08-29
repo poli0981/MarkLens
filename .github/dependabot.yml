@@ -1,0 +1,24 @@
+# docs/14_CI_CD.md, docs/01_TECH_STACK.md.
+#
+# Only `github-actions`, and the omission of `pub` is the point.
+#
+# Third-party actions are SHA-pinned per house convention, which is the right
+# call and also means nothing in this repo can tell that a pin has gone stale —
+# a SHA does not age visibly the way a version range does. Dependabot is the
+# only thing that watches them, so it is exactly the right tool here.
+#
+# `pub` is deliberately absent. doc 01 pins every package exactly and upgrades
+# them in a monthly batch PR with licence re-checks (rule 10) and a full suite
+# run, never during feature work. A bot opening one PR per package would fight
+# that policy rather than serve it, and the licence check is the half a bot
+# cannot do.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    commit-message:
+      prefix: ci
+    labels:
+      - dependencies
