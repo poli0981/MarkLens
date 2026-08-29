@@ -119,7 +119,13 @@ jobs:
         # same reason tool/goldens/ does it: the build should not write into the
         # checkout.
         run: |
+          # 0777 because the container runs as `builder` (Flutter refuses to run
+          # as root) and this directory belongs to the runner's user. Docker
+          # Desktop on Windows papers over the mismatch, so the local command in
+          # tool/linux/README.md works without it and the first rehearsal here
+          # failed on `cp: Permission denied` after building both artefacts.
           mkdir -p out
+          chmod 0777 out
           docker run --rm \
             -v "$PWD:/src:ro" -v "$PWD/out:/out" marklens-linux bash -lc '
               set -e

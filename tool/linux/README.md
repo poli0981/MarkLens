@@ -14,6 +14,13 @@ Then, from the repo root, one build and two packagings:
 docker run --rm -v "$PWD:/src:ro" -v "$PWD/build:/out" marklens-linux bash -lc 'mkdir -p ~/work && cd /src && tar cf - --exclude=./.git --exclude=./build --exclude=./.dart_tool . | (cd ~/work && tar xf -) && cd ~/work && flutter pub get >/dev/null && flutter build linux --release && packaging/linux/build-deb.sh && packaging/linux/build-appimage.sh && cp -r build/installer /out/'
 ```
 
+**On a Linux host, make the output directory writable first** — `mkdir -p build
+&& chmod 0777 build`. The container runs as `builder` because Flutter refuses
+to run as root, and a bind-mounted directory belongs to whoever created it.
+Docker Desktop on Windows hides the mismatch, which is why the command above
+works here and the first release rehearsal failed on `cp: Permission denied`
+*after* building both artefacts successfully.
+
 The repo is copied in rather than mounted read-write, the same arrangement
 `tool/goldens/` uses and for the same reason: `flutter pub get` and `cmake`
 would otherwise leave a Linux `.dart_tool` and a Linux `build/` in the Windows
@@ -102,6 +109,15 @@ a CI runner, because mounting itself needs FUSE and neither provides it.
 APPIMAGE_EXTRACT_AND_RUN=1 xvfb-run -a build/installer/MarkLens-*.AppImage --version
 xvfb-run -a /usr/bin/marklens --version   # after dpkg -i
 ```
+
+### An accepted warning
+
+`appimagetool` prints "AppStream upstream metadata is missing, please consider
+creating it in `usr/share/metainfo/dev.poli0981.marklens.appdata.xml`". The file
+is there under the name the current AppStream specification prefers —
+`.metainfo.xml` — and `appdata.xml` is the legacy spelling appimagetool still
+looks for. Shipping a second copy under the old name to silence an outdated
+check would be the wrong trade.
 
 What none of this covers is the clean-VM run (doc 15, S3): file dialogs, the
 icon in a real file manager, double-clicking a `.md`, and whether the AppImage
