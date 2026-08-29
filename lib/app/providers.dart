@@ -60,6 +60,13 @@ export 'package:marklens/app/session_link.dart'
     show SessionLink, sessionLinkProvider;
 export 'package:marklens/app/settings_link.dart'
     show AppSettingsController, settingsProvider;
+// The font stacks, so the reader can name the bundled families without
+// reaching past this door. Compile-time constants rather than app state, for
+// the same reason `appVersion` is re-exported rather than wrapped in a
+// provider - and the alternative was widening the architecture test's
+// two-URI allowlist to dodge the door that already exists.
+export 'package:marklens/app/theme/typography.dart'
+    show monoFallback, monoFamily, sansFallback, sansFamily;
 export 'package:marklens/app/update_banner.dart'
     show
         LastUpdateCheck,

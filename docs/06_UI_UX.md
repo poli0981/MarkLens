@@ -213,6 +213,37 @@ many colours is a reading surface that fights the document. The Material
 `ColorScheme` is derived *from* these rather than beside them, so a Material
 default cannot appear next to a token colour and look almost right.
 
+### Typography — wired at M4
+
+The tokens stayed at eight and typography did **not** join them: colours are a
+`ThemeExtension` every widget reads, while the two font stacks are compile-time
+constants in `app/theme/typography.dart`, re-exported through
+`app/providers.dart` so `features/` can name them through the door it already
+has. Widening the architecture test's two-URI allowlist would have worked too,
+and was rejected — the door exists.
+
+| | Family | Below it |
+|---|---|---|
+| UI and body | `Noto Sans` | `Noto Sans JP`, then the platform's own |
+| Code, inline code, raw front-matter | `JetBrains Mono` | `Noto Sans JP`, then the platform's own |
+
+Before M4 `AppTheme` set no `fontFamily` at all, so the entire app inherited
+whatever the platform supplied — the charter-principle-1 hole the bundled fonts
+exist to close (doc 01). The `monoFamily` stack replaced three byte-identical
+`fontFamily: 'monospace'` literals in `features/`;
+`test/architecture/no_font_literal_test.dart` stops a fourth.
+
+**The fallbacks carry the promise**, not the families. The bundled Japanese face
+is a JIS X 0208 subset, so a rarer kanji, a non-Latin non-Japanese script, or an
+emoji resolves below the bundled set — which is exactly what doc 01 means by
+"system-font fallback stays enabled". `Noto Sans JP` is named explicitly rather
+than left to the system for the opposite reason: naming it is the whole point of
+bundling it.
+
+`Noto Sans JP` is also in the *mono* fallback. A Japanese comment or string
+inside a fenced block is ordinary, JetBrains Mono has no kana, and a code block
+is where alignment is most load-bearing.
+
 **Contrast is asserted, not judged.** `test/app/reader_tokens_test.dart`
 computes the WCAG ratios for every pairing that occurs on screen, in both
 themes: AAA (7:1) for body text on the reading surface, AA (4.5:1) for

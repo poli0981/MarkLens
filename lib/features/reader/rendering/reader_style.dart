@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
+import 'package:marklens/app/providers.dart';
 import 'package:marklens/app/theme/reader_tokens.dart';
 
 /// Turns the doc 06 tokens into the renderer's style sheet.
@@ -26,8 +27,8 @@ abstract final class ReaderStyle {
         );
 
     final code = TextStyle(
-      fontFamily: 'monospace',
-      fontFamilyFallback: const <String>['Courier New', 'monospace'],
+      fontFamily: monoFamily,
+      fontFamilyFallback: monoFallback,
       fontSize: baseFontSize * 0.85,
       height: 1.45,
       color: tokens.fg,

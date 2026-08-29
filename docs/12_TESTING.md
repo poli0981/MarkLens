@@ -33,6 +33,21 @@
    filesystem — every fixture is a literal, since a golden that embeds
    `Directory.systemTemp` differs between the dev machine and the runner.
 
+   **That font claim was re-checked at M4 and held**, which was not the
+   expectation. Bundling three families and setting `fontFamily` on both themes
+   looked certain to re-bless all five images. It changed nothing: a widget test
+   renders `Noto Sans`, `JetBrains Mono` and a deliberately invented family name
+   to *identical* widths, because `flutter test` does not load the fonts
+   `pubspec.yaml` declares — every family resolves to the test font. Measured
+   before the change and confirmed after it, in the container.
+
+   The consequence matters more for the renderer goldens than for these: a
+   golden that is supposed to prove Vietnamese and Japanese render correctly
+   proves nothing at all unless it loads the real fonts itself, with a
+   `FontLoader`. Loading them globally would make every layout golden
+   font-dependent, so it belongs in the renderer golden file rather than in a
+   suite-wide `flutter_test_config.dart`.
+
    **Renderer goldens** — torture pages, the ones this section was originally
    about. **Still unwritten**, but no longer blocked: the fonts landed at M4
    with doc 01's size decision closed, so `pubspec.yaml` now declares all three

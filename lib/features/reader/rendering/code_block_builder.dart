@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
 import 'package:markdown/markdown.dart' as md;
+import 'package:marklens/app/providers.dart';
 import 'package:marklens/app/theme/reader_tokens.dart';
 import 'package:marklens/core/markdown/mdx_sanitizer.dart';
 import 'package:marklens/core/markdown/raw_block_rewriter.dart';
@@ -277,8 +278,8 @@ class _Body extends StatelessWidget {
           TextSpan(
             children: highlighter.spans(code: source, language: language),
             style: TextStyle(
-              fontFamily: 'monospace',
-              fontFamilyFallback: const <String>['Courier New', 'monospace'],
+              fontFamily: monoFamily,
+              fontFamilyFallback: monoFallback,
               fontSize: 13,
               height: 1.45,
               color: tokens.fg,

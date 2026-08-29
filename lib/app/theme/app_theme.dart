@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:marklens/app/theme/reader_tokens.dart';
+import 'package:marklens/app/theme/typography.dart';
 import 'package:marklens/core/models/app_settings.dart';
 
 /// Builds the two `ThemeData`s from the doc 06 tokens.
@@ -31,6 +32,12 @@ abstract final class AppTheme {
       useMaterial3: true,
       brightness: brightness,
       colorScheme: scheme,
+      // Every widget that does not ask for a family gets the bundled one, so
+      // the chrome and the document are the same typeface. Before M4 this was
+      // unset and the whole app inherited the platform default, which is the
+      // charter-principle-1 hole the fonts were bundled to close.
+      fontFamily: sansFamily,
+      fontFamilyFallback: sansFallback,
       scaffoldBackgroundColor: tokens.bg,
       dividerColor: tokens.border,
       extensions: <ThemeExtension<Object?>>[tokens],

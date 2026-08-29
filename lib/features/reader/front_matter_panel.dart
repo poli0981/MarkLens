@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:marklens/app/providers.dart';
 import 'package:marklens/app/theme/reader_tokens.dart';
 import 'package:marklens/core/models/app_settings.dart';
 import 'package:marklens/core/models/doc_model.dart';
@@ -166,8 +167,8 @@ class _Raw extends StatelessWidget {
       child: Text(
         raw,
         style: TextStyle(
-          fontFamily: 'monospace',
-          fontFamilyFallback: const <String>['Courier New', 'monospace'],
+          fontFamily: monoFamily,
+          fontFamilyFallback: monoFallback,
           fontSize: 13,
           height: 1.45,
           color: tokens.fg,
