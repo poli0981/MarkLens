@@ -66,6 +66,26 @@ it looks in `/usr/bin/lib/`. Anybody diagnosing this package the obvious way
 will see five missing libraries and conclude it is broken. It is not — check
 the real path, or run it.
 
+## The execute bit, which Windows cannot give you
+
+`build-deb.sh`, `build-appimage.sh` and `AppRun` are `100755` in the index, and
+they have to be set with git rather than with the filesystem:
+
+```bash
+git update-index --chmod=+x packaging/linux/build-deb.sh
+```
+
+The dev machine has `core.fileMode=false`, so `chmod +x` succeeds and records
+nothing. The first release rehearsal failed on exactly this — a fresh Linux
+checkout produced a `100644` script and the job exited 126, "Permission
+denied" — and no local run could have caught it, because every local run said
+`bash packaging/linux/build-deb.sh`, naming the interpreter and making the mode
+irrelevant. The only caller that did not name one was the workflow, and the
+workflow was the only caller that had never run.
+
+`test/repo/script_mode_test.dart` reads the mode back out of the index, which
+is the only place it is visible from here.
+
 ## Running the artefacts here
 
 The container has `xvfb`, so both artefacts can be started rather than merely
