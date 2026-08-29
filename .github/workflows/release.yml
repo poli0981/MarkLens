@@ -144,15 +144,32 @@ jobs:
         # to answer --version, and an AppImage needs FUSE to mount itself, which
         # no runner has - hence xvfb and APPIMAGE_EXTRACT_AND_RUN, both of which
         # the container carries (tool/linux/README.md).
+        #
+        # Every command is bounded and announced. The first attempt at this step
+        # hung with no output at all, which told nobody anything: a smoke check
+        # that can block is worse than no smoke check, because it costs a job
+        # slot and still reports nothing. `timeout` turns a hang into exit 124
+        # and the markers say which command reached it. stdin comes from
+        # /dev/null so nothing can sit waiting to be answered.
+        timeout-minutes: 10
         run: |
-          docker run --rm --user root -v "$PWD/out:/out:ro" marklens-linux bash -lc '
-            set -e
-            dpkg -i /out/marklens_*_amd64.deb
-            xvfb-run -a /usr/bin/marklens --version
-            export APPIMAGE_EXTRACT_AND_RUN=1
-            cp /out/MarkLens-*-x86_64.AppImage /tmp/ && chmod +x /tmp/*.AppImage
-            xvfb-run -a /tmp/MarkLens-*-x86_64.AppImage --version
-          '
+          docker run --rm --user root -v "$PWD/out:/out:ro"             marklens-linux bash -lc '
+              set -eux
+              export DEBIAN_FRONTEND=noninteractive
+              echo "::group::dpkg -i"
+              timeout 120 dpkg -i /out/marklens_*_amd64.deb < /dev/null
+              echo "::endgroup::"
+
+              echo "::group::deb --version"
+              timeout 120 xvfb-run -a /usr/bin/marklens --version < /dev/null
+              echo "::endgroup::"
+
+              echo "::group::appimage --version"
+              cp /out/MarkLens-*-x86_64.AppImage /tmp/marklens.AppImage
+              chmod +x /tmp/marklens.AppImage
+              APPIMAGE_EXTRACT_AND_RUN=1                 timeout 120 xvfb-run -a /tmp/marklens.AppImage --version                 < /dev/null
+              echo "::endgroup::"
+            '
       - uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
         with:
           name: linux

@@ -18,7 +18,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
       ca-certificates curl file git unzip xz-utils zip \
       clang cmake ninja-build pkg-config libgtk-3-dev libglu1-mesa \
       dpkg-dev fakeroot desktop-file-utils \
-      xvfb libgl1 \
+      xvfb libgl1 libgl1-mesa-dri libglx-mesa0 \
     && rm -rf /var/lib/apt/lists/*
 
 # xvfb is not decoration. A packaged GTK application cannot be started at all
@@ -27,6 +27,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # argv - so without it the only thing a build can check about its own artefacts
 # is that they are the right size. docs/12_TESTING.md's integration smoke will
 # need it too.
+#
+# libgl1-mesa-dri and libglx-mesa0 come with it: xvfb provides a display but no
+# GPU, so Flutter's Impeller backend falls back to software GL, and without a
+# Mesa DRI driver that initialisation is where the process stops rather than
+# fails. libgl1 alone is the loader, not a driver.
 
 # Flutter refuses to run as root, so the whole toolchain lives under a user.
 RUN useradd -ms /bin/bash builder
