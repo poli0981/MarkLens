@@ -627,6 +627,8 @@ artefacts. Surveyed at the close of M3:
     rather than tolerating it: registering a file type registers what that type
     looks like in Explorer and in a file manager, which is the first thing
     anyone sees of this program.
+    **Closed at M4** — `icon/marklens.svg` is the master and
+    `tool/icons/render_icon.py` generates the rest (doc 11).
   - **The bundled fonts**, on doc 01's open Noto Sans JP size question. There
     is no `fonts/` directory and no `fonts:` entry in `pubspec.yaml`, so VI/JA
     render in whatever the OS supplies — against charter principle 1. Doc 12's
