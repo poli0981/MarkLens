@@ -1,0 +1,22 @@
+#!/bin/sh
+# AppImage entry point.
+#
+# An AppImage mounts itself and runs this, so the only job here is to find the
+# real executable relative to the mount point and hand it every argument
+# untouched. $APPDIR is set by the AppImage runtime; the fallback keeps the
+# script usable on a plain extracted directory, which is how
+# `--appimage-extract` leaves it and how the build verifies it.
+#
+# `exec` matters. Without it this shell stays alive as the parent of the
+# application for the whole session, and a window manager that tracks the
+# process tree sees a shell where the program should be.
+set -e
+
+HERE="${APPDIR:-$(dirname "$(readlink -f "$0")")}"
+
+# The bundle keeps its own libraries beside the binary and finds them through
+# CMAKE_INSTALL_RPATH ($ORIGIN/lib), so LD_LIBRARY_PATH is deliberately not set:
+# adding usr/lib here would put our copies of GTK-adjacent libraries ahead of
+# the host's for every child process too, which is how an AppImage ends up
+# breaking the file dialog it just opened.
+exec "$HERE/usr/bin/marklens" "$@"

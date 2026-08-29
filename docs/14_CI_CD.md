@@ -80,8 +80,15 @@ contents: write` scoped to the publish job only.
 ## Non-negotiables
 
 Least-privilege permissions everywhere, no long-lived secrets (release uses
-the ephemeral `GITHUB_TOKEN`), SHA-pinned third-party actions, and Linux
-artifacts never built outside CI.
+the ephemeral `GITHUB_TOKEN`), SHA-pinned third-party actions **and tools**, and
+Linux artifacts never built outside CI.
+
+"And tools" was added at M4, because the release path downloads two binaries
+that no `uses:` pin covers: `appimagetool`, and the AppImage runtime that
+appimagetool fetches on its own and embeds in the artefact. Both are pinned by
+tag and verified by SHA-256 before execution (doc 11). The rule is the same one
+the actions pin expresses — nothing that runs in the workflow holding
+`contents: write` may be whatever the internet served that morning.
 
 **Goldens run only on the *pinned* ubuntu image**, not merely "on ubuntu". A
 golden is a byte comparison, so the image that checks one has to be the image

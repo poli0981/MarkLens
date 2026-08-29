@@ -240,6 +240,36 @@ by hand rather than with `dh`, and the derived list is correct.
 and `purge`. They are the user's, not the package's (doc 05) — the same answer
 the Windows uninstaller's unchecked checkbox gives.
 
+### The AppImage, and its two downloads
+
+`packaging/linux/AppRun` plus `build-appimage.sh`. The AppDir has the same shape
+the `.deb` installs, deliberately: one filesystem layout means the `AppRun` path
+and the `/usr/bin` symlink are the same relative walk, so a bug in one is a bug
+in both rather than a bug in whichever was tested less.
+
+**Two things are downloaded at build time, and only one of them is obvious.**
+`appimagetool` is fetched — and then *it* fetches a runtime from
+`type2-runtime/releases/download/**continuous**/runtime-x86_64` and welds it
+into the artefact users run. Pinning appimagetool alone closes the smaller hole
+while feeling like it closed both, in the one workflow that holds
+`contents: write`. Both are pinned by tag and verified by SHA-256 before
+execution, and `--runtime-file` is what stops the second fetch happening at all:
+
+| | Pin | Why not the default |
+|---|---|---|
+| `appimagetool` | `1.9.1` | `continuous` is a different binary week to week |
+| runtime | `20251108` | the same, and this one ends up *inside* the artefact |
+
+`APPIMAGE_EXTRACT_AND_RUN=1` is required to run appimagetool at all in a
+container or on a runner: it is itself an AppImage and mounting one needs FUSE,
+which neither provides. The same flag is how the finished artefact is smoke-run
+in the build.
+
+`AppRun` deliberately does **not** set `LD_LIBRARY_PATH`. The bundle finds its
+own libraries through `$ORIGIN/lib`, and putting them on the global search path
+would place our copies ahead of the host's for every child process too — which
+is the usual way an AppImage breaks the file dialog it has just opened.
+
 ### Why a container rather than the `ubuntu-22.04` runner
 
 Doc 14 originally specified the runner, and those images **begin deprecation on
