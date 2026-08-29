@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:marklens/app/app.dart';
+import 'package:marklens/app/license_registry.dart';
 import 'package:marklens/app/providers.dart';
 import 'package:marklens/core/cli/launch_arguments.dart';
 import 'package:marklens/core/single_instance.dart';
@@ -39,6 +40,11 @@ Future<void> main(List<String> argv) async {
   }
 
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Before anything can open the licence page. LicenseRegistry collects package
+  // licences by itself and asset licences not at all, so without this the three
+  // OFL fonts we ship would appear nowhere in the app (doc 11).
+  registerBundledFontLicenses();
 
   final configDirectory = await resolveConfigDirectory();
   final instance = SingleInstance(directory: configDirectory);

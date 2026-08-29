@@ -34,9 +34,17 @@
    `Directory.systemTemp` differs between the dev machine and the runner.
 
    **Renderer goldens** — torture pages, the ones this section was originally
-   about. **Still unwritten**, and blocked: they need the bundled fonts, and
-   `pubspec.yaml` has no `fonts:` entry despite doc 01 describing three. Doc
-   01's open Noto Sans JP size decision has to close first.
+   about. **Still unwritten**, but no longer blocked: the fonts landed at M4
+   with doc 01's size decision closed, so `pubspec.yaml` now declares all three
+   families. They are the next PR.
+
+   Note what a JA renderer golden is *also* for. The bundled Noto Sans JP is a
+   JIS X 0208 subset, and a document using a kanji outside that repertoire falls
+   through to the system font — which on a machine without one is a tofu box.
+   No behavioural test in this repo can see that, and the subset build unions in
+   every character of `lib/l10n/*.arb` and the torture corpus precisely because
+   it cannot. The JA golden is the only mechanical check that the union
+   actually held.
 
    **Both run on the ubuntu CI runner only**, and must be **generated** there
    too. For renderer goldens the reason is the bundled fonts; for the layout

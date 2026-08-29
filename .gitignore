@@ -40,6 +40,11 @@ coverage/
 # clone analyzes clean (docs/09_I18N.md).
 l10n_untranslated.json
 
+# Python bytecode from the tool/ scripts (icons, fonts). They are build tools,
+# not part of the app, and CPython caches them beside the source.
+__pycache__/
+*.pyc
+
 # flutter_test dumps four PNGs per failing golden here - the master, the test
 # render, and two diffs. They are a report about one failing run on one
 # machine, and twelve of them were committed once before anyone noticed. The

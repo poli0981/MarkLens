@@ -634,6 +634,9 @@ artefacts. Surveyed at the close of M3:
     render in whatever the OS supplies — against charter principle 1. Doc 12's
     renderer goldens are blocked behind it, and are still the only kind of
     golden this repo does not have.
+    **Closed at M4** — subset to JIS X 0208, +5.19 MiB on the artefact, with
+    the two rejected alternatives and their numbers in doc 01 and
+    `fonts/README.md`.
 - **`packaging/` is authored and wired to nothing.** The ProgId table, the
   `.desktop` entry and the MIME XML are there with their reasons; no installer
   script, `CMakeLists` or workflow reads them. That is M4's first mechanical

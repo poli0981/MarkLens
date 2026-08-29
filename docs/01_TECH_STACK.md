@@ -139,18 +139,58 @@ Notes that matter:
 
 ## Bundled fonts (identical rendering on both OSes)
 
-- **Noto Sans** (UI + body — full Vietnamese coverage)
-- **Noto Sans JP** (Japanese fallback)
-- **JetBrains Mono** (code blocks)
+- **Noto Sans** 2.015 (UI + body — full Vietnamese coverage), four faces
+- **Noto Sans JP** 2.004 (Japanese fallback), Regular and Bold
+- **JetBrains Mono** 2.304 (code blocks), Regular and Bold
 
-All OFL-1.1; license files ship in `legal/licenses/` and the About screen.
-System-font fallback stays enabled below the bundled set for emoji and rare
-scripts.
+All OFL-1.1. The licence texts ship *in the bundle* — `pubspec.yaml` lists them
+under `assets:` and `lib/app/license_registry.dart` registers them, because
+`LicenseRegistry` collects package licences by itself and asset licences not at
+all. System-font fallback stays enabled below the bundled set for emoji and
+rare scripts.
 
-**Open decision (deferred past M0):** a full Noto Sans JP is several MB and
-pushes directly against charter principle 5 ("Small — in download size").
-Subsetting, the variable font, or falling back to the system JA font are the
-options; pick one with real numbers before M4 packaging.
+### The size decision, closed at M4
+
+The open question from M0 was that a full Noto Sans JP is several MB and pushes
+directly against charter principle 5 ("Small — in download size"), with
+subsetting, the variable font and system fallback as the options, to be picked
+"with real numbers before M4 packaging". The numbers:
+
+| | Subset shipped | Upstream |
+|---|---:|---:|
+| Noto Sans, four faces | 738,840 | 2,538,272 |
+| Noto Sans JP, two faces | 4,365,812 | 9,189,476 |
+| JetBrains Mono, two faces | 338,976 | 551,728 |
+| **Total** | **5,443,628** | **12,279,476** |
+
+**Subsetting wins**, to the JIS X 0208 repertoire for Japanese and to
+Latin + Latin Extended Additional for the rest. A clean Windows release build
+goes from 33,910,661 to 39,352,134 bytes: **+5.19 MiB, +16.0%**.
+
+The repertoire is derived rather than listed — every two-byte Shift-JIS
+sequence, decoded — so it is 6,879 characters where a `U+4E00..U+9FFF` block
+range would have been 20,992. Both subsets also union in every character in
+`lib/l10n/*.arb` and the torture corpus, because a missing kanji renders a tofu
+box and no test in this repo could see it.
+
+**Accepted gaps**, in the shape S1c's highlighter gaps are recorded: kanji
+outside JIS X 0208 fall through to the system font, as do scripts other than
+Latin and Japanese, and emoji. That is the intended fallback behaviour rather
+than a defect — the bundle exists so that Vietnamese and Japanese *documents*
+render identically on both OSes, not so that MarkLens ships every script in
+Unicode.
+
+**Two alternatives were measured and rejected**, and the numbers are in
+`fonts/README.md` so revisiting is cheap: JIS level 1 only saves 2.03 MB but
+re-opens exactly the OS-dependent rendering the bundle removes, and dropping the
+JP Bold face saves 2.21 MB at the cost of synthesised bold in every Japanese
+heading. The first loses on charter priority — principle 1 outranks principle 5.
+The second is a quality judgement rather than a correctness one, and is the one
+to revisit first if the artefact ever has to shrink.
+
+The variable font was not measured: `noto-cjk`'s JP variable is 8.1 MB against
+4.5 MB for the static Regular, and its whole benefit is weights between 100 and
+900 that a two-weight design does not use.
 
 ## Version pinning policy
 

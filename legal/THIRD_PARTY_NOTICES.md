@@ -22,11 +22,26 @@ whenever a pin moves (CLAUDE.md rule 10). Full license texts live in
 | url_launcher | External links | BSD-3-Clause | 6.3.2 |
 | args | CLI parsing | BSD-3-Clause | 2.7.0 |
 | path (Dart team) | Path resolution | BSD-3-Clause | 1.9.1 |
-| Noto Sans / Noto Sans JP | UI & body fonts | SIL OFL 1.1 | — |
-| JetBrains Mono | Code font | SIL OFL 1.1 | — |
+| Noto Sans | UI & body font (subset, four faces) | SIL OFL 1.1 | 2.015 |
+| Noto Sans JP | Japanese fallback (subset, two faces) | SIL OFL 1.1 | 2.004 |
+| JetBrains Mono | Code font (subset, two faces) | SIL OFL 1.1 | 2.304 |
 
-Only one of the two S1 candidates ships in a release; both are listed while
-the bake-off is open. All rows are now frozen to the exact version in the committed `pubspec.lock`.
+All package rows are frozen to the exact version in the committed
+`pubspec.lock`. The S1 bake-off closed at M0 and `markdown_widget` does not
+ship, so it is not listed; doc 01 records why it lost.
+
+The three fonts are **subsets** built by `tool/fonts/build_fonts.py` from the
+pinned upstream releases in `fonts/README.md`, and their versions above are what
+each font's own `name` table reports. Copyright, likewise from the fonts
+themselves:
+
+- Noto Sans — Copyright 2022 The Noto Project Authors
+- Noto Sans JP — © 2014–2021 Adobe (http://www.adobe.com/)
+- JetBrains Mono — Copyright 2020 The JetBrains Mono Project Authors
+
+The OFL permits subsetting and requires the licence to travel with the font;
+`legal/licenses/OFL-1.1-*.txt` ship inside the bundle for that reason, not as
+documentation.
 
 ## License compatibility notes
 
@@ -42,7 +57,12 @@ the bake-off is open. All rows are now frozen to the exact version in the commit
 ## Release gate
 
 - [ ] Every shipped package appears above with a verified license and version
-- [ ] `legal/licenses/` contains the full text for each license family
-      (BSD-3-Clause, MIT, Apache-2.0, SIL OFL 1.1)
+- [x] `legal/licenses/` contains the full text for each license family
+      (BSD-3-Clause, MIT, Apache-2.0, SIL OFL 1.1) — added at M4, with
+      `legal/licenses/README.md` recording which package each family text was
+      copied from
 - [ ] About → Third-party lists this table with pinned versions
-- [ ] Font OFL texts ship alongside the bundled font files
+- [x] Font OFL texts ship alongside the bundled font files — in the bundle
+      itself via `pubspec.yaml` `assets:`, and surfaced through
+      `lib/app/license_registry.dart`; asserted by
+      `test/app/license_registry_test.dart`
