@@ -40,6 +40,12 @@ coverage/
 # clone analyzes clean (docs/09_I18N.md).
 l10n_untranslated.json
 
+# flutter_test dumps four PNGs per failing golden here - the master, the test
+# render, and two diffs. They are a report about one failing run on one
+# machine, and twelve of them were committed once before anyone noticed. The
+# reference images under test/goldens/goldens/ ARE source and stay tracked.
+test/goldens/failures/
+
 # ── Symbolication / obfuscation ───────────────────────────────────────────
 app.*.symbols
 app.*.map.json

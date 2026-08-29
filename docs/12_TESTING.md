@@ -50,6 +50,13 @@
    Flutter pin, and the two commands — one to rewrite the references, one to
    check them the way CI does. Use it; do not regenerate on Windows.
 
+   **`test/goldens/goldens/` is source; `test/goldens/failures/` is not.**
+   `flutter_test` dumps four PNGs per failing golden into the second — master,
+   test render, and two diffs — and twelve of them were committed at M2 and
+   survived two milestones, because a binary file nobody opens is invisible in
+   review. `failures/` is gitignored, and the `analyze` job fails if anything
+   under it is tracked.
+
    Mechanics: the tag is declared in `dart_test.yaml`,
    each golden file starts with `@Tags(['golden'])` — the CI job self-activates
    by grepping for exactly that literal — and the split is

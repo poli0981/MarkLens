@@ -46,6 +46,19 @@ jobs:
           flutter gen-l10n
           git diff --exit-code -- lib/l10n/gen \
             || { echo "::error::lib/l10n/gen is stale — run flutter gen-l10n"; exit 1; }
+      - name: No golden failure dumps are tracked
+        # flutter_test writes four PNGs per failing golden into
+        # test/goldens/failures/. Twelve of them were committed once and nobody
+        # noticed for two milestones, because a binary file nobody opens is
+        # invisible in review. .gitignore stops the next one reaching the index;
+        # this stops it reaching main if it does (docs/12_TESTING.md).
+        run: |
+          tracked="$(git ls-files test/goldens/failures)"
+          if [ -n "$tracked" ]; then
+            echo "$tracked"
+            echo "::error::Golden failure dumps are build output, not source. Run: git rm -r --cached test/goldens/failures"
+            exit 1
+          fi
 
   test:
     name: test (${{ matrix.os }})
