@@ -3,7 +3,9 @@ description: "A fast, lightweight, read-only Markdown viewer."
 publish_to: "none"
 
 # Single source of truth for the app version (docs/11_PACKAGING_UPDATE.md).
-# Surfaced via package_info_plus in About and the update check.
+# Mirrored by hand into lib/app/version.dart, because --version has to answer
+# before a Flutter binding exists; test/app/version_test.dart fails if the two
+# ever drift.
 version: 0.1.0+1
 
 environment:
@@ -51,7 +53,6 @@ dependencies:
   # doc 02's allowlist for core/ — direct since M3, when link routing needed to
   # resolve a relative path against a document's directory on both platforms.
   path: 1.9.1
-  package_info_plus: 10.2.1
   intl: 0.20.3
 
 dev_dependencies:

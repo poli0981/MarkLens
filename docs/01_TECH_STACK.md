@@ -100,7 +100,6 @@ moves (rule 10).
 | url_launcher | External links in system browser | BSD-3 | `6.3.2` |
 | args | CLI argument parsing | BSD-3 | `2.7.0` |
 | path (Dart team) | Path joining/normalizing in `core/` (link routing) | BSD-3 | `1.9.1` |
-| package_info_plus | Version for About/update check | BSD-3 | `10.2.1` — see note |
 | flutter_localizations + intl | i18n | SDK / BSD-3 | SDK / `0.20.3` |
 
 Notes that matter:
@@ -113,11 +112,15 @@ Notes that matter:
   `Image.network` and `NetworkImage` are therefore banned outside the
   remote-image path, and `test/architecture/no_network_test.dart` enforces it
   (doc 10, invariant 4).
-- **`package_info_plus` is held at `10.x` by `file_picker`.** `file_picker`
-  12 requires `win32 ^6.3.0` via `windows_file_picker`, while
-  `package_info_plus` 8.0.3–9.x requires `win32 ^5.5.3`. They cannot coexist;
-  `package_info_plus 10.2.1` is the version that resolves. Recorded because
-  the next person to bump either package will hit the same wall.
+- **`file_picker` 12 drags a `win32 ^6.3.0` chain** through
+  `windows_file_picker`, and that chain has already ruled two packages out of
+  this tree. `syntax_highlight` 0.5.0 cannot resolve against it at all (it
+  needs `win32 ^5.x` via `super_native_extensions` → `device_info_plus`), and
+  `package_info_plus` could only be held at `10.x` for the same reason —
+  8.0.3–9.x want `win32 ^5.5.3`. `package_info_plus` has since been **removed**
+  (M4: nothing imported it; the version is the hand-kept constant in
+  `lib/app/version.dart`), so the wall is one package less crowded, but it is
+  still there. Anything reaching for `win32` transitively will hit it.
 - **`file_picker` 12 changed shape.** `FilePicker.pickFiles(...)` is a static
   returning `Future<List<PlatformFile>>` directly; 11 and earlier went through
   `FilePicker.platform` and returned a nullable result object. `lockParentWindow`

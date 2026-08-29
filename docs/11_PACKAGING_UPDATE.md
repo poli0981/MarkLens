@@ -79,8 +79,23 @@ this.
 ## Versioning
 
 SemVer `x.y.z`, git tag `vx.y.z`, single source of truth in `pubspec.yaml`
-(`version: x.y.z+build`), surfaced via `package_info_plus` in About and the
-update check.
+(`version: x.y.z+build`).
+
+**Not via `package_info_plus`**, which this document said until M4 and which
+was never true in the shipped code. `--version` has to answer and exit before a
+Flutter binding exists — starting the engine to print a string would make the
+fastest path the slowest — so the number is a hand-kept `const` in
+`lib/app/version.dart`, read by About, by the update banner and by `--version`
+alike. `test/app/version_test.dart` reads `pubspec.yaml` and fails if the two
+drift, which is what keeps "hand-kept" from meaning "wrong".
+`package_info_plus` was a pinned dependency that nothing imported, and it was
+removed at M4 rather than wired up.
+
+**Three places have to agree at a release**, and only two of them are covered by
+that test: `pubspec.yaml`, `lib/app/version.dart`, and the **git tag**. The
+release workflow checks the third (doc 14), because `UpdateService` parses
+`tag_name` and nothing else — a tag that does not parse as SemVer after
+stripping `v` makes the update check a silent no-op for every user.
 
 ## Update check (no auto-update)
 
