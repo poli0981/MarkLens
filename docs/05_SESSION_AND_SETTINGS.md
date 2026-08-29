@@ -12,6 +12,31 @@ bootstrap in `main.dart` and the resulting `Directory` is injected into
 Useful side effect: both stores take a temp directory in tests without any
 mocking, which is exactly what doc 12 asks of them.
 
+### What that expands to, and what decides it
+
+| | Path | Decided by |
+|---|---|---|
+| Windows | `%APPDATA%\poli0981\MarkLens\marklens\` | `CompanyName` and `ProductName` in `windows/runner/Runner.rc` |
+| Linux | `$XDG_DATA_HOME/dev.poli0981.marklens/marklens/` | `APPLICATION_ID` in `linux/CMakeLists.txt` |
+
+**Both are load-bearing strings that look cosmetic**, and the Windows pair
+especially so. `path_provider_windows` reads the executable's VERSIONINFO
+resource and joins `CompanyName` with `ProductName`; editing either — for how
+Explorer labels the program, say — silently relocates every user's session and
+settings, and the old files are not migrated because nothing knows they were
+ever there.
+
+That happened once, on purpose, at M4. Correcting `ProductName` from `marklens`
+to `MarkLens` and `CompanyName` from `dev.poli0981` to `poli0981` moved the
+directory from `%APPDATA%\dev.poli0981\marklens\marklens\`. **Nothing was
+stranded, because there was no release** — the repo had zero tags — and that is
+precisely why the change belonged before v1.0.0 rather than after it. After a
+release the same edit is a data-loss bug wearing a typographical disguise.
+
+`test/repo/product_strings_test.dart` pins both strings and says why, so the
+next person to improve how the program is labelled finds out what else they are
+changing.
+
 ## Write discipline
 
 - Atomic: write `<name>.json.tmp` → fsync → rename over the original. Both

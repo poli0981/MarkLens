@@ -77,8 +77,8 @@ memory.
 |---|---|---|
 | `windows/CMakeLists.txt` `BINARY_NAME` | `marklens` | the file on disk, `Exec=`, the `.iss` |
 | `Runner.rc` `OriginalFilename` | `marklens.exe` | Explorer's details pane |
-| `Runner.rc` `ProductName` / `FileDescription` / `InternalName` | `MarkLens` | Explorer's Description column, the "Open with" list, UAC |
-| `Runner.rc` `CompanyName` | `poli0981` | Explorer's details pane |
+| `Runner.rc` `ProductName` / `FileDescription` / `InternalName` | `MarkLens` | Explorer's Description column, the "Open with" list, UAC — `ProductName` is **the other half of the Windows config path** |
+| `Runner.rc` `CompanyName` | `poli0981` | Explorer's details pane — **and half of the Windows config path** |
 | `Runner.rc` `LegalCopyright` | `Copyright (C) 2026 poli0981. GPL-3.0-only; see LICENSE.` | Explorer's details pane |
 | `windows/runner/main.cpp` window title | `MarkLens` | the taskbar, alt-tab |
 | `linux/runner/my_application.cc` (×2) | `MarkLens` | the title bar, the window list |
@@ -92,6 +92,15 @@ so the taskbar, alt-tab and Explorer's Description column all showed a file
 name where a program's name belongs. Renaming the *product* must never rename
 the *binary*: `associations.iss` hard-codes `{app}\marklens.exe` and the
 `.desktop` hard-codes `Exec=marklens %F`.
+
+**`CompanyName` and `ProductName` decide where `session.json` lives.**
+`path_provider_windows` reads the executable's VERSIONINFO and joins the two to
+form `%APPDATA%\CompanyName\ProductName`, so M4's corrections moved the config
+directory from `dev.poli0981\marklens` to `poli0981\MarkLens`. Nothing was
+stranded because there was no release to strand — and that is exactly why it
+belonged before the tag. Doc 05 carries the detail and
+`test/repo/product_strings_test.dart` pins both strings, so the next person
+improving a label finds out what else they are changing.
 
 **`LegalCopyright` said "All rights reserved" until M4**, which the template
 writes and which is a false licence statement on a GPL-3.0-only binary — sitting

@@ -97,6 +97,27 @@ void main() {
     });
   });
 
+  test('the two strings that decide where settings live are pinned', () {
+    // CompanyName and ProductName are not only what Explorer shows.
+    // path_provider_windows reads the executable's VERSIONINFO and joins them
+    // to build %APPDATA%\<CompanyName>\<ProductName>, which is where
+    // session.json and settings.json live (doc 05). Editing either to improve a
+    // label silently relocates every user's state, and nothing migrates the old
+    // files because nothing knows they existed.
+    //
+    // They moved once, deliberately, at M4 - before any release, which is the
+    // only time this is safe. After v1.0.0 the same edit is data loss.
+    final rc = _read('windows/runner/Runner.rc');
+    expect(
+      <String>[_rcValue(rc, 'CompanyName'), _rcValue(rc, 'ProductName')],
+      <String>['poli0981', 'MarkLens'],
+      reason:
+          r'Changing these moves %APPDATA%\CompanyName\ProductName, and '
+          'with it every existing session and settings file. If that is '
+          'intended, doc 05 has to say so and the release notes have to warn.',
+    );
+  });
+
   test('the copyright line does not claim rights this licence gives away', () {
     // "All rights reserved" is the Flutter template's, and on a GPL-3.0-only
     // binary it is a false licence statement sitting inside the exe's own
