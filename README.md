@@ -5,7 +5,7 @@
 **Platforms:** Windows 10+ · Ubuntu 22.04+ (Linux desktop)
 **Stack:** Flutter 3.47.1 stable / Dart 3.13.1 · **License:** GPL-3.0-only
 **Suite version:** 1.0 · **Date:** 2026-08-23
-**Status:** M0 complete (2026-08-23) — pins locked, spikes S1/S2/S4/S5 passed, S3 deferred to the release checklist. M1 (usable daily) is next.
+**Status:** M0–M3 complete (2026-08-28) — every feature in the charter's v1 scope exists. M4 (packaging, artefacts, v1.0.0) is in progress; S3's clean-VM run lands with it.
 
 MarkLens opens `.md` / `.mdx` files or whole folders and renders them
 faithfully — nothing more. It is a *viewer*, the way SumatraPDF is a viewer:

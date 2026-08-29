@@ -185,18 +185,20 @@ false `missing` badges during atomic saves.
 | **M1 — usable daily** ✅ | Open file/folder, sidebar + tabs, pipeline + reader, session restore, single instance + CLI | done 2026-08-26 |
 | **M2 — comfortable** ✅ | Watch/auto-reload, outline, Ctrl+F, zoom, themes, front-matter panel — plus the first visual pass's eight defects and the repo's first goldens | done 2026-08-27 |
 | **M3 — complete** ✅ | The six items this row used to name, **and the six more the row did not** — images, drag & drop, the update check, About/licenses/log export, Open Recent, and doc 06's edge states. See "M3 build order" | done 2026-08-28 |
-| **M4 — shipped** | Packaging both OSes — including wiring M3's file-association assets into the installers — A-1 reusable workflow, bundled fonts + renderer goldens, docs polish, v1.0.0 | 1 wk |
+| **M4 — shipped** | Packaging both OSes — including wiring M3's file-association assets into the installers — the icon, bundled fonts + renderer goldens, `release.yml`, docs polish, v1.0.0 | 4 wk |
 
 ~8.5 focused weeks; solo-dev buffer applies. M1 is the "start living in it"
 gate — daily use from M1 onward is the real QA.
 
-**Two of these estimates were written before the milestone was surveyed, and
-both were wrong the same way.** M2 turned out to be mostly wiring, and M3's row
-named half its features — its 1.5 wk became 3 wk once the tree was read against
-docs 02–11. M4's "1 wk" has had the same treatment from nobody: it is the
-number this table was born with. Survey it before committing to it, and note
-that it already inherits two blockers (the icon, the bundled fonts) that are
-decisions rather than work — see "Start M4 here".
+**Three of these estimates were written before the milestone was surveyed, and
+all three were wrong the same way.** M2 turned out to be mostly wiring, and M3's
+row named half its features — its 1.5 wk became 3 wk once the tree was read
+against docs 02–11. M4's "1 wk" was the number this table was born with, and it
+has now had the survey the other two got too late: **4 wk**, of which roughly
+3.5 is coded work and the rest is the clean-VM run, the read-only audit and the
+third visual pass, none of which a PR can do. The reasoning is in "M4 build
+order" below. The pattern is the point — an unsurveyed estimate in this table
+has been wrong every single time, by 2× and then by 4×.
 
 ## M1 build order
 
@@ -639,6 +641,7 @@ artefacts. Surveyed at the close of M3:
   Action A-1 — contributing `reusable-flutter-ci.yml` and
   `reusable-flutter-release.yml` to `poli0981/.github` — is also untouched, and
   doc 14 says the inline jobs were written lift-and-shift-ready for it.
+  **A-1 is now dropped from v1** — see "M4 build order", decision 5.
 - **S3's clean-VM run** has been deferred since M0 and lands here, where it was
   always scheduled. What is genuinely VM-only is unchanged: font rendering for
   VI/JA, the file dialogs, and whether the AppImage launches.
@@ -653,7 +656,140 @@ artefacts. Surveyed at the close of M3:
 
 The merge was a fast-forward, so `main`'s history stays one commit per feature.
 Doc 13's squash rule was waived for M2 and M3 on that basis — **ask again
-before M4's first PR** rather than assuming a third time.
+before M4's first PR** rather than assuming a third time. **Asked and answered:**
+rebase again for M4, and doc 13 now records what three milestones in a row
+actually mean.
+
+## M4 build order
+
+Sixteen PRs, dependency-ordered. Written down before any of them cite it, which
+is the one habit from M3 worth keeping unchanged.
+
+What the survey found, which the one-line roadmap entry did not convey: **M4 is
+not "wiring" the way M2 and M3 were.** Those milestones kept finding features
+that were already built and had no caller. M4 finds the opposite — three things
+that were deliberately *not* built, each parked behind a decision nobody had
+made, plus a release pipeline that exists only as prose in doc 14. There is no
+missing caller to find. Everything here has to be authored.
+
+### Five decisions taken before the first PR
+
+- **The bundled Noto Sans JP is subset**, to kana + JIS X 0208 + CJK
+  punctuation + fullwidth forms. Doc 01 has held this question open since M0 and
+  asked for "real numbers before M4 packaging"; the number and the accepted
+  coverage gap close in doc 01 §Bundled fonts, beside the highlighter's accepted
+  gaps, in the same shape. The subsetting command and the upstream version it
+  ran against are recorded in `fonts/README.md`, because a subset that cannot be
+  reproduced will silently change glyph coverage the next time somebody
+  regenerates it — and every renderer golden with it.
+- **The icon is derived from one master**, which the maintainer supplies.
+  `icon/icon-512.ico` is a proper multi-size ICO but its largest frame is 256
+  (the format's maximum), so despite the name it cannot produce the 512 a Linux
+  hicolor set wants. A committed master plus a recorded regeneration command
+  makes the icon set a *derivative* rather than nine binary files nobody can
+  account for — the `tool/goldens/` arrangement, one directory over.
+- **Rebase-merge, as M2 and M3.** Doc 13 records why, and now also records that
+  three milestones in a row is a pattern rather than three exceptions. Ask again
+  at M5 rather than assuming a fourth time.
+- **M4 ends at a draft release.** `release.yml` always produces a draft; the
+  publish is a human click after the clean-VM smoke, the read-only audit and the
+  third visual pass. That is doc 14's own split, and it is the only arrangement
+  in which the manual half of the release checklist has to actually happen.
+- **Action A-1 is dropped from v1.** Doc 14's house pattern is a thin caller stub
+  delegating to `poli0981/.github`; that repo is real and public, carries twelve
+  `reusable-*.yml`, and has no Dart/Flutter stack. Contributing one is an
+  ops-repo project, not a MarkLens release blocker, and doing it *before* this
+  repo has ever run a release workflow would mean designing a reusable interface
+  against zero experience of the thing it abstracts. The inline workflows stay,
+  and doc 14 says so rather than continuing to describe a shape the repo does
+  not have.
+
+### Two findings that changed the release design
+
+Both are about the ground moving under a doc that was correct when written.
+
+1. **`ubuntu-22.04` runners begin deprecation on 2026-09-17 and are fully
+   unsupported by 2027-04-17.** Doc 14 builds the Linux artefacts there
+   "deliberately the floor image", and the charter's platform floor is Ubuntu
+   22.04 — so following doc 14 literally gives a release pipeline with a seven-
+   month life. The artefacts are therefore built **in an `ubuntu:22.04`
+   container on an `ubuntu-24.04` runner**: the glibc floor becomes a property
+   of an image we pin rather than of a runner label somebody else retires, and
+   it reuses the container arrangement `tool/goldens/` already proved.
+2. **`-latest` labels drift, and goldens are the thing that notices.**
+   `ubuntu-latest` is 24.04 today, ubuntu-26.04 images already exist, and
+   `windows-latest` has just moved to a VS2026 image. The `golden` job runs on
+   `ubuntu-latest` while `tool/goldens/Dockerfile` says `FROM ubuntu:24.04`; the
+   day those diverge, every golden fails byte-for-byte at once with nothing
+   wrong in the layout. That failure has already happened once here, generated
+   on Windows against an Ubuntu reference, and it was rasterization rather than
+   fonts. So `golden` pins `ubuntu-24.04`, the Windows release job pins
+   `windows-2025`, and a test asserts the job image and the Dockerfile agree.
+
+### The order
+
+1. **This section**, plus the roadmap estimate it corrects and doc 13's
+   merge-strategy answer.
+2. **The stray golden failures.** Twelve `test/goldens/failures/*.png` are
+   tracked, from the M2 settings PR; they are Flutter's failure dump, not source.
+   Deleted, gitignored, and the `golden` job gains a `git status --porcelain`
+   check — which catches the more valuable case too, a golden that was never
+   regenerated.
+3. **`package_info_plus` leaves.** Pinned since M0, imported nowhere: the version
+   comes from `lib/app/version.dart` because `--version` runs before a Flutter
+   binding exists. Rule 10 runs in both directions, so doc 01 and the notices
+   lose a row in the same PR — and doc 11 §Versioning stops claiming a mechanism
+   the app has never used.
+4. **CI: the image pins, the lockfile cache, and A-1's removal from doc 14.**
+   Plus `test/repo/pin_agreement_test.dart` — the Flutter pin lives in four
+   places (`ci.yml`, `watch-observation.yml`, `tool/goldens/Dockerfile`, doc 01)
+   and doc 01's "must never disagree" is a rule nobody can enforce by reading.
+   It becomes a check. `test/repo/` is a new family, deliberately outside
+   `test/architecture/`: those tests are about the app's boundaries, these are
+   about the repo's agreements with itself.
+5. **The icon**, per the decision above. Blocked until the master lands.
+6. **The product strings.** `Runner.rc` says `marklens` in lowercase and both
+   window titles do too, so the taskbar, alt-tab and Explorer's Description
+   column all say something that is not the program's name. `LegalCopyright`
+   says "All rights reserved" on a GPL-3.0-only binary, which is not a
+   capitalisation nit but a false licence statement inside the exe. And
+   `StartupWMClass=marklens` has never matched: GTK takes the WM class from
+   `g_get_prgname()`, which `my_application.cc` sets to `APPLICATION_ID`.
+7. **The fonts** — bytes and licensing only, no pixel changes. Including
+   `legal/licenses/`, which the notices' own release gate has required since M0
+   and which does not exist, and an explicit `LicenseRegistry.addLicense` for
+   the OFL: `showLicensePage` collects package licences automatically and asset
+   licences not at all, so without it the three fonts we ship appear nowhere.
+8. **The typography seam**, separately, so that the golden diff has exactly one
+   cause. Three identical `fontFamily: 'monospace'` literals collapse into one
+   source reached through `app/providers.dart` — the door features are already
+   allowed, rather than a widened architecture-test allowlist.
+9. **The renderer goldens** doc 12 has described since M0 and been blocked on
+   since M1. The VI and JA pages are the whole justification for the fonts, and
+   the only mechanical check that the JP subset covers what the app actually
+   renders.
+10. **The Inno main script and the portable zip.**
+11. **The `.deb`.**
+12. **The AppImage.**
+13. **`release.yml`**, `SHA256SUMS`, and the draft.
+14. **The integration smoke** doc 12 lists as release-blocking and nobody wrote.
+15. **The README and everything that still says M0.**
+16. **v1.0.0** — the version in its three places, and the CHANGELOG.
+
+### What only a person can do
+
+Unchanged from what "Start M4 here" inherited, and none of it is a PR: S3's
+clean-VM run, the Process Monitor / `strace` read-only pass, the third visual
+pass, and the listings.
+
+One checklist item deserves naming now rather than being discovered on release
+day. **"Update banner fires from the previous version" cannot be met at
+v1.0.0**, because there is no previous version — this repo has zero tags. The
+honest options are to defer the item to v1.0.1, to publish a throwaway earlier
+tag purely to have something to upgrade *from*, or to run a locally-built binary
+with a lower `appVersion` against the real published release. Whichever is
+chosen, the checklist should say so; an item that cannot be ticked is worse than
+one that is deferred, because it teaches everyone to skip the list.
 
 ## Release checklist (every tag)
 

@@ -26,10 +26,19 @@ and `dart format --set-exit-if-changed .` gate every PR (doc 14).
 - Conventional commits (`feat(reader): …`, `fix(watch): …`); squash-merge
   with a clean title — **except where a milestone decides otherwise**. That
   rule is paired with the next one, "PRs small enough to review in one
-  sitting", and `main`'s history is already one commit per feature; M2 and M3
-  were both rebase-merged for that reason, recorded in doc 15's build-order
-  sections. Decided per milestone rather than settled, so the two are not
-  allowed to drift silently.
+  sitting", and `main`'s history is already one commit per feature; M2, M3 and
+  **M4** were all rebase-merged for that reason, recorded in doc 15's
+  build-order sections. Decided per milestone rather than settled, so the two
+  are not allowed to drift silently.
+
+  Three milestones in a row is a pattern rather than three exceptions, and it
+  is worth naming what the pattern actually is: this rule was written for a
+  team where a PR is a conversation that leaves a messy branch behind. Here a
+  PR is one maintainer's finished piece of work, already split so that each
+  commit is a feature. Squashing would *lose* structure rather than impose it.
+  The rule stays as written — with the waiver asked for again at M5, not
+  assumed a fourth time — because the day a PR does arrive as a messy branch,
+  the default should be the one that cleans it.
 - PR checklist mirrors the DoD (doc 12); PRs stay small enough to review in
   one sitting.
 
