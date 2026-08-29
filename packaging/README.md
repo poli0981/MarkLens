@@ -4,16 +4,17 @@ What the M4 installers reference. Authored at M3 so that M4 is `iscc` and
 `dpkg-deb` wiring against files that already exist, rather than authoring and
 wiring at once — see `docs/15_SPIKES_ROADMAP.md`, "M3 build order", decision 2.
 
-**Nothing here runs yet.** No workflow, no `CMakeLists` and no installer script
-reads these files today. They are the *contents* of the file-association half
-of doc 11; the mechanism is M4's. The icons below are the exception — they are
-generated rather than authored, and the command that generates them is real.
+**The Windows half runs.** `windows/marklens.iss` is the installer script and
+`#include`s `associations.iss`; `windows/build.ps1` builds it and the portable
+zip together. The icons are generated rather than authored. The Linux side is
+still assets waiting for the `.deb` and the AppImage.
 
 | File | Consumed by | Registers |
 |---|---|---|
-| `windows/associations.iss` | Inno Setup script (M4) | ProgId `MarkLens.Document` for `.md` and `.mdx` |
-| `linux/dev.poli0981.marklens.desktop` | `.deb` postinst, AppImage (M4) | `MimeType=text/markdown;text/mdx;` |
-| `linux/marklens-mime.xml` | `.deb` postinst (M4) | `text/markdown` and `text/mdx` glob patterns |
+| `windows/marklens.iss` | `windows/build.ps1` → `iscc` | the installer itself |
+| `windows/associations.iss` | `#include`d by `marklens.iss` | ProgId `MarkLens.Document` for `.md` and `.mdx` |
+| `linux/dev.poli0981.marklens.desktop` | `.deb` postinst, AppImage (still M4) | `MimeType=text/markdown;text/mdx;` |
+| `linux/marklens-mime.xml` | `.deb` postinst (still M4) | `text/markdown` and `text/mdx` glob patterns |
 
 ## The icon, which used to be deliberately not here
 

@@ -13,10 +13,15 @@
 ; uninvited" (doc 11). MDX files are usually part of a site someone is building
 ; in an editor, and a viewer that quietly becomes their handler is a viewer
 ; they uninstall.
+;
+; GroupDescription is {cm:FileAssociations}, a custom message the including
+; script defines. Inno ships no standard heading for associations, and the
+; nearest one - {cm:AdditionalIcons}, "Additional shortcuts:" - would put two
+; association checkboxes under a heading about shortcuts.
 Name: "assocmd";  Description: "{cm:AssocFileExtension,MarkLens,.md}";  \
-    GroupDescription: "{cm:AdditionalIcons}";  Flags: checkedonce
+    GroupDescription: "{cm:FileAssociations}";  Flags: checkedonce
 Name: "assocmdx"; Description: "{cm:AssocFileExtension,MarkLens,.mdx}"; \
-    GroupDescription: "{cm:AdditionalIcons}";  Flags: unchecked
+    GroupDescription: "{cm:FileAssociations}";  Flags: unchecked
 
 [Registry]
 ; The ProgId itself. Always written, whichever tasks are chosen: it is what

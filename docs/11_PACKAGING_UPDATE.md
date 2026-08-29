@@ -133,7 +133,8 @@ is how About and the applications menu end up describing different programs.
 
 ## Windows (Inno Setup)
 
-- Per-user (`PrivilegesRequired=lowest`), install under `%LocalAppData%`.
+- Per-user (`PrivilegesRequired=lowest`), install under
+  `{localappdata}\Programs\MarkLens`.
 - File association: ProgId `MarkLens.Document` for `.md` and `.mdx` as an
   *optional task* (checked by default for `.md`, unchecked for `.mdx` —
   don't steal MDX from editors uninvited). "Open with" registration always.
@@ -141,6 +142,56 @@ is how About and the applications menu end up describing different programs.
   land in the existing window.
 - Uninstall leaves the config dir; the uninstaller offers an optional
   "remove settings and session" checkbox.
+
+### Wired at M4
+
+`packaging/windows/marklens.iss` is the script; `associations.iss` is
+`#include`d into it. `packaging/windows/build.ps1` produces both Windows
+artefacts, so CI and the dev machine run the same steps:
+
+```powershell
+pwsh packaging/windows/build.ps1
+```
+
+It reads the version from `pubspec.yaml` and passes it in as
+`/DAppVersion=x.y.z`; the `.iss` refuses to compile without it. That keeps the
+version in one place — the `+build` suffix is stripped, because it is pub
+metadata and means nothing to an installer.
+
+**`AppId` is `{D40DDB92-8D60-4FA4-8D52-4C526834C355}`, generated once at M4 and
+permanent.** Windows keys an installation on that GUID: change it and the next
+release installs *beside* the old one instead of over it, with its own
+uninstall entry, and the old entry can no longer remove anything.
+`test/repo/inno_script_test.dart` pins it.
+
+**`iscc` is preinstalled on `windows-2025`** and installs per-user on a dev box
+with `winget install JRSoftware.InnoSetup` — under `%LOCALAPPDATA%\Programs`,
+not Program Files, and never on `PATH`, which `build.ps1` knows. If it is
+missing the script still produces the portable zip and warns loudly rather than
+failing: a release that silently made one artefact where two were expected is
+the failure worth avoiding.
+
+First compile: clean, no warnings, `MarkLens-Setup-0.1.0.exe` at 15,502,502
+bytes beside an 18,496,045-byte portable zip. What that does **not** prove is
+anything about installing — associations, the uninstaller's checkbox, the
+Explorer icon on a machine with no icon cache. Those are the clean-VM run
+(doc 15, S3), and no amount of compiling substitutes for them.
+
+Two things a user will meet that the installer cannot fix, and the README
+should say so before they do:
+
+- **Windows still asks "How do you want to open this?" once.** An installer can
+  register a handler but cannot write the `UserChoice` hash that makes it the
+  default — that is deliberately reserved for a choice the user makes.
+- **The installer is unsigned**, so SmartScreen warns on download. Code signing
+  is money and a process; it is a post-1.0 question (doc 15).
+
+### The portable zip
+
+The same bundle, no registration, `MarkLens-x.y.z-win-x64-portable.zip`. Config
+still goes to `%APPDATA%` (doc 05), so a portable copy and an installed one
+share one session rather than fighting over two — which is the honest behaviour
+when the entire state is two small files.
 
 ## Linux
 
