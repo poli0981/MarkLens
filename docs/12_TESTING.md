@@ -48,18 +48,31 @@
    font-dependent, so it belongs in the renderer golden file rather than in a
    suite-wide `flutter_test_config.dart`.
 
-   **Renderer goldens** — torture pages, the ones this section was originally
-   about. **Still unwritten**, but no longer blocked: the fonts landed at M4
-   with doc 01's size decision closed, so `pubspec.yaml` now declares all three
-   families. They are the next PR.
+   **Renderer goldens** — `test/goldens/renderer_golden_test.dart`, written at
+   M4 once the fonts landed. Eleven pages: Vietnamese and Japanese (light and
+   dark, and one with the front-matter panel open), the GFM headings, lists,
+   fenced-code and tables pages, the footnote/raw-HTML page, the MDX
+   placeholders, and deep nesting. Each is the real `ReaderView` at the doc 06
+   reading column, 760×720.
 
-   Note what a JA renderer golden is *also* for. The bundled Noto Sans JP is a
-   JIS X 0208 subset, and a document using a kanji outside that repertoire falls
-   through to the system font — which on a machine without one is a tofu box.
-   No behavioural test in this repo can see that, and the subset build unions in
-   every character of `lib/l10n/*.arb` and the torture corpus precisely because
-   it cannot. The JA golden is the only mechanical check that the union
-   actually held.
+   **This file loads the fonts itself, and has to.** `flutter test` does not
+   load the families `pubspec.yaml` declares, so a renderer golden taken without
+   a `FontLoader` is a picture of the substituted test font — it would pass, and
+   prove nothing. Scoped to the one file rather than a suite-wide
+   `flutter_test_config.dart`, which would make the layout goldens
+   font-dependent for no benefit.
+
+   The Japanese page earns its place twice over. The bundled Noto Sans JP is a
+   JIS X 0208 subset, and a kanji outside that repertoire falls through to the
+   system font — a tofu box on a machine without one. No behavioural test can
+   see that; `tool/fonts/build_fonts.py` unions every character of this corpus
+   into the subset precisely because it cannot, and this golden is the only
+   mechanical check that the union held.
+
+   The two i18n fixtures were added with them:
+   `test/fixtures/torture/i18n/{vietnamese,japanese}.md`. The corpus carried
+   only a handful of VI/JA characters before, scattered through the GFM
+   pages — enough to exercise a decoder, not enough to photograph a typeface.
 
    **Both run on the ubuntu CI runner only**, and must be **generated** there
    too. For renderer goldens the reason is the bundled fonts; for the layout

@@ -9,10 +9,21 @@ python tool/fonts/build_fonts.py
 
 The script downloads pinned upstream releases into `build/fonts-src/`
 (gitignored), verifies each by SHA-256, subsets them, and writes the eight files
-beside this README. `test/app/fonts_test.dart` asserts that what is declared and
-what is on disk agree **in both directions** — a declared file that is missing
-throws only when something asks for that weight, and an undeclared file here
-ships in every artefact forever.
+beside this README.
+
+**The output is byte-reproducible**, and that took one fix to be true.
+`fontTools` stamps `head.modified` on save unless told not to, so two runs a
+second apart produced eight files of identical length differing in three bytes
+each — the timestamp and the checksums that follow it. That is 5.4 MB of binary
+churn in git for a rebuild that changed no glyph, in files no reviewer can read
+a diff of. `TTFont(..., recalcTimestamp=False)` fixes it; setting the
+subsetter's own `recalc_timestamp` option is *not* enough, because the font
+object does the stamping. Verified by running the build twice and comparing.
+
+`test/app/fonts_test.dart` asserts that what is declared and what is on disk
+agree **in both directions** — a declared file that is missing throws only when
+something asks for that weight, and an undeclared file here ships in every
+artefact forever.
 
 ## Sources, pinned
 
@@ -55,8 +66,11 @@ that are not part of the standard.
 **Both** also union in every character in `lib/l10n/*.arb` and the whole
 `test/fixtures/torture/` corpus. A subset missing one kanji that `app_ja.arb`
 uses renders a tofu box, and nothing in this repo could see it; including the
-sources directly is cheaper than hoping. Measured: the app and corpus use 423
+sources directly is cheaper than hoping. Measured: the app and corpus use 519
 characters outside the Latin ranges, and **zero** JIS level-2 kanji.
+
+`test/goldens/renderer_golden_test.dart` is what actually checks the union held
+— its Japanese page would show a tofu box for any kanji the subset missed.
 
 ## The numbers doc 01 asked for
 

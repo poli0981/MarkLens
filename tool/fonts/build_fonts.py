@@ -225,7 +225,14 @@ def _subset(source: str, destination: str, unicodes: set[str]) -> None:
     options.recalc_bounds = True
     options.drop_tables = ["FFTM"]
 
-    font = TTFont(source)
+    # recalcTimestamp on the *font*, not just the subsetter option: TTFont
+    # defaults to True and stamps head.modified on save, so two runs a second
+    # apart produce files of identical length that differ in three bytes - the
+    # timestamp and the checksums that follow from it. That is 5.4 MB of binary
+    # churn in git for a rebuild that changed no glyph, in files no reviewer can
+    # read a diff of. Measured, after setting only the subsetter option and
+    # finding the output still differed.
+    font = TTFont(source, recalcTimestamp=False)
     subsetter = subset.Subsetter(options=options)
     subsetter.populate(unicodes=[ord(c) for c in unicodes])
     subsetter.subset(font)

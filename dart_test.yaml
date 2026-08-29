@@ -1,11 +1,23 @@
-# docs/12_TESTING.md. Golden tests render with the bundled fonts and are only
-# stable on the ubuntu CI runner, so they are tagged and excluded elsewhere:
+# docs/12_TESTING.md. Two kinds of golden live under the one tag, and the
+# difference is worth knowing before changing either.
 #
-#   flutter test --exclude-tags golden   # local + windows CI
-#   flutter test                         # ubuntu CI, goldens included
+# Layout goldens (test/goldens/shell_chrome_golden_test.dart) pin geometry and
+# are font-free: `flutter test` substitutes its own fixed-width test font for
+# every family, including families that do not exist, so declaring the bundled
+# fonts in pubspec.yaml changed none of these images.
+#
+# Renderer goldens (test/goldens/renderer_golden_test.dart) pin typography and
+# therefore load the bundled fonts themselves, with a FontLoader. Without that
+# they would be pictures of the test font, and would pass while proving nothing.
+#
+# Both are byte comparisons and both are only stable on the pinned ubuntu image
+# (docs/14_CI_CD.md), so they are tagged and excluded elsewhere:
+#
+#   flutter test --exclude-tags "golden || watcher-live"   # local + windows CI
+#   flutter test --exclude-tags watcher-live               # ubuntu CI
 tags:
   golden:
-    description: Renderer golden tests. Ubuntu CI runner only.
+    description: Layout and renderer goldens. Pinned ubuntu image only.
   watcher-live:
     description: >-
       Touches the real filesystem and sleeps in real time to observe what the
