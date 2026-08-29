@@ -10,9 +10,9 @@
   coexist. The binding contract either way: this file, `.fvmrc` (if it
   exists), and the `flutter-version` input in doc 14 must never disagree.
   **Since M4 that is checked rather than promised.** The version is written out
-  in four places — `ci.yml`, `watch-observation.yml`, `tool/goldens/Dockerfile`
-  and this line — and `test/repo/pin_agreement_test.dart` fails if any of them
-  drifts. A rule that spans four files and is kept by memory is a rule that is
+  in five places — `ci.yml`, `release.yml`, `watch-observation.yml`, the two
+  `tool/*/Dockerfile`s and this line — and
+  `test/repo/pin_agreement_test.dart` fails if any of them drifts. A rule that spans four files and is kept by memory is a rule that is
   already broken somewhere nobody has looked.
 - **Lints:** `very_good_analysis` **10.3.0** (strict — mirrors the TS-strict
   habit), tuned in `analysis_options.yaml`. An `11.0.0-rc.1` exists;

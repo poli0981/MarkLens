@@ -65,17 +65,48 @@ unmeasured threshold during a release week is not a gate, it is an accident.
 
 ## Release (tag `v*`)
 
-`release.yml` caller → reusable release workflow; `permissions:
-contents: write` scoped to the publish job only.
+`.github/workflows/release.yml`. Four jobs, `permissions: contents: read` at
+the top and `contents: write` on the publish job alone.
 
-1. `windows-latest`: `flutter build windows --release` → Inno (`iscc`) →
-   installer + portable zip.
-2. `ubuntu-22.04` (deliberately the floor image, doc 11):
-   `flutter build linux --release` → `appimagetool` → AppImage; `dpkg-deb`
-   → `.deb`.
-3. Aggregate job: `SHA256SUMS`, draft GitHub Release with all artifacts and
-   generated notes; publishing the draft stays a manual click after the
-   clean-VM smoke test (doc 15 checklist).
+1. **`verify-version`** — `pubspec.yaml`, `lib/app/version.dart` and the tag
+   must agree. First, and cheap, because it guards the most expensive mistake
+   in the pipeline: `UpdateService` parses `tag_name` and nothing else, so a tag
+   that does not SemVer-parse after stripping `v` makes the update check a
+   silent no-op for every user, and the code path simply returns `null` rather
+   than failing anywhere visible.
+2. **`windows` (`windows-2025`)** — `packaging/windows/build.ps1`: a release
+   build, `iscc`, and the portable zip. The script *warns* rather than failing
+   when `iscc` is absent, which is right on a dev machine and wrong here, so the
+   job asserts both files exist and are not suspiciously small.
+3. **`linux` (`ubuntu-24.04`, building inside `ubuntu:22.04`)** — one release
+   build, packaged twice by `build-deb.sh` and `build-appimage.sh`, then both
+   artefacts are *started* under `xvfb` rather than merely weighed. See doc 11
+   for why the floor is a container image rather than a runner label.
+4. **`publish`** — the four artefact names are checked against doc 11's table,
+   `SHA256SUMS` is written with names and no paths so `sha256sum -c` works
+   wherever somebody downloaded them, and `gh release create --draft` opens a
+   draft.
+
+**`gh` rather than a fourth third-party action.** It is preinstalled and
+`GITHUB_TOKEN`-authenticated, and it removes one SHA to maintain from the blast
+radius of the only job in the repository that can write to it (doc 13 prefers
+fifty lines of our own over a dependency).
+
+**`workflow_dispatch` builds everything and publishes nothing.** The repo had no
+tags when this was written, so the first run of a release workflow must not be
+the real one; a dispatch run reaches every build job, uploads all four
+artefacts, and never enters `publish`.
+
+**The draft is not a formality.** `UpdateService` ignores drafts *and*
+prereleases, so nothing reaches a user until a person publishes — after the
+clean-VM smoke and the read-only audit (doc 15). The corollary is the one to
+remember on release day: ticking "prerelease" on v1.0.0 does not delay the
+update banner, it disables it permanently.
+
+`test/repo/workflow_lint_test.dart` holds the shape: every action pinned to a
+40-character SHA, every workflow with an explicit `permissions:` block, every
+job with a timeout, no `-latest` image anywhere in `release.yml`, and **exactly
+one** job in the repository declaring `contents: write`.
 
 ## Non-negotiables
 

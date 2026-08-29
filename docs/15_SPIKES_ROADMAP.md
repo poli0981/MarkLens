@@ -799,12 +799,24 @@ one that is deferred, because it teaches everyone to skip the list.
 
 ## Release checklist (every tag)
 
-- [ ] Version bumped in `pubspec.yaml`; CHANGELOG section written
+- [ ] Version bumped in `pubspec.yaml` **and `lib/app/version.dart`**; CHANGELOG
+      section written
 - [ ] Full suite green incl. goldens + integration on both runners
 - [ ] vi/ja translations complete for new strings
 - [ ] Read-only audit: write-grep test green + manual ProcMon/strace pass (doc 10)
+- [ ] **`release.yml` rehearsed via `workflow_dispatch`** and all four artefacts
+      downloaded from the run — the pipeline's first execution should never be
+      the tagged one
 - [ ] Artifacts smoke-tested on clean Windows VM + Ubuntu 24.04 VM
 - [ ] `SHA256SUMS` verified; release notes written; tag `vx.y.z`; publish draft
+- [ ] **The published release is not marked prerelease.** `UpdateService`
+      ignores drafts and prereleases alike, so the tick that looks like caution
+      disables the update banner permanently rather than delaying it
 - [ ] Listings updated: SoftHarbor entry + poli0981.dev portfolio
 - [ ] Post-release: file association behaves after real install; update
-      banner fires from the previous version
+      banner fires from the previous version — **and at v1.0.0 there is no
+      previous version to fire from.** Pick one and write it down: defer the
+      item to v1.0.1, publish a throwaway earlier tag, or run a locally built
+      binary with a lower `appVersion` against the real release. The third is
+      cheapest and honest. An item that cannot be ticked teaches everyone to
+      skip the list

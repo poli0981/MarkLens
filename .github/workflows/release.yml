@@ -1,0 +1,216 @@
+# docs/14_CI_CD.md, docs/11_PACKAGING_UPDATE.md.
+#
+# Builds the four artefacts of doc 11's table and opens a **draft** release.
+# Publishing stays a human click, after the clean-VM smoke and the read-only
+# audit (docs/15, release checklist). Nothing here publishes anything.
+#
+# The repo has no tags, so the first run of this workflow must not be the real
+# one: `workflow_dispatch` builds everything and uploads it, and only a `v*` tag
+# reaches the job that can write to the repository.
+name: release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+# Read at the top; exactly one job below raises it, and
+# test/repo/workflow_lint_test.dart asserts that stays true.
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  FLUTTER_VERSION: "3.47.1"
+
+jobs:
+  verify-version:
+    name: verify-version
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    outputs:
+      version: ${{ steps.check.outputs.version }}
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - name: pubspec, version.dart and the tag agree
+        id: check
+        # The cheapest possible guard against the most expensive possible
+        # mistake. UpdateService parses `tag_name` and nothing else: a tag that
+        # does not parse as SemVer after stripping `v` makes the update check a
+        # silent no-op for every user, forever, and the failure is invisible
+        # because the code path simply returns null (docs/11).
+        run: |
+          pubspec="$(sed -n 's/^version:[[:space:]]*\([0-9]\+\.[0-9]\+\.[0-9]\+\).*/\1/p' pubspec.yaml)"
+          dart_const="$(sed -n "s/^const String appVersion = '\([0-9.]\+\)';/\1/p" lib/app/version.dart)"
+          echo "pubspec.yaml      $pubspec"
+          echo "lib/app/version   $dart_const"
+          if [ -z "$pubspec" ] || [ "$pubspec" != "$dart_const" ]; then
+            echo "::error::pubspec.yaml and lib/app/version.dart disagree."
+            exit 1
+          fi
+          if [ "${{ github.event_name }}" = "push" ]; then
+            tag="${GITHUB_REF_NAME#v}"
+            echo "git tag           $tag"
+            if [ "$tag" != "$pubspec" ]; then
+              echo "::error::Tag $GITHUB_REF_NAME does not match version $pubspec."
+              exit 1
+            fi
+          fi
+          echo "version=$pubspec" >> "$GITHUB_OUTPUT"
+
+  windows:
+    name: windows (windows-2025)
+    needs: verify-version
+    # Pinned, not `windows-latest`: that label moved to a VS2026 image recently
+    # and will move again. Inno Setup 6 is preinstalled here, under
+    # Program Files (x86), which packaging/windows/build.ps1 knows.
+    runs-on: windows-2025
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - name: Installer and portable zip
+        shell: pwsh
+        # build.ps1 warns and continues if iscc is missing rather than failing,
+        # which is right on a dev machine and wrong here - a release that
+        # quietly produced one artefact where two were expected is the failure
+        # this whole workflow exists to prevent. So the job checks for both.
+        run: |
+          ./packaging/windows/build.ps1
+          $expected = @(
+            "build/installer/MarkLens-Setup-${{ needs.verify-version.outputs.version }}.exe",
+            "build/installer/MarkLens-${{ needs.verify-version.outputs.version }}-win-x64-portable.zip"
+          )
+          foreach ($file in $expected) {
+            if (-not (Test-Path $file)) { throw "missing artefact: $file" }
+            if ((Get-Item $file).Length -lt 1MB) { throw "suspiciously small: $file" }
+          }
+      - uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
+        with:
+          name: windows
+          path: build/installer/*
+          if-no-files-found: error
+
+  linux:
+    name: linux (ubuntu:22.04 container)
+    needs: verify-version
+    # The *runner* is 24.04 and the *build* happens in an ubuntu:22.04
+    # container, which is the charter's platform floor. Doc 14 used to name the
+    # ubuntu-22.04 runner; those images begin deprecation on 2026-09-17, so
+    # pinning the image instead makes the glibc floor something this repo owns
+    # (tool/linux/README.md).
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - name: Build the container
+        run: docker build -t marklens-linux tool/linux
+      - name: .deb and AppImage
+        # The bundle is built once and packaged twice, so the two artefacts are
+        # the same binary. The repo is copied in rather than mounted rw for the
+        # same reason tool/goldens/ does it: the build should not write into the
+        # checkout.
+        run: |
+          mkdir -p out
+          docker run --rm \
+            -v "$PWD:/src:ro" -v "$PWD/out:/out" marklens-linux bash -lc '
+              set -e
+              mkdir -p ~/work && cd /src
+              tar cf - --exclude=./.git --exclude=./build --exclude=./.dart_tool . \
+                | (cd ~/work && tar xf -)
+              cd ~/work
+              flutter pub get >/dev/null
+              flutter build linux --release
+              packaging/linux/build-deb.sh
+              packaging/linux/build-appimage.sh
+              cp build/installer/* /out/
+            '
+      - name: The artefacts start
+        # Weighing a file proves nothing. A GTK application needs a display even
+        # to answer --version, and an AppImage needs FUSE to mount itself, which
+        # no runner has - hence xvfb and APPIMAGE_EXTRACT_AND_RUN, both of which
+        # the container carries (tool/linux/README.md).
+        run: |
+          docker run --rm --user root -v "$PWD/out:/out:ro" marklens-linux bash -lc '
+            set -e
+            dpkg -i /out/marklens_*_amd64.deb
+            xvfb-run -a /usr/bin/marklens --version
+            export APPIMAGE_EXTRACT_AND_RUN=1
+            cp /out/MarkLens-*-x86_64.AppImage /tmp/ && chmod +x /tmp/*.AppImage
+            xvfb-run -a /tmp/MarkLens-*-x86_64.AppImage --version
+          '
+      - uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
+        with:
+          name: linux
+          path: out/*
+          if-no-files-found: error
+
+  publish:
+    name: publish (draft)
+    needs: [verify-version, windows, linux]
+    # Only on a tag. A workflow_dispatch run builds and uploads everything and
+    # touches nothing in the repository, which is what makes it safe to use as
+    # the rehearsal this workflow needs before its first real run.
+    if: github.event_name == 'push'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    # The only elevated job in the repository.
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
+        with:
+          path: artefacts
+          merge-multiple: true
+      - name: The four artefacts doc 11 names, and no others
+        # Their names are load-bearing: the README tells people what to
+        # download, and SHA256SUMS is only checkable if the names match.
+        run: |
+          cd artefacts
+          version="${{ needs.verify-version.outputs.version }}"
+          expected="MarkLens-Setup-$version.exe
+          MarkLens-$version-win-x64-portable.zip
+          MarkLens-$version-x86_64.AppImage
+          marklens_${version}_amd64.deb"
+          actual="$(ls -1 | sort)"
+          if [ "$(echo "$expected" | sed 's/^ *//' | sort)" != "$actual" ]; then
+            echo "::error::artefact set does not match doc 11's table"
+            echo "expected:"; echo "$expected" | sed 's/^ */  /'
+            echo "found:";    echo "$actual"   | sed 's/^/  /'
+            exit 1
+          fi
+      - name: SHA256SUMS
+        # Names only, no paths, so `sha256sum -c SHA256SUMS` works in whatever
+        # directory somebody downloaded them into.
+        run: |
+          cd artefacts
+          sha256sum -- * | sort -k2 > SHA256SUMS
+          sha256sum -c SHA256SUMS
+          cat SHA256SUMS
+      - name: Draft release
+        # gh rather than a fourth third-party action: it is preinstalled and
+        # GITHUB_TOKEN-authenticated, and it removes one SHA to maintain from
+        # the blast radius of the only job that can write here (doc 13 prefers
+        # our own code over a dependency).
+        #
+        # --draft is not a convenience. UpdateService ignores drafts and
+        # prereleases, so nothing reaches users until a person publishes - after
+        # the clean-VM smoke and the read-only audit (docs/15).
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" \
+            --draft \
+            --generate-notes \
+            --title "MarkLens ${{ needs.verify-version.outputs.version }}" \
+            artefacts/*
+          echo "::notice::Draft created. Publishing is manual, and the release must not be marked prerelease - UpdateService ignores both."

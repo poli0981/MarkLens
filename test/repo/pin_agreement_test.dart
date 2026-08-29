@@ -20,8 +20,13 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 
 /// Files that name the Flutter version, and how to find it in each.
+///
+/// Five, now that there is a release workflow. That is the point: doc 01 says
+/// they "must never disagree", and five files kept in step by memory is a rule
+/// that is already broken somewhere nobody has looked.
 const Map<String, String> _flutterPinSources = <String, String>{
   '.github/workflows/ci.yml': r'FLUTTER_VERSION:\s*"([\d.]+)"',
+  '.github/workflows/release.yml': r'FLUTTER_VERSION:\s*"([\d.]+)"',
   '.github/workflows/watch-observation.yml': r'flutter-version:\s*"([\d.]+)"',
   'tool/goldens/Dockerfile': r'ARG\s+FLUTTER_VERSION=([\d.]+)',
   'tool/linux/Dockerfile': r'ARG\s+FLUTTER_VERSION=([\d.]+)',
