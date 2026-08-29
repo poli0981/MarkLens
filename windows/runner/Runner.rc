@@ -89,13 +89,13 @@ BEGIN
     BEGIN
         BLOCK "040904e4"
         BEGIN
-            VALUE "CompanyName", "dev.poli0981" "\0"
-            VALUE "FileDescription", "marklens" "\0"
+            VALUE "CompanyName", "poli0981" "\0"
+            VALUE "FileDescription", "MarkLens" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "marklens" "\0"
-            VALUE "LegalCopyright", "Copyright (C) 2026 dev.poli0981. All rights reserved." "\0"
+            VALUE "InternalName", "MarkLens" "\0"
+            VALUE "LegalCopyright", "Copyright (C) 2026 poli0981. GPL-3.0-only; see LICENSE." "\0"
             VALUE "OriginalFilename", "marklens.exe" "\0"
-            VALUE "ProductName", "marklens" "\0"
+            VALUE "ProductName", "MarkLens" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

@@ -2,13 +2,28 @@
 Type=Application
 Name=MarkLens
 GenericName=Markdown Viewer
+GenericName[vi]=Trình xem Markdown
+GenericName[ja]=Markdown ビューアー
 Comment=A fast, lightweight, read-only Markdown viewer
+Comment[vi]=Trình xem Markdown nhanh, nhẹ, chỉ đọc
+Comment[ja]=軽快で読み取り専用の Markdown ビューアー
 Exec=marklens %F
 Icon=marklens
 Terminal=false
 Categories=Office;Viewer;TextEditor;Utility;
 Keywords=markdown;md;mdx;viewer;reader;
-StartupWMClass=marklens
+Keywords[vi]=markdown;md;mdx;xem;tài liệu;
+Keywords[ja]=markdown;md;mdx;ビューアー;文書;
+
+# The file is named for the application ID, not the binary, and StartupWMClass
+# matches it. GTK derives the X11 WM_CLASS res_name - and the Wayland app_id -
+# from g_get_prgname(), which linux/runner/my_application.cc sets to
+# APPLICATION_ID (dev.poli0981.marklens). The old StartupWMClass=marklens
+# therefore never matched anything, and the symptom is a second, generic
+# taskbar entry instead of the window grouping under this entry.
+# test/repo/product_strings_test.dart asserts the two stay equal; `xprop
+# WM_CLASS` on a real session is what confirms the premise (doc 15, S3).
+StartupWMClass=dev.poli0981.marklens
 
 # %F, not %U and not %f. %F is a list of local paths, which is exactly what the
 # CLI takes (`docs/11_PACKAGING_UPDATE.md`: "marklens README.md docs/ works

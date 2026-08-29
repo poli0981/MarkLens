@@ -11,7 +11,7 @@ of doc 11; the mechanism is M4's.
 | File | Consumed by | Registers |
 |---|---|---|
 | `windows/associations.iss` | Inno Setup script (M4) | ProgId `MarkLens.Document` for `.md` and `.mdx` |
-| `linux/marklens.desktop` | `.deb` postinst, AppImage (M4) | `MimeType=text/markdown;text/mdx;` |
+| `linux/dev.poli0981.marklens.desktop` | `.deb` postinst, AppImage (M4) | `MimeType=text/markdown;text/mdx;` |
 | `linux/marklens-mime.xml` | `.deb` postinst (M4) | `text/markdown` and `text/mdx` glob patterns |
 
 ## What is deliberately not here: the icon

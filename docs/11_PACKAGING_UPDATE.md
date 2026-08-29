@@ -21,7 +21,7 @@ authored at M3 and live in `packaging/`; the **wiring** is M4's, because
 | Asset | Wired by | Registers |
 |---|---|---|
 | `packaging/windows/associations.iss` | the Inno Setup script | ProgId `MarkLens.Document`, per-user (`HKCU`) |
-| `packaging/linux/marklens.desktop` | `.deb` postinst, AppImage | `MimeType=text/markdown;text/mdx;` |
+| `packaging/linux/dev.poli0981.marklens.desktop` | `.deb` postinst, AppImage | `MimeType=text/markdown;text/mdx;` |
 | `packaging/linux/marklens-mime.xml` | `.deb` postinst | the two MIME types and their globs |
 
 Three things those files settled that this document did not say:
@@ -46,6 +46,62 @@ shipping nothing. Recorded like the bundled fonts (doc 01): an open decision,
 not an oversight — and one an installer *forces*, because registering a file
 type registers what that type looks like in Explorer.
 
+## Product strings
+
+One table, because five files name this program and none of them is Dart. The
+installer's `AppName`, the ProgId's friendly name and the `.desktop` `Name` all
+read from here, so PR-time drift between them is a lookup rather than a
+memory.
+
+| Where | Value | Seen by |
+|---|---|---|
+| `windows/CMakeLists.txt` `BINARY_NAME` | `marklens` | the file on disk, `Exec=`, the `.iss` |
+| `Runner.rc` `OriginalFilename` | `marklens.exe` | Explorer's details pane |
+| `Runner.rc` `ProductName` / `FileDescription` / `InternalName` | `MarkLens` | Explorer's Description column, the "Open with" list, UAC |
+| `Runner.rc` `CompanyName` | `poli0981` | Explorer's details pane |
+| `Runner.rc` `LegalCopyright` | `Copyright (C) 2026 poli0981. GPL-3.0-only; see LICENSE.` | Explorer's details pane |
+| `windows/runner/main.cpp` window title | `MarkLens` | the taskbar, alt-tab |
+| `linux/runner/my_application.cc` (×2) | `MarkLens` | the title bar, the window list |
+| `linux/CMakeLists.txt` `APPLICATION_ID` | `dev.poli0981.marklens` | GTK's WM class / Wayland app id |
+| `.desktop` file name and `StartupWMClass` | `dev.poli0981.marklens` | the applications menu, taskbar grouping |
+| `.desktop` `Name` | `MarkLens` | the applications menu |
+
+**The binary is lowercase and the product is not**, and the Flutter template
+made them the same string by accident. Through M3 everything said `marklens`,
+so the taskbar, alt-tab and Explorer's Description column all showed a file
+name where a program's name belongs. Renaming the *product* must never rename
+the *binary*: `associations.iss` hard-codes `{app}\marklens.exe` and the
+`.desktop` hard-codes `Exec=marklens %F`.
+
+**`LegalCopyright` said "All rights reserved" until M4**, which the template
+writes and which is a false licence statement on a GPL-3.0-only binary — sitting
+in the exe's own metadata, where no reader of `LICENSE` will ever look for it.
+
+**`StartupWMClass` had never matched anything.** GTK derives the X11 `WM_CLASS`
+res_name, and the Wayland `app_id`, from `g_get_prgname()`, which
+`my_application.cc` sets to `APPLICATION_ID`. The template's
+`StartupWMClass=marklens` therefore addressed a class no window advertises, and
+the symptom is not an error but a second, generic entry in the taskbar instead
+of grouping under the desktop entry. The file is renamed to match its
+application id, which is the modern convention and makes `StartupWMClass`
+redundant on Wayland rather than merely correct. It is inference from the GTK
+contract until `xprop WM_CLASS` says so on a real session — which is an S3
+clean-VM item (doc 15), not an assertion this repo gets to make from Windows.
+
+**The native window title cannot be an ARB key** (CLAUDE.md rule 4), and this
+is the one honest exception. The Windows runner creates its window and starts a
+message loop before Dart exists — the same ordering that made `--version` need
+`exit()` at M1 — so there is no localisation delegate to ask. It is a product
+name rather than a sentence, so nothing is lost; the exception is recorded here
+rather than left as a silent gap in rule 4's coverage.
+
+**The `.desktop` `Comment` and `GenericName` *are* translated**, because those
+land in the applications menu and are read by users in their own language. They
+cannot be ARB keys either — nothing Dart renders them — so they are copied from
+`aboutTagline`, and `test/repo/product_strings_test.dart` asserts the copy still
+matches `app_vi.arb` and `app_ja.arb`. Copying is fine; copying without a check
+is how About and the applications menu end up describing different programs.
+
 ## Windows (Inno Setup)
 
 - Per-user (`PrivilegesRequired=lowest`), install under `%LocalAppData%`.
@@ -63,7 +119,7 @@ type registers what that type looks like in Explorer.
   glibc compatibility. Known limitation, documented in the README: desktop
   integration/file association for AppImages requires the user's
   integration tooling; the `.deb` is the integrated path.
-- **.deb**: installs `/usr/bin/marklens`, `marklens.desktop`
+- **.deb**: installs `/usr/bin/marklens`, `dev.poli0981.marklens.desktop`
   (`MimeType=text/markdown;`), icon set, and runs
   `update-desktop-database` in postinst. Depends on GTK 3 per Flutter Linux
   requirements.
