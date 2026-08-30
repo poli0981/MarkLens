@@ -896,10 +896,14 @@ one that is deferred, because it teaches everyone to skip the list.
       ignores drafts and prereleases alike, so the tick that looks like caution
       disables the update banner permanently rather than delaying it
 - [ ] Listings updated: SoftHarbor entry + poli0981.dev portfolio
-- [ ] Post-release: file association behaves after real install; update
-      banner fires from the previous version — **and at v1.0.0 there is no
-      previous version to fire from.** Pick one and write it down: defer the
-      item to v1.0.1, publish a throwaway earlier tag, or run a locally built
-      binary with a lower `appVersion` against the real release. The third is
-      cheapest and honest. An item that cannot be ticked teaches everyone to
-      skip the list
+- [ ] Post-release: file association behaves after real install
+- [ ] Update banner fires from the previous version — **deferred to v1.0.1 by
+      decision, and not because it is awkward.** At v1.0.0 the banner cannot
+      appear: `releases/latest` returns the version already running, and
+      `SemVer.isNewerThan` is false for an equal version. That is the behaviour
+      the maintainer wants — silent on the first release, visible from the
+      second — and it is already asserted twice, by
+      `test/core/update_service_test.dart` (`1.0.0` is not newer than `1.0.0`)
+      and by `test/app/update_and_about_test.dart` ("is completely silent when
+      up to date"). The first release for which this item is meaningful is
+      v1.0.1, and it is a real check then rather than a box nobody could tick

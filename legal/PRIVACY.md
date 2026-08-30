@@ -1,6 +1,6 @@
 # MarkLens Privacy Policy
 
-_Last updated: {{RELEASE_DATE}}_
+_Last updated: 2026-08-29_
 
 MarkLens is a local, offline application. **It collects nothing.**
 

@@ -117,6 +117,17 @@ if [ -z "$depends" ]; then
   exit 1
 fi
 
+# The two libraries shlibdeps cannot see, because Flutter dlopen()s them rather
+# than linking them: they are absent from the ELF NEEDED table, so nothing that
+# reads the binary can find them.
+#
+# Without these the package installs cleanly on a fresh Ubuntu and then dies at
+# launch with `Couldn't open libEGL.so.1` and a core dump. It went unnoticed on
+# the build container because libgtk-3-dev pulls both in; it was found by
+# installing this .deb on a bare ubuntu:26.04 and running it, which is the only
+# arrangement in which the derived list is the *whole* list.
+depends="$depends, libegl1, libgles2"
+
 installed_size="$(du -ks "$staging" | cut -f1)"
 
 sed -e "s|@VERSION@|$version|" \

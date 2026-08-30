@@ -119,6 +119,30 @@ is there under the name the current AppStream specification prefers —
 looks for. Shipping a second copy under the old name to silence an outdated
 check would be the wrong trade.
 
+### Testing against a release you did not build on
+
+The build container has `libgtk-3-dev` and therefore has everything, which makes
+it the worst possible place to discover a missing runtime dependency. A
+throwaway container of the target release is the cheap version of the clean-VM
+run:
+
+```bash
+docker run --rm -v "$PWD/build/installer:/pkg:ro" ubuntu:26.04 bash -lc '
+  apt-get update -qq
+  apt-get install -y -qq /pkg/marklens_*_amd64.deb xvfb
+  xvfb-run -a /usr/bin/marklens --version'
+```
+
+That is how `libegl1` and `libgles2` were found: the `.deb` installed cleanly
+and then died with `Couldn't open libEGL.so.1`, because Flutter `dlopen`s them
+and `dpkg-shlibdeps` can only see what is linked.
+
+**A bare container is not a desktop, and the AppImage will fail in one** —
+`libgtk-3.so.0: cannot open shared object file`, because an AppImage declares no
+dependencies and bundles only Flutter's own libraries. That is expected rather
+than broken: install `libgtk-3-0 libegl1 libgles2`, which every Ubuntu desktop
+already has, and it runs.
+
 What none of this covers is the clean-VM run (doc 15, S3): file dialogs, the
 icon in a real file manager, double-clicking a `.md`, and whether the AppImage
 starts on a machine that is not this image.

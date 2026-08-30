@@ -232,6 +232,24 @@ void main() {
       );
     });
 
+    test('it adds the libraries dlopen hides from shlibdeps', () {
+      // Flutter's Linux embedder loads libEGL and libGLESv2 with dlopen, so
+      // they are not in the binary's NEEDED table and dpkg-shlibdeps cannot
+      // derive them. A package without them installs perfectly and then aborts
+      // at launch with "Couldn't open libEGL.so.1" - which is the worst shape
+      // a packaging bug can take, because every automated check passes.
+      for (final library in <String>['libegl1', 'libgles2']) {
+        expect(
+          script,
+          contains(library),
+          reason:
+              '$library must be appended to the derived Depends by hand. '
+              'Found by installing the .deb on a bare ubuntu:26.04; the build '
+              'container hides it because libgtk-3-dev pulls both in.',
+        );
+      }
+    });
+
     test('it strips the build metadata from the version', () {
       // `1.0.0+1` is a valid pubspec version and an invalid Debian one.
       expect(script, contains(r'[0-9]\+\.[0-9]\+\.[0-9]\+'));

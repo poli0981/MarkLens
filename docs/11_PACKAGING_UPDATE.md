@@ -230,15 +230,34 @@ reports five libraries as "not found" while the program runs perfectly, because
 `ldd` resolves `$ORIGIN` against the path it is handed. `tool/linux/README.md`
 has the transcript.
 
-**`Depends` is derived, not written down.** `dpkg-shlibdeps` reads what the
-executable and every bundled `.so` actually need, so the list is a fact about
-the build. It emits warnings about `$ORIGIN` and about analysing binaries
-outside a `debian/` tree; those are a consequence of packaging a Flutter bundle
-by hand rather than with `dh`, and the derived list is correct.
+**`Depends` is derived, not written down** — with two exceptions that could not
+be. `dpkg-shlibdeps` reads what the executable and every bundled `.so` actually
+need, so the list is a fact about the build. It emits warnings about `$ORIGIN`
+and about analysing binaries outside a `debian/` tree; those are a consequence
+of packaging a Flutter bundle by hand rather than with `dh`.
+
+**`libegl1` and `libgles2` are appended by hand, and have to be.** Flutter's
+Linux embedder `dlopen`s them, so they are absent from the ELF `NEEDED` table
+and nothing that reads the binary can derive them. Without them the package
+installs perfectly on a clean Ubuntu and then aborts at launch with
+`Couldn't open libEGL.so.1` and a core dump — every automated check green, the
+program dead on arrival.
+
+It was found by installing the `.deb` on a bare `ubuntu:26.04` and running it.
+The build container hides it completely, because `libgtk-3-dev` pulls both in;
+so does any developer machine. **The only arrangement in which the derived list
+is the whole list is a machine that has never built anything**, which is
+precisely what the clean-VM item on the release checklist is for, and what a
+throwaway container can now do earlier and more often.
 
 **Removal leaves `session.json` and `settings.json` alone**, on both `remove`
 and `purge`. They are the user's, not the package's (doc 05) — the same answer
 the Windows uninstaller's unchecked checkbox gives.
+
+**Verified on Ubuntu 26.04**, two releases past the 22.04 floor the package is
+built on: `apt-get install ./marklens_1.0.0_amd64.deb` resolves and installs,
+and the program runs. Forward compatibility is the direction that has to hold,
+and now it is a measurement rather than an expectation.
 
 ### The AppImage, and its two downloads
 
