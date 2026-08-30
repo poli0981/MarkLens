@@ -189,6 +189,45 @@ void main() {
     );
   });
 
+  test('it checks for the Visual C++ runtime, at the key that exists', () {
+    // Flutter links against the MSVC runtime and does not bundle it, so on a
+    // Windows that has never had a developer tool on it the program will not
+    // start - a missing-DLL dialog naming VCRUNTIME140_1.dll, which says
+    // nothing about what to install. Found in a Windows 11 Sandbox, because
+    // every machine that builds this project already has the runtime.
+    //
+    // The key is pinned because the first draft of this check pointed at a
+    // path with a literal form feed where the 14 should be: backslash-one-four
+    // is an *octal* escape in more than one language, and it resolves to
+    // U+000C. The result is invisible in an editor, survives review, compiles,
+    // runs, and warns every user - including the ones who already have the
+    // runtime. A check that can only fail is worse than no check at all.
+    expect(
+      main,
+      contains(r'SOFTWARE\Microsoft\VisualStudio\14.0\VC\Runtimes\x64'),
+      reason: 'The registry path vc_redist.x64.exe actually writes.',
+    );
+    expect(
+      main,
+      isNot(contains(String.fromCharCode(12))),
+      reason:
+          'A form feed in the script is how the original key was mangled. It '
+          'is invisible in an editor and survives review.',
+    );
+    // Both registry views: which one an installer sees depends on the bitness
+    // it is running in, and the value is present under both.
+    expect(main, contains('RegQueryDWordValue(HKLM, VCRedistKey'));
+    expect(main, contains('RegQueryDWordValue(HKLM32, VCRedistKey'));
+    expect(
+      main,
+      contains('MB_YESNO'),
+      reason:
+          'It warns and offers to continue. An installer that blocks on a '
+          'prerequisite it cannot install - this one is per-user and cannot '
+          'run a machine-wide redistributable - is a dead end.',
+    );
+  });
+
   test('uninstall keeps the config directory unless asked', () {
     // The only deletion in MarkLens. Rule 1 covers the user's documents, not
     // the app's own two files, so this is permitted - but it is opt-in, and a

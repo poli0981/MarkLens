@@ -4,8 +4,8 @@
 **Repo:** `poli0981/MarkLens`
 **Platforms:** Windows 10+ · Ubuntu 22.04+ (Linux desktop)
 **Stack:** Flutter 3.47.1 stable / Dart 3.13.1 · **License:** GPL-3.0-only
-**Suite version:** 1.0 · **Date:** 2026-08-29
-**Status:** M0–M4 complete — every feature in the charter's v1 scope exists and all four release artefacts build in CI. What remains before the v1.0.0 tag is the part no pipeline can do: S3's clean-VM run, the read-only audit, and the third visual pass (`docs/15_SPIKES_ROADMAP.md`).
+**Suite version:** 1.0 · **Date:** 2026-08-30
+**Status:** **v1.0.0 released** (2026-08-30) — M0–M4 closed. Verified on Ubuntu 26.04.1, Windows 10 and a Windows 11 Sandbox. One release-checklist item is carried to v1.0.1 rather than ticked: the manual ProcMon/`strace` read-only pass (`docs/15_SPIKES_ROADMAP.md`).
 
 MarkLens opens `.md` / `.mdx` files or whole folders and renders them
 faithfully — nothing more. It is a *viewer*, the way SumatraPDF is a viewer:
@@ -52,7 +52,16 @@ Every release ships `SHA256SUMS`. Download it beside the file you want and:
 sha256sum -c SHA256SUMS --ignore-missing
 ```
 
-Two things about the Windows installer that are worth knowing before they
+**Windows needs the Microsoft Visual C++ Redistributable (x64).** Flutter links
+against the MSVC runtime and does not bundle it, so on a Windows without it —
+a fresh install, a VM, a Sandbox — MarkLens will not start, and the message says
+`VCRUNTIME140_1.dll` or `MSVCP140.dll` rather than anything useful. Almost every
+real machine already has it; get it from
+<https://aka.ms/vs/17/release/vc_redist.x64.exe> if yours does not. The
+installer checks and tells you; the portable zip cannot, so this paragraph is
+where that ends up. **This applies to the portable zip too.**
+
+Two more things about the Windows installer that are worth knowing before they
 surprise you, because neither is something an installer can fix:
 
 - **SmartScreen will warn on the download.** The installer is not code-signed;

@@ -177,7 +177,33 @@ anything about installing — associations, the uninstaller's checkbox, the
 Explorer icon on a machine with no icon cache. Those are the clean-VM run
 (doc 15, S3), and no amount of compiling substitutes for them.
 
-Two things a user will meet that the installer cannot fix, and the README
+**The Visual C++ Redistributable is a hard prerequisite**, and the first thing
+the Windows clean-machine test found. Flutter links against the MSVC runtime and
+does not bundle it, so on a machine without it Windows refuses to start the
+program with a missing-DLL dialog naming `VCRUNTIME140_1.dll` or
+`MSVCP140.dll` — a message that says nothing about what to install. Every
+developer machine has it, which is exactly why it went unnoticed until a Windows
+Sandbox.
+
+`InitializeSetup` reads
+`HKLM\SOFTWARE\Microsoft\VisualStudio.0\VC\Runtimesd` and warns with
+the download URL. Three decisions inside that:
+
+- **Checked, not bundled.** The redistributable is a machine-wide install
+  needing elevation, and this installer is deliberately `PrivilegesRequired=lowest`;
+  bundling it would turn a no-admin install into an admin one. Reading `HKLM`
+  needs no elevation.
+- **Both registry views.** The value exists under the 64-bit view and under
+  `WOW6432Node`, and which one an installer sees depends on the bitness it is
+  running in, so both are read.
+- **It warns and offers to continue.** Somebody may be installing ahead of the
+  runtime deliberately, and an installer that blocks on a prerequisite it cannot
+  install is a dead end.
+
+**The portable zip cannot warn about any of this**, which is why the README
+carries the same paragraph. Verified on Windows 10 and in a Windows 11 Sandbox.
+
+Two more things a user will meet that the installer cannot fix, and the README
 should say so before they do:
 
 - **Windows still asks "How do you want to open this?" once.** An installer can

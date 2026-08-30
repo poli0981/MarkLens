@@ -9,12 +9,12 @@ deliberately deferred — see below. Every decision they settled is recorded in
 doc 01 (pins), doc 03 and doc 07 (watching), doc 04 (pipeline) and doc 06
 (selection, menu bar).
 
-**As of 2026-08-29, M0–M4's coded work is done and on `main`.** Every feature in
-the charter's v1 scope exists, both M4 blockers are closed, all four release
-artefacts build in CI, and the release pipeline has been rehearsed against
-`main` without a tag. What remains before `v1.0.0` is the half no pipeline can
-do — S3's clean-VM run, the read-only audit and the third visual pass — plus the
-integration smoke doc 12 lists and nobody has written. See "M4 build order".
+**v1.0.0 was published on 2026-08-30, and M0–M4 are closed.** Every feature in
+the charter's v1 scope ships, in four artefacts built and started by CI.
+Verified on Ubuntu 26.04.1, Windows 10 and a Windows 11 Sandbox — each of which
+found a defect the other could not. Two things are carried to v1.0.1 rather than
+pretended done: the manual ProcMon/`strace` read-only pass, and the integration
+smoke doc 12 lists and nobody has written. See "M4 build order".
 
 ## S1 — Renderer bake-off *(the decision spike)*
 
@@ -139,9 +139,14 @@ file/folder dialogs work; watcher fires on ext4; AppImage produced from the
 > build container has `libgtk-3-dev`, and so does every machine that has ever
 > built this project.
 >
-> **Not covered, and not pretended otherwise:** the Windows clean-VM install,
-> and the manual ProcMon/`strace` read-only pass. Both remain outstanding — see
-> the checklist.
+> **The Windows half followed on 2026-08-30**: a Windows 11 Sandbox and a
+> Windows 10 machine. The Sandbox found the Visual C++ Redistributable
+> prerequisite — Flutter links against the MSVC runtime and does not bundle it,
+> so a Windows that has never had a developer tool on it refuses to start the
+> program with a missing-DLL dialog. The installer checks for it now (doc 11).
+>
+> **Not covered, and not pretended otherwise:** the manual ProcMon/`strace`
+> read-only pass. It remains outstanding — see the checklist.
 
 ## S4 — Menu bar + shortcuts prototype
 
@@ -211,12 +216,17 @@ false `missing` badges during atomic saves.
 ~8.5 focused weeks; solo-dev buffer applies. M1 is the "start living in it"
 gate — daily use from M1 onward is the real QA.
 
-**M4 closed on 2026-08-29** with the tag published. Two checklist items were
-not ticked and are carried rather than quietly dropped: the Windows clean-VM
-install, and the manual ProcMon/`strace` read-only pass. The Linux half of S3
-passed on Ubuntu 26.04.1 — two releases past the floor, which is the direction
-that has to hold — and it found the `libEGL` defect that four green release
-rehearsals could not.
+**M4 closed on 2026-08-30** with `v1.0.0` published. One checklist item is
+carried rather than quietly dropped: the manual ProcMon/`strace` read-only pass.
+
+**Both clean-machine tests earned their place, and neither could have found the
+other's defect.** Ubuntu 26.04.1 — two releases past the floor, which is the
+direction that has to hold — found the missing `libEGL`, because `dpkg-shlibdeps`
+cannot see a `dlopen`. A Windows 11 Sandbox found the missing Visual C++
+runtime, because Flutter links against the MSVC runtime and does not bundle it.
+Four green release rehearsals saw neither. The shape is the same one the release
+rehearsal taught three times over: **a machine that has already built the
+project cannot tell you what the project needs.**
 
 **Three of these estimates were written before the milestone was surveyed, and
 all three were wrong the same way.** M2 turned out to be mostly wiring, and M3's
@@ -916,13 +926,16 @@ Ticked below as they stood for **v1.0.0**; reset for the next tag.
       our own code does not, and it is carried to v1.0.1
 - [x] **`release.yml` rehearsed via `workflow_dispatch`** — four times, three of
       them red, all four artefacts downloaded from the green run
-- [ ] Artifacts smoke-tested on clean Windows VM (**not done**) + Ubuntu
-      (**done, on 26.04.1** — see S3)
+- [x] Artifacts smoke-tested on a clean Windows VM (**Windows 11 Sandbox and
+      Windows 10**) and Ubuntu (**26.04.1** — see S3). Both found something the
+      other could not: the Sandbox found the missing Visual C++ runtime, Ubuntu
+      found the missing `libEGL`. A machine that has never built the project is
+      the only place either is visible
 - [x] `SHA256SUMS` verified; release notes written; tag `v1.0.0`; publish draft
 - [x] **The published release is not marked prerelease.** `UpdateService`
       ignores drafts and prereleases alike, so the tick that looks like caution
       disables the update banner permanently rather than delaying it
-- [ ] Listings updated: SoftHarbor entry + poli0981.dev portfolio
+- [x] Listings updated: SoftHarbor entry + poli0981.dev portfolio
 - [ ] Post-release: file association behaves after real install
 - [ ] Update banner fires from the previous version — **deferred to v1.0.1 by
       decision, and not because it is awkward.** At v1.0.0 the banner cannot

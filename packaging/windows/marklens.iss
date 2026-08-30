@@ -112,8 +112,64 @@ Filename: "{app}\{#AppExeName}"; \
   path_provider_windows builds from the exe's version block; doc 05 records why
   those two strings are load-bearing. }
 
+const
+  VCRedistUrl = 'https://aka.ms/vs/17/release/vc_redist.x64.exe';
+  { Where vc_redist.x64.exe records itself, read off a machine that has it
+    rather than transcribed: `Installed` is a DWORD 1 beside Version, Major,
+    Minor and Bld. It appears in both the 64-bit view and WOW6432Node, and
+    both are checked below, because which view an installer sees depends on
+    the bitness it happens to be running in. }
+  VCRedistKey = 'SOFTWARE\Microsoft\VisualStudio\14.0\VC\Runtimes\x64';
+
 var
   RemoveDataCheckBox: TNewCheckBox;
+
+{ The Visual C++ runtime, which Flutter links against and does not bundle.
+
+  Without it Windows refuses to start the program with a missing-DLL dialog
+  naming VCRUNTIME140_1.dll or MSVCP140.dll - a message that says nothing about
+  what to install. Every developer machine has the runtime, every machine with
+  Office or a game has it, and a fresh Windows Sandbox does not: which is
+  exactly where it was found.
+
+  Checked rather than bundled, because this installer is per-user and
+  PrivilegesRequired=lowest: the redistributable is a machine-wide install that
+  needs elevation, so bundling it would either fail or turn a no-admin install
+  into an admin one. Reading HKLM needs no elevation.
+
+  It warns and offers to continue rather than refusing. Somebody may be
+  installing ahead of the runtime deliberately, and an installer that blocks on
+  a prerequisite it cannot install is a dead end. }
+function VCRedistInstalled(): Boolean;
+var
+  Installed: Cardinal;
+begin
+  Result :=
+    (RegQueryDWordValue(HKLM, VCRedistKey, 'Installed', Installed)
+      and (Installed = 1))
+    or
+    (RegQueryDWordValue(HKLM32, VCRedistKey, 'Installed', Installed)
+      and (Installed = 1));
+end;
+
+function InitializeSetup(): Boolean;
+begin
+  Result := True;
+  if VCRedistInstalled() then
+    Exit;
+
+  if MsgBox(
+      'MarkLens needs the Microsoft Visual C++ Redistributable (x64), which '
+      + 'does not appear to be installed.' + #13#10#13#10
+      + 'Without it Windows will refuse to start MarkLens with a message about '
+      + 'a missing VCRUNTIME140_1.dll or MSVCP140.dll.' + #13#10#13#10
+      + 'Download it from:' + #13#10 + VCRedistUrl + #13#10#13#10
+      + 'Continue installing anyway?',
+      mbConfirmation, MB_YESNO) = IDNO then
+  begin
+    Result := False;
+  end;
+end;
 
 function ConfigDirectory(): String;
 begin
