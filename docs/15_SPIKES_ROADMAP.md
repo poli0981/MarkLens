@@ -125,6 +125,24 @@ Fresh Ubuntu 24.04 VM (and a 22.04 check for the floor).
 file/folder dialogs work; watcher fires on ext4; AppImage produced from the
 22.04 runner recipe launches on both VMs.
 
+> **PASSED on Ubuntu 26.04.1 — 2026-08-29**, two releases past the floor rather
+> than the 24.04 the spike named, which is the harder direction and the one that
+> matters: a 22.04-built artefact has to keep working as Ubuntu moves. The
+> maintainer installed the release build and reported every feature working,
+> smooth, rendering correctly. That closes S3's Linux half and the third visual
+> pass with it.
+>
+> **The defect it found is recorded in doc 11 and is the reason S3 exists.** The
+> `.deb` installed cleanly and then aborted with `Couldn't open libEGL.so.1`,
+> because Flutter `dlopen`s libEGL and libGLESv2 and `dpkg-shlibdeps` can only
+> derive what is linked. Four green release rehearsals could not see it: the
+> build container has `libgtk-3-dev`, and so does every machine that has ever
+> built this project.
+>
+> **Not covered, and not pretended otherwise:** the Windows clean-VM install,
+> and the manual ProcMon/`strace` read-only pass. Both remain outstanding — see
+> the checklist.
+
 ## S4 — Menu bar + shortcuts prototype
 
 > **PASSED — 2026-08-23**, subjective gate included: the maintainer tried the
@@ -188,16 +206,17 @@ false `missing` badges during atomic saves.
 | **M1 — usable daily** ✅ | Open file/folder, sidebar + tabs, pipeline + reader, session restore, single instance + CLI | done 2026-08-26 |
 | **M2 — comfortable** ✅ | Watch/auto-reload, outline, Ctrl+F, zoom, themes, front-matter panel — plus the first visual pass's eight defects and the repo's first goldens | done 2026-08-27 |
 | **M3 — complete** ✅ | The six items this row used to name, **and the six more the row did not** — images, drag & drop, the update check, About/licenses/log export, Open Recent, and doc 06's edge states. See "M3 build order" | done 2026-08-28 |
-| **M4 — shipped** ◐ | Packaging both OSes — including wiring M3's file-association assets into the installers — the icon, bundled fonts + renderer goldens, `release.yml`, docs polish, v1.0.0 | coded 2026-08-29; tag pending the manual checklist |
+| **M4 — shipped** ✅ | Packaging both OSes — including wiring M3's file-association assets into the installers — the icon, bundled fonts + renderer goldens, `release.yml`, docs polish, v1.0.0 | done 2026-08-29 |
 
 ~8.5 focused weeks; solo-dev buffer applies. M1 is the "start living in it"
 gate — daily use from M1 onward is the real QA.
 
-**M4 is ◐ rather than ✅ on purpose.** Its coded work is on `main` and the
-version is bumped, but "shipped" means a published tag, and three items between
-here and there are a person's rather than a pipeline's: the clean-VM run, the
-read-only audit and the third visual pass. Marking the row done before those
-would make the roadmap agree with the code and disagree with reality.
+**M4 closed on 2026-08-29** with the tag published. Two checklist items were
+not ticked and are carried rather than quietly dropped: the Windows clean-VM
+install, and the manual ProcMon/`strace` read-only pass. The Linux half of S3
+passed on Ubuntu 26.04.1 — two releases past the floor, which is the direction
+that has to hold — and it found the `libEGL` defect that four green release
+rehearsals could not.
 
 **Three of these estimates were written before the milestone was surveyed, and
 all three were wrong the same way.** M2 turned out to be mostly wiring, and M3's
@@ -882,17 +901,25 @@ one that is deferred, because it teaches everyone to skip the list.
 
 ## Release checklist (every tag)
 
-- [ ] Version bumped in `pubspec.yaml` **and `lib/app/version.dart`**; CHANGELOG
-      section written
-- [ ] Full suite green incl. goldens + integration on both runners
-- [ ] vi/ja translations complete for new strings
-- [ ] Read-only audit: write-grep test green + manual ProcMon/strace pass (doc 10)
-- [ ] **`release.yml` rehearsed via `workflow_dispatch`** and all four artefacts
-      downloaded from the run — the pipeline's first execution should never be
-      the tagged one
-- [ ] Artifacts smoke-tested on clean Windows VM + Ubuntu 24.04 VM
-- [ ] `SHA256SUMS` verified; release notes written; tag `vx.y.z`; publish draft
-- [ ] **The published release is not marked prerelease.** `UpdateService`
+Ticked below as they stood for **v1.0.0**; reset for the next tag.
+
+- [x] Version bumped in `pubspec.yaml` **and `lib/app/version.dart`**; CHANGELOG
+      section written — and `test/app/version_test.dart` now checks all three
+- [x] Full suite green incl. goldens on both runners. **Integration smoke is
+      still unwritten** (doc 12); what stands in for it is `release.yml`
+      installing the `.deb` and starting both Linux artefacts
+- [x] vi/ja translations complete — `l10n_untranslated.json` is `{}` and
+      `arb_parity_test.dart` is green
+- [ ] Read-only audit: write-grep test green (**yes**) + manual ProcMon/strace
+      pass (**not done for v1.0.0**). The automated half is enforced on every
+      PR; the manual half is the one that would catch a *library* writing where
+      our own code does not, and it is carried to v1.0.1
+- [x] **`release.yml` rehearsed via `workflow_dispatch`** — four times, three of
+      them red, all four artefacts downloaded from the green run
+- [ ] Artifacts smoke-tested on clean Windows VM (**not done**) + Ubuntu
+      (**done, on 26.04.1** — see S3)
+- [x] `SHA256SUMS` verified; release notes written; tag `v1.0.0`; publish draft
+- [x] **The published release is not marked prerelease.** `UpdateService`
       ignores drafts and prereleases alike, so the tick that looks like caution
       disables the update banner permanently rather than delaying it
 - [ ] Listings updated: SoftHarbor entry + poli0981.dev portfolio
