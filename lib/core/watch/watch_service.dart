@@ -26,6 +26,7 @@ class WatchService {
     bool Function(String path)? pathExists,
     this.openWatcher = _openDirectoryWatcher,
     Duration debounce = const Duration(milliseconds: 200),
+    this.disposeTimeout = const Duration(seconds: 1),
   }) : _normalizer = WatchNormalizer(
          pathExists: pathExists ?? _exists,
          debounce: debounce,
@@ -46,6 +47,14 @@ class WatchService {
   /// Opens a watcher on one directory. Injected so a test can replay events
   /// without a real filesystem or real time.
   final w.DirectoryWatcher Function(String path) openWatcher;
+
+  /// How long [dispose] waits for the watchers to finish cancelling.
+  ///
+  /// A bound, not a budget: cancelling is asynchronous, and a watcher that
+  /// never answers must not be able to hold the app open. Everything on disk
+  /// was written before the watchers are asked to stop (`docs/03_DATA_FLOW.md`,
+  /// "App exit"), so giving up on the wait loses nothing.
+  final Duration disposeTimeout;
   final WatchNormalizer _normalizer;
   final Map<String, StreamSubscription<w.WatchEvent>> _watchers =
       <String, StreamSubscription<w.WatchEvent>>{};
@@ -169,12 +178,30 @@ class WatchService {
   bool get hasPending => _normalizer.hasPending;
 
   /// Stops every watcher and closes the event stream.
+  ///
+  /// **Awaited, and bounded by [disposeTimeout].** On Windows each watcher is
+  /// an isolate wrapped around `ReadDirectoryChangesW` (`package:watcher`'s
+  /// default), and an isolate nobody asks to close is left for the VM to tear
+  /// down at exit — a plain Dart process holding one never exits at all
+  /// (`docs/07`). Asking means the cancel has to actually be dispatched before
+  /// the engine goes, which is what awaiting buys; the bound is what stops a
+  /// watcher that never answers from becoming the thing that holds the app
+  /// open.
+  ///
+  /// Safe to call twice: the second call finds nothing to cancel.
   Future<void> dispose() async {
     _disposed = true;
-    for (final subscription in _watchers.values) {
-      unawaited(subscription.cancel());
-    }
+    // Each cancel swallows its own error, or one watcher that throws would
+    // end `Future.wait` early and leave the rest never asked.
+    final cancels = <Future<void>>[
+      for (final subscription in _watchers.values)
+        subscription.cancel().catchError((Object _) {}),
+    ];
     _watchers.clear();
+    await Future.wait(cancels).timeout(
+      disposeTimeout,
+      onTimeout: () => const <void>[],
+    );
     await _normalizer.dispose();
   }
 

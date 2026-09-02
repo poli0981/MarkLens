@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:marklens/core/models/session_state.dart';
@@ -49,6 +51,9 @@ abstract class WindowLink {
   Future<void> attach(WindowListener listener);
 
   /// Stops routing events and lets the window go.
+  ///
+  /// The last step of `ShutdownSequence`, and the only one that is not
+  /// bounded: it is the exit.
   Future<void> detachAndClose(WindowListener listener);
 
   /// Brings the window forward, for a second launch handing paths over.
@@ -126,10 +131,35 @@ class PlatformWindowLink implements WindowLink {
     await windowManager.setPreventClose(true);
   }
 
+  /// Detaches, hides, and closes — in that order, and not `destroy()`.
+  ///
+  /// `destroy()` on Windows is `PostQuitMessage` and nothing else: the runner's
+  /// message loop ends, and the Flutter engine is torn down in the window
+  /// object's destructor, with the window still on screen and `OnDestroy` —
+  /// the template's one guard around that teardown — never reached. That was
+  /// the five-second close of v1.0.0 (`docs/03_DATA_FLOW.md`, "App exit"; the
+  /// runner's destructor now carries the same guard). `close()` takes the
+  /// stock path instead: `WM_CLOSE` → `DestroyWindow`, which removes the
+  /// window from the screen and then tears the engine down from `WM_DESTROY`,
+  /// inside the loop, through `OnDestroy`. On Linux the plugin's `destroy()`
+  /// and `close()` are the same `gtk_window_close`, so nothing changes there.
+  ///
+  /// The hide first is insurance: the window is gone at once, whatever the
+  /// process spends after. Windows only — `gtk_window_close` on a hidden
+  /// toplevel is a corner nobody has measured, and Linux has nothing to hide
+  /// from.
+  ///
+  /// The listener goes first because `WM_CLOSE` re-emits `close` over the
+  /// channel, and with `setPreventClose(false)` that must not come back as a
+  /// second `onWindowClose`.
   @override
   Future<void> detachAndClose(WindowListener listener) async {
     windowManager.removeListener(listener);
-    await windowManager.destroy();
+    if (Platform.isWindows) {
+      await windowManager.hide();
+    }
+    await windowManager.setPreventClose(false);
+    await windowManager.close();
   }
 
   @override

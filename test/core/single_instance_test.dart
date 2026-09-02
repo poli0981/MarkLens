@@ -117,6 +117,27 @@ void main() {
         InstanceRole.primary,
       );
     });
+
+    test('releasing twice, and twice at once, is harmless', () async {
+      // The exit sequence can be entered from a second close while the first
+      // is still running (`docs/03_DATA_FLOW.md`, "App exit").
+      final first = instanceIn(config);
+      await first.acquire(const <String>[]);
+
+      await Future.wait(<Future<void>>[first.release(), first.release()]);
+      await first.release();
+
+      expect(first.isPrimary, isFalse);
+      expect(first.lockFile.existsSync(), isFalse);
+      expect(
+        await instanceIn(config).acquire(const <String>[]),
+        InstanceRole.primary,
+      );
+    });
+
+    test('releasing an instance that never acquired is harmless', () async {
+      await expectLater(instanceIn(config).release(), completes);
+    });
   });
 
   group('what crosses the socket is only paths', () {

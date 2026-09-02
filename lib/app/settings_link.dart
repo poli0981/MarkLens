@@ -48,7 +48,11 @@ class AppSettingsController extends Notifier<AppSettings> {
     final store = ref.read(settingsStoreProvider);
     _store = store;
     // Cancelling is not enough: quitting a second after a change must not lose
-    // it, the same guarantee the session store gives (doc 05).
+    // it, the same guarantee the session store gives (doc 05). This hook is
+    // the in-process half of that — a test's container going away. A real
+    // exit never disposes the scope, so `ShutdownSequence` calls [flush]
+    // itself; until v1.0.1 nothing did, and a change inside the 250 ms window
+    // was lost (`docs/03_DATA_FLOW.md`, "App exit").
     ref.onDispose(flush);
 
     final loaded = store.load();

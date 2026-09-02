@@ -58,6 +58,17 @@ jobs:
               echo "::error::Tag $GITHUB_REF_NAME does not match version $pubspec."
               exit 1
             fi
+            # The notes people read are the ones in the repo, not the
+            # generated GitHub page. Between releases they sit under
+            # `[Unreleased]` (test/app/version_test.dart allows that); the
+            # release commit renames the heading, and this is what notices
+            # when it did not.
+            newest="$(sed -n 's/^## \[\([^]]*\)\].*/\1/p' CHANGELOG.md | head -n 1)"
+            echo "CHANGELOG newest  $newest"
+            if [ "$newest" != "$pubspec" ]; then
+              echo "::error::CHANGELOG.md's newest heading is [$newest], not [$pubspec]. Rename [Unreleased] before tagging."
+              exit 1
+            fi
           fi
           echo "version=$pubspec" >> "$GITHUB_OUTPUT"
 

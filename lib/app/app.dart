@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:marklens/app/menu/app_menu_bar.dart';
 import 'package:marklens/app/providers.dart';
 import 'package:marklens/app/shortcuts.dart';
+import 'package:marklens/app/shutdown.dart';
 import 'package:marklens/app/theme/app_theme.dart';
 import 'package:marklens/app/theme/reader_tokens.dart';
 import 'package:marklens/core/files/extension_registry.dart';
@@ -181,8 +182,11 @@ class _AppShellState extends ConsumerState<AppShell> with WindowListener {
   @override
   void onWindowFocus() => ref.read(watchCoordinatorProvider).sweep();
 
+  /// The exit, once started. A second close joins it rather than racing it.
+  ShutdownSequence? _shutdown;
+
   @override
-  void onWindowClose() => unawaited(_shutDown());
+  void onWindowClose() => unawaited((_shutdown ??= _buildShutdown()).run());
 
   Future<void> _recordGeometry() async {
     final geometry = await ref.read(windowLinkProvider).current();
@@ -193,16 +197,33 @@ class _AppShellState extends ConsumerState<AppShell> with WindowListener {
     ref.read(sessionLinkProvider).save();
   }
 
-  /// Writes the session and lets go of the lock before the window goes.
-  Future<void> _shutDown() async {
-    await _recordGeometry();
-    ref.read(sessionLinkProvider).flush();
-    await ref.read(singleInstanceProvider).release();
-    await ref.read(windowLinkProvider).detachAndClose(this);
-  }
+  /// The doc 03 "App exit" order: write everything, ask the watchers to stop
+  /// and wait for them (bounded), release the lock, and only then let the
+  /// window go. Everything is captured here, before the first `await`.
+  ShutdownSequence _buildShutdown() => ShutdownSequence(
+    recordGeometry: _recordGeometry,
+    flushSettings: ref.read(settingsProvider.notifier).flush,
+    flushSession: () {
+      ref.read(sessionLinkProvider)
+        ..save()
+        ..flush();
+    },
+    stopListening: () {
+      unawaited(_forwarded?.cancel());
+      _forwarded = null;
+      ref.read(watchCoordinatorProvider).dispose();
+    },
+    watch: ref.read(watchLinkProvider),
+    instance: ref.read(singleInstanceProvider),
+    window: ref.read(windowLinkProvider),
+    listener: this,
+    log: ref.read(logBufferProvider),
+  );
 
   @override
   void dispose() {
+    // The in-process teardown a test does; a real exit went through
+    // `_buildShutdown` and has already cancelled this.
     unawaited(_forwarded?.cancel());
     _body.dispose();
     super.dispose();

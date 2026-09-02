@@ -16,7 +16,18 @@
    - DocCache LRU; WatchService event normalization (synthetic
      delete+create / rename sequences → `changed`).
    - SearchService: hit mapping, cancellation, isolate round-trip.
-2. **Widget tests**: sidebar virtualization + badges, tab MRU cycling,
+   - Exit (doc 03, "App exit"): `WatchService.dispose` waits for every
+     watcher and gives up at its bound; `SingleInstance.release` twice, and
+     twice at once, is harmless; `ShutdownSequence` — order, per-step bounds
+     with a warning naming the step, and that a second `run()` joins the
+     first (`test/app/shutdown_sequence_test.dart`, plain `test`).
+2. **Widget tests**: the shell's exit through the real stores
+   (`test/app/shutdown_test.dart`: a setting changed inside its 250 ms window
+   reaches the disk, the session carries the window's geometry, the watchers
+   are asked to stop before the window goes, a second close is a no-op, a
+   watcher that never answers does not hold the exit — this needs a window
+   link that hands the shell's listener back, which `NoWindowLink` never
+   did), sidebar virtualization + badges, tab MRU cycling,
    find bar counter/cycling, quick-switcher scoring, front-matter panel
    states, placeholder cards, menu keyboard navigation, and **selection
    quality** (`test/features/reader_selection_test.dart`) — cross-block copy,
@@ -166,6 +177,7 @@ absent one — it is an absent one that people believe in.
 | Coverage thresholds | **Not enforced.** `coverage/lcov.info` is uploaded every run and gated by nothing. This has said "switches on at M1" since M0 |
 | Integration smoke (pyramid item 4) | **Not written.** See below |
 | Performance gate | Deliberately never in CI — profile mode, reference machine |
+| Exit timing | **Manual**, same class as the performance gate: `tool/exit_timing/measure_exit.ps1` posts `WM_CLOSE` to the built binary and reports when the window went and when the process did. Numbers and the reason they matter are in doc 03, "App exit"; re-take them when anything on that path changes |
 
 **The integration smoke is the one real hole**, and it is worth being precise
 about its shape rather than implying it is covered. Item 4 wants *launch → open

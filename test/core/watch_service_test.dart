@@ -16,14 +16,20 @@ import 'package:marklens/core/watch/watch_service.dart';
 import 'package:watcher/watcher.dart' as w;
 
 /// A watcher that emits whatever a test pushes into it.
+///
+/// `onCancel` is what the service's `dispose` waits on: the real watcher's
+/// cancel is asynchronous, and on Windows it is a message to an isolate.
+/// Single-subscription rather than broadcast, because only a
+/// single-subscription stream hands its `onCancel` future back through
+/// `cancel()` — a broadcast one runs it and returns at once.
 class _FakeWatcher implements w.DirectoryWatcher {
-  _FakeWatcher(this.path);
+  _FakeWatcher(this.path, {Future<void> Function()? onCancel})
+    : controller = StreamController<w.WatchEvent>(onCancel: onCancel);
 
   @override
   final String path;
 
-  final StreamController<w.WatchEvent> controller =
-      StreamController<w.WatchEvent>.broadcast();
+  final StreamController<w.WatchEvent> controller;
 
   @override
   Stream<w.WatchEvent> get events => controller.stream;
@@ -268,6 +274,89 @@ void main() {
       );
       expect(failing.watchedDirectories, <String>[r'C:\good']);
     });
+  });
+
+  group('dispose', () {
+    // Exit is where these matter (`docs/03_DATA_FLOW.md`, "App exit"): a
+    // watcher that is not asked to stop is torn down by the VM instead, and
+    // one that never answers must not be able to hold the app open.
+    test('waits for every watcher to finish cancelling', () async {
+      final cancels = <String, Completer<void>>{};
+      final service = WatchService(
+        pathExists: (_) => true,
+        openWatcher: (path) => _FakeWatcher(
+          path,
+          onCancel: () => (cancels[path] = Completer<void>()).future,
+        ),
+      )..watch(roots: <String>[r'C:\a', r'C:\b'], files: const <String>[]);
+
+      var done = false;
+      final disposing = service.dispose().then((_) => done = true);
+      await Future<void>.delayed(Duration.zero);
+      expect(cancels.keys, unorderedEquals(<String>[r'C:\a', r'C:\b']));
+      expect(done, isFalse, reason: 'neither watcher has answered yet');
+
+      cancels[r'C:\a']!.complete();
+      await Future<void>.delayed(Duration.zero);
+      expect(done, isFalse, reason: 'one of two is not every');
+
+      cancels[r'C:\b']!.complete();
+      await disposing;
+      expect(done, isTrue);
+    });
+
+    test('a watcher that never finishes cancelling does not hold it up', () {
+      final service = WatchService(
+        pathExists: (_) => true,
+        openWatcher: (path) =>
+            _FakeWatcher(path, onCancel: () => Completer<void>().future),
+        disposeTimeout: const Duration(milliseconds: 50),
+      )..watch(roots: <String>[r'C:\stuck'], files: const <String>[]);
+
+      return expect(
+        service.dispose().timeout(const Duration(seconds: 2)),
+        completes,
+        reason:
+            'the bound is what keeps a stuck watcher from becoming the '
+            'thing that holds the app open',
+      );
+    });
+
+    test('a cancel that throws does not stop the others', () async {
+      var quietCancelled = false;
+      final service = WatchService(
+        pathExists: (_) => true,
+        openWatcher: (path) => _FakeWatcher(
+          path,
+          onCancel: path.endsWith('bad')
+              ? () => Future<void>.error(StateError('cannot cancel'))
+              : () async => quietCancelled = true,
+        ),
+      )..watch(roots: <String>[r'C:\bad', r'C:\good'], files: const <String>[]);
+
+      await service.dispose();
+      expect(quietCancelled, isTrue);
+    });
+
+    test('the event stream is closed', () async {
+      var done = false;
+      service.events.listen(null, onDone: () => done = true);
+      await service.dispose();
+      expect(done, isTrue);
+    });
+
+    test(
+      'disposing twice is harmless, and watching afterwards opens nothing',
+      () async {
+        service.watch(roots: <String>[r'C:\a'], files: const <String>[]);
+        await service.dispose();
+        await service.dispose();
+
+        service.watch(roots: <String>[r'C:\b'], files: const <String>[]);
+        expect(opened.keys, <String>[r'C:\a']);
+        expect(service.watchedDirectories, isEmpty);
+      },
+    );
   });
 
   group('parentOf', () {

@@ -35,6 +35,7 @@ lib/
                              #   feature that jumps needs it, so it lives here
     find.dart                # find-in-file state (doc 08)
     watch_coordinator.dart   # watch events -> open-set changes
+    shutdown.dart            # the exit, in order and bounded (doc 03)
     window_link.dart         # the seam over window_manager, stubbed in tests
     watch_link.dart          # the seam over the watcher, stubbed in tests
     open_files.dart          # the seam over file_picker, stubbed in tests

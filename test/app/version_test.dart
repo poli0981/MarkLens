@@ -55,12 +55,21 @@ void main() {
           'release that ships with its notes still under [Unreleased] has '
           'notes nobody wrote.',
     );
+    // Between releases the notes for the next one live under `[Unreleased]`,
+    // which Keep a Changelog puts on top. The release commit renames it, as
+    // v1.0.0's did, and the release workflow's `verify-version` job is what
+    // refuses a tag whose notes are still under it — a test cannot know
+    // whether today is release day.
+    final newestVersion = headings.firstWhere(
+      (heading) => heading != 'Unreleased',
+      orElse: () => '',
+    );
     expect(
-      headings.first,
+      newestVersion,
       appVersion,
       reason:
-          'The newest heading in CHANGELOG.md is ${headings.first}, not '
-          '$appVersion. Keep a Changelog is newest-first.',
+          'The newest versioned heading in CHANGELOG.md is $newestVersion, '
+          'not $appVersion. Keep a Changelog is newest-first.',
     );
   });
 }

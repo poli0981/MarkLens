@@ -59,6 +59,18 @@ reintroduce the same-tick rewrite the pair exists to catch. Note "parsed", not
   polling on a one-second timer. Measured for the same file: 1000 ms via
   `FileWatcher` against 7 ms via the parent directory (spike S5). The cost is
   events for unrelated files in that directory, which the path filter drops.
+- **On Windows each root's watcher is an isolate.** `package:watcher` wraps
+  `ReadDirectoryChangesW` in an `Isolate.run` by default there, so its buffer
+  cannot be exhausted by a busy UI isolate; on Linux it is inotify in-process.
+  Either way the watcher has to be *asked* to stop: the exit sequence (doc 03,
+  "App exit") awaits `WatchService.dispose`, bounded at one second. Until
+  v1.0.1 nothing on the exit path did, because the only caller was a
+  `ref.onDispose` hook and the scope is never disposed when the process ends
+  with the window. Measured with a plain Dart process holding one such watcher:
+  cancelled, it exits at once; never cancelled, it does not exit at all. In the
+  app that leak was real but was not the five-second close — that was the
+  native runner's destructor, doc 03 — which is exactly why it was measured
+  rather than assumed.
 - Debounce 200 ms per path; events collapse to a single classification. On
   Linux this is required rather than merely tidy: inotify reports content and
   metadata separately, so one save is two `modify` events.
