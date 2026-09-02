@@ -111,8 +111,11 @@ final Provider<SettingsStore> settingsStoreProvider = Provider<SettingsStore>(
 
 /// Reads and writes `session.json`, debounced (rule 7).
 ///
-/// Disposed with the scope, which flushes whatever write was still pending —
-/// quitting must not lose the last second of a session.
+/// Disposed with the scope, which flushes whatever write was still pending.
+/// That covers an in-process teardown — a test's container — and **not** a
+/// real exit, where the process ends with the window and the scope is never
+/// disposed at all. Quitting is `ShutdownSequence`'s, which flushes this
+/// explicitly (`docs/03_DATA_FLOW.md`, "App exit").
 final Provider<SessionStore> sessionStoreProvider = Provider<SessionStore>((
   ref,
 ) {

@@ -86,9 +86,19 @@ class SingleInstance {
   }
 
   /// Stops listening and removes the lock.
-  Future<void> release() async {
-    await _server?.close();
+  ///
+  /// Idempotent, and safe to call twice *at once*: the exit sequence can be
+  /// entered from a second close while the first is still running, and two
+  /// concurrent releases would otherwise both find the server and close it
+  /// twice. The first call owns the work; every later one joins it.
+  Future<void> release() => _released ??= _releaseOnce();
+
+  Future<void>? _released;
+
+  Future<void> _releaseOnce() async {
+    final server = _server;
     _server = null;
+    await server?.close();
     await _forwarded.close();
     _removeLock();
   }

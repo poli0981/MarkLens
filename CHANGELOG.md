@@ -4,6 +4,33 @@ All notable changes to MarkLens are documented here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versioning is
 [SemVer](https://semver.org/).
 
+## [Unreleased]
+
+### Fixed
+
+- **Closing the window on Windows took over five seconds**, with the window
+  still on screen the whole time. The Flutter template's `FlutterWindow`
+  destructor lets its engine controller die as a plain member, and a
+  `unique_ptr` destructor does not clear the pointer first — so messages
+  arriving during the teardown were handed to a half-destroyed engine. The
+  template's `WM_DESTROY` path nulls the pointer explicitly; the plugin call
+  the shell left by (`window_manager.destroy()`, a bare `PostQuitMessage`)
+  skipped that path. The destructor now resets the pointer itself, and the
+  shell leaves by `close()` so the stock path runs. Measured on the reference
+  machine with `tool/exit_timing/measure_exit.ps1`: 5.1–5.9 s before, the
+  window hidden at ~90 ms and the process gone at ~120–180 ms after
+  (doc 03, "App exit").
+- Exit is now an explicit, bounded sequence (doc 03): write everything, ask
+  the watchers to stop and wait for them within a bound, release the
+  single-instance lock, hide, close. A step that does not answer is named in
+  the diagnostic log and the exit goes on; nothing on disk depends on it.
+- A setting changed in the quarter second before exit was lost. Doc 05 said
+  disposal flushed it, and nothing disposed anything on the real exit path.
+- The watchers were never asked to stop on exit; on Windows each is an isolate,
+  and one nobody asks is torn down by the VM instead. Now asked, and awaited.
+- Two clicks on the close button started two shutdowns. A second close now
+  joins the first.
+
 ## [1.0.0] - 2026-08-29
 
 The first release. Everything in the charter's v1 scope, packaged for both

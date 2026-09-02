@@ -52,8 +52,14 @@ changing.
   one would be its own fsync-and-rename. A quarter of a second is below notice
   and turns a held key into one write (rule 7). The debounce lives in
   `app/settings_link.dart`, not in `SettingsStore`, which stays a plain atomic
-  writer. Disposing either store flushes what is pending, so quitting never
-  loses the last second.
+  writer. **Quitting flushes both explicitly**, through the exit sequence in
+  doc 03 ("App exit"). This paragraph used to say that disposing the stores
+  flushed them, "so quitting never loses the last second" — and disposal does
+  flush, but the `ProviderScope` is never disposed on a real exit: the process
+  ends with the window. The hooks cover an in-process teardown (a test's
+  container), not quitting. Until v1.0.1 nothing flushed settings on exit, and
+  a change inside its 250 ms window — the last zoom step before Alt+F4 — was
+  lost.
 - Corruption on load: rename the bad file to `<name>.json.corrupt-<epoch>`,
   start from defaults/empty, show a one-time snackbar. Never crash, never
   silently delete the evidence.

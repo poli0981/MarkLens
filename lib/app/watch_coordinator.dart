@@ -113,7 +113,12 @@ class WatchCoordinator {
     notifier.refreshEntry(identity);
   }
 
-  /// Stops listening. The link itself is disposed with the scope.
+  /// Stops listening.
+  ///
+  /// Called by the exit sequence on a real close, and by the scope when a
+  /// test tears the container down — so it has to be safe twice, and it is:
+  /// cancelling a cancelled subscription is a no-op. The link itself is
+  /// disposed the same two ways (`docs/03_DATA_FLOW.md`, "App exit").
   void dispose() => unawaited(_events?.cancel());
 }
 

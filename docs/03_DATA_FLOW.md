@@ -92,6 +92,57 @@ at either end, so restoring a reading position only started working at M2.
 
 Settings save on change, same atomic pattern, no debounce needed.
 
+## App exit (title-bar ×, Alt+F4, File → Exit)
+
+```
+WM_CLOSE / delete-event → window_manager "close" (intercepted: setPreventClose)
+ └─ ShutdownSequence.run()              # app/shutdown.dart; runs once —
+      │                                 # a second close joins the first
+      ├─ record window geometry         # bounded 500 ms
+      ├─ settings.flush()               # the 250 ms coalescing window, written now
+      ├─ session.save() + flush()       # the 1 s debounce, written now (atomic)
+      ├─ stop listening                 # forwarded paths, watch coordinator
+      ├─ WatchLink.dispose()            # awaited, bounded 1 s
+      ├─ SingleInstance.release()       # socket closed, lock removed; bounded 1 s
+      └─ WindowLink.detachAndClose      # listener off → hide (Windows) →
+           │                            # setPreventClose(false) → close()
+           ├─ Windows: WM_CLOSE → DestroyWindow → WM_DESTROY → engine torn
+           │           down inside the message loop, window already gone
+           └─ Linux:   gtk_window_close → delete-event → GTK quits
+```
+
+Three rules, each load-bearing:
+
+- **Write first.** Everything on disk before anything is asked to stop, so a
+  bound that fires skips a *wait*, never data.
+- **Every wait is bounded, per step.** A watcher that never answers, or a
+  socket that will not close, gets a warning in the diagnostic log naming the
+  step, and the exit goes on.
+- **Leave by `close()`, never `destroy()`, and the runner guards its own
+  teardown.** The five-second close of v1.0.0 — 5.1–5.9 s from close to exit,
+  the window visible throughout, independent of what was open or whether the
+  watcher was on — was in `windows/runner/flutter_window.cpp`, not in Dart.
+  The plugin's `destroy()` is `PostQuitMessage` and nothing else: the runner's
+  message loop ends, and the engine is torn down when `FlutterWindow` is
+  destroyed on the way out of `wWinMain`. The template's destructor was empty,
+  so its `flutter_controller_` died as a plain member — and `~unique_ptr` does
+  not clear the pointer before running the destructor, where `reset()` does.
+  Messages still arrive during that teardown, `MessageHandler` still sees a
+  non-null controller, and hands them to one that is half destroyed. The
+  template's `OnDestroy` (the `WM_DESTROY` path) sets the pointer to null
+  explicitly, which is why the stock close never showed this. Two fixes, either
+  sufficient, both kept: the destructor now resets the pointer the same way,
+  and the shell leaves by `close()` so the stock path runs. Bisected build by
+  build with `tool/exit_timing/measure_exit.ps1` (doc 12): the empty destructor
+  is 6.3 s, one line of `= nullptr` is 0.1 s, and neither the watchers, the
+  hide, nor anything in the Dart sequence moved the number.
+
+The scope is **not** disposed on a real exit — the process ends with the
+window — so nothing registered with `ref.onDispose` runs. Those hooks cover an
+in-process teardown (a test's container); the sequence covers quitting. Until
+v1.0.1 that gap lost any setting changed in the quarter second before exit
+(doc 05), and left every watcher for the VM to tear down (doc 07).
+
 ## Link click routing (from rendered documents)
 
 ```

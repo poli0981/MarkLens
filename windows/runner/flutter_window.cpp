@@ -7,7 +7,18 @@
 FlutterWindow::FlutterWindow(const flutter::DartProject& project)
     : project_(project) {}
 
-FlutterWindow::~FlutterWindow() {}
+FlutterWindow::~FlutterWindow() {
+  // Reset, never merely let the member die. `unique_ptr::reset` clears the
+  // pointer *before* running the destructor; `~unique_ptr` does not. While
+  // the engine is being torn down here, messages still reach MessageHandler,
+  // and with the pointer left set they are handed to a controller that is
+  // half destroyed — which is the difference between a close that takes
+  // 5-6 s and one that takes 5 ms (docs/03_DATA_FLOW.md, "App exit").
+  // OnDestroy already does this on the WM_DESTROY path; this is the same
+  // guard for every other way the object can go, which for MarkLens was
+  // `window_manager.destroy()` ending the message loop first.
+  flutter_controller_ = nullptr;
+}
 
 bool FlutterWindow::OnCreate() {
   if (!Win32Window::OnCreate()) {
