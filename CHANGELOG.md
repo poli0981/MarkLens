@@ -4,7 +4,7 @@ All notable changes to MarkLens are documented here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versioning is
 [SemVer](https://semver.org/).
 
-## [Unreleased]
+## [1.0.1] - 2026-09-02
 
 ### Fixed
 

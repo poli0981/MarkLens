@@ -6,7 +6,7 @@ publish_to: "none"
 # Mirrored by hand into lib/app/version.dart, because --version has to answer
 # before a Flutter binding exists; test/app/version_test.dart fails if the two
 # ever drift.
-version: 1.0.0+1
+version: 1.0.1+2
 
 environment:
   sdk: ^3.13.1

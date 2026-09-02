@@ -911,39 +911,39 @@ one that is deferred, because it teaches everyone to skip the list.
 
 ## Release checklist (every tag)
 
-Ticked below as they stood for **v1.0.0**; reset for the next tag.
+Ticked below as they stand for **v1.0.1** (2026-09-02, one fix: the
+five-second close on Windows, doc 03 "App exit"); the v1.0.0 state is in the
+history of this file.
 
 - [x] Version bumped in `pubspec.yaml` **and `lib/app/version.dart`**; CHANGELOG
-      section written — and `test/app/version_test.dart` now checks all three
-- [x] Full suite green incl. goldens on both runners. **Integration smoke is
-      still unwritten** (doc 12); what stands in for it is `release.yml`
-      installing the `.deb` and starting both Linux artefacts
-- [x] vi/ja translations complete — `l10n_untranslated.json` is `{}` and
+      section written — `test/app/version_test.dart` checks all three, and now
+      allows `[Unreleased]` on top between releases; `release.yml`'s
+      `verify-version` is what refuses a tag whose heading was not renamed
+- [x] Full suite green on the dev machine (goldens excluded by design there);
+      both runners are the PR's CI. **Integration smoke is still unwritten**
+      (doc 12); what stands in for it is `release.yml` installing the `.deb`
+      and starting both Linux artefacts
+- [x] vi/ja translations complete — no string changed in this release;
       `arb_parity_test.dart` is green
 - [ ] Read-only audit: write-grep test green (**yes**) + manual ProcMon/strace
-      pass (**not done for v1.0.0**). The automated half is enforced on every
-      PR; the manual half is the one that would catch a *library* writing where
-      our own code does not, and it is carried to v1.0.1
-- [x] **`release.yml` rehearsed via `workflow_dispatch`** — four times, three of
-      them red, all four artefacts downloaded from the green run
-- [x] Artifacts smoke-tested on a clean Windows VM (**Windows 11 Sandbox and
-      Windows 10**) and Ubuntu (**26.04.1** — see S3). Both found something the
-      other could not: the Sandbox found the missing Visual C++ runtime, Ubuntu
-      found the missing `libEGL`. A machine that has never built the project is
-      the only place either is visible
-- [x] `SHA256SUMS` verified; release notes written; tag `v1.0.0`; publish draft
-- [x] **The published release is not marked prerelease.** `UpdateService`
+      pass (**not done for v1.0.1 either**; carried again). The exit sequence
+      writes only `session.json` and `settings.json`, both already covered by
+      the automated half
+- [ ] **`release.yml` rehearsed via `workflow_dispatch`** before the tag
+- [ ] Artifacts smoke-tested on a clean Windows VM and Ubuntu. Linux was
+      confirmed by the maintainer not to have the close defect; the Windows
+      fix was verified on the reference machine against the built binary
+      (`tool/exit_timing/measure_exit.ps1`: 5.7–5.8 s installed v1.0.0, ~185 ms
+      after), not yet on a machine that never built the project
+- [ ] `SHA256SUMS` verified; release notes written; tag `v1.0.1`; publish draft
+- [ ] **The published release is not marked prerelease.** `UpdateService`
       ignores drafts and prereleases alike, so the tick that looks like caution
       disables the update banner permanently rather than delaying it
-- [x] Listings updated: SoftHarbor entry + poli0981.dev portfolio
+- [ ] Listings updated: SoftHarbor entry + poli0981.dev portfolio
 - [ ] Post-release: file association behaves after real install
-- [ ] Update banner fires from the previous version — **deferred to v1.0.1 by
-      decision, and not because it is awkward.** At v1.0.0 the banner cannot
-      appear: `releases/latest` returns the version already running, and
-      `SemVer.isNewerThan` is false for an equal version. That is the behaviour
-      the maintainer wants — silent on the first release, visible from the
-      second — and it is already asserted twice, by
-      `test/core/update_service_test.dart` (`1.0.0` is not newer than `1.0.0`)
-      and by `test/app/update_and_about_test.dart` ("is completely silent when
-      up to date"). The first release for which this item is meaningful is
-      v1.0.1, and it is a real check then rather than a box nobody could tick
+- [ ] **Update banner fires from the previous version — the first release
+      where this is a real check.** An installed v1.0.0 with the update check
+      on asks `releases/latest` once a day; after v1.0.1 is *published* (not
+      drafted) it must show "MarkLens 1.0.1 is available" and Open Release must
+      land on the release page. Deferred from v1.0.0 by decision, because at
+      v1.0.0 there was nothing to upgrade from
