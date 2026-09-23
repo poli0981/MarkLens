@@ -108,6 +108,15 @@ update banner, it disables it permanently.
 job with a timeout, no `-latest` image anywhere in `release.yml`, and **exactly
 one** job in the repository declaring `contents: write`.
 
+**WinGet is deliberately not a job here.** A pull request on
+`microsoft/winget-pkgs` has to come from a fork, which takes a classic token on
+the maintainer's account — long-lived, and able to write to every public
+repository that account owns, this one's releases included. The
+non-negotiables below exist to keep exactly that out of the pipeline, so WinGet
+is a step on the release checklist (doc 15), run from the maintainer's machine
+by `tool/winget/submit.ps1` after a person has published the draft; doc 11 has
+the procedure.
+
 ## Non-negotiables
 
 Least-privilege permissions everywhere, no long-lived secrets (release uses

@@ -10,7 +10,9 @@
 | `marklens_x.y.z_amd64.deb` | Ubuntu/apt-friendly; registers `.desktop` + MIME |
 | `SHA256SUMS` | Checksums over all of the above |
 
-MSIX and a Flathub submission are post-1.0 candidates, not v1 work.
+MSIX and a Flathub submission are post-1.0 candidates, not v1 work. WinGet is
+not an artefact of its own: it lists `MarkLens-Setup-x.y.z.exe` from this table
+(see "WinGet" below).
 
 ## File association: the split
 
@@ -257,6 +259,136 @@ The same bundle, no registration, `MarkLens-x.y.z-win-x64-portable.zip`. Config
 still goes to `%APPDATA%` (doc 05), so a portable copy and an installed one
 share one session rather than fighting over two — which is the honest behaviour
 when the entire state is two small files.
+
+## WinGet
+
+**MarkLens is on WinGet as `poli0981.MarkLens`, and WinGet installs the same
+`MarkLens-Setup-x.y.z.exe` the releases page offers** — the same bytes, pinned
+by hash in the manifest, so a copy installed either way is the same install. The
+portable zip is not listed: it has no `AppId`, so WinGet could not recognise it
+as MarkLens, and following the update banner from it would make a second copy.
+
+The manifests live in `microsoft/winget-pkgs` under
+`manifests/p/poli0981/MarkLens/`, not here. From the second version on, each is
+generated from the one before by Komac, which re-reads the installer itself; a
+copy in this repository would be one more set of version strings to keep in
+step, which is the argument the metainfo's own comment makes.
+
+| Field | Value | Because |
+|---|---|---|
+| `PackageIdentifier` | `poli0981.MarkLens` | `AppPublisher.AppName`; it names the winget-pkgs folder for good |
+| `Moniker` | `marklens` | the binary's name, so `winget install marklens` finds it |
+| `ProductCode` | `{D40DDB92-8D60-4FA4-8D52-4C526834C355}_is1` | the `AppId` plus Inno's `_is1`: the uninstall key, which is how WinGet recognises a copy installed from the releases page |
+| `Scope` | `user` | `PrivilegesRequired=lowest`, and nothing that overrides it |
+| `InstallerType` | `inno` | WinGet supplies Inno's silent switches itself |
+| `UpgradeBehavior` | `install` | the same `AppId`, so a new version installs over the old one |
+| `Dependencies` | `Microsoft.VCRedist.2015+.x64` | the prerequisite this per-user installer can only warn about |
+| `FileExtensions` | `md`, `mdx` | what `associations.iss` registers — not the extension registry |
+| `License` | `GPL-3.0-only` | Komac writes GitHub's detection, `GPL-3.0`; the script corrects it |
+
+`Publisher` and `PackageName` are `poli0981` and `MarkLens`, because that is
+what the installed-apps list shows: `AppPublisher`, and `UninstallDisplayName`
+with no version in it. There are three locales, `en-US`, `vi-VN` and `ja-JP`,
+whose `ShortDescription` is `aboutTagline` — the strings the app already ships,
+and the only description `winget search` and `winget show` display. There is no
+`PrivacyUrl` until `legal/PRIVACY.md` has its contact, and no `Commands`: on
+Windows the binary is a GUI program that is not on `PATH`.
+
+### What WinGet runs
+
+`/SP- /SILENT /SUPPRESSMSGBOXES /NORESTART` by default, and `/VERYSILENT` with
+`--silent` — which is why the runtime warning had to become suppressible
+("Unattended, and only per-user" above). Because the manifest declares the
+runtime, WinGet installs it first when it is missing, and that may raise one
+administrator prompt, for the runtime only; MarkLens itself still installs
+per-user. The 1.0.1 manifest also passes `/CURRENTUSER`, because that installer
+still carried the install-mode override; from 1.0.2 there is nothing for it to
+override. Komac reads the installer the same way: `komac analyse` on 2026-09-23
+found two installers in the published 1.0.1 — one machine-wide, `/ALLUSERS`,
+`elevatesSelf` — and exactly one, per-user and with no switches, in an installer
+compiled from the fixed script, with the same product code, name, publisher and
+version in both.
+
+### What must never change
+
+- **`AppId`, `AppPublisher`, `AppName` and `UninstallDisplayName`.** WinGet
+  finds an installed MarkLens by the product code and matches it by publisher
+  and name; change one and every existing install stops being recognised.
+- **The installer's name.** The script builds the URL from
+  `MarkLens-Setup-x.y.z.exe`.
+- **The bytes of a published installer.** The manifest pins its SHA-256, so
+  replacing the asset breaks `winget install` of that version for everybody.
+  v1.0.1's release is not immutable (`"immutable": false`), so nothing but this
+  rule protects it, and the script warns about any release that is not.
+  Turning on immutable releases in the repository settings would make the rule
+  mechanical for every release after it; it is compatible with `release.yml`'s
+  draft-then-publish, and it is a setting only the maintainer changes.
+
+### Per release
+
+After the draft is published (doc 15's checklist):
+
+1. `pwsh tool/winget/submit.ps1 -Version x.y.z` is a dry run. It refuses a
+   draft or a prerelease; checks the installer against `SHA256SUMS`; refuses a
+   version that already has a pull request or a merged manifest; generates the
+   manifests with Komac and corrects the licence; checks every row of the table
+   above in the files it will submit; and runs `winget validate`. Read what it
+   wrote to `build/winget/x.y.z/`.
+2. If `packaging/windows/` changed since the last version on WinGet, run the
+   generated folder through `Tools\SandboxTest.ps1` from a checkout of
+   winget-pkgs — once as it is, and once with
+   `-WinGetOptions '--skip-dependencies'`, which is the machine without the
+   runtime.
+3. `pwsh tool/winget/submit.ps1 -Version x.y.z -Submit`, and link the pull
+   request in doc 15.
+4. Review happens on the pull request. Unanswered, `Needs-Author-Feedback`
+   closes it after five quiet days and three more. Fix things on the branch in
+   the fork; never run `-Submit` again for the same version, which opens a
+   second pull request.
+5. After the merge, `winget upgrade poli0981.MarkLens` on a machine with the
+   previous version.
+
+It needs a fork of `microsoft/winget-pkgs` under the maintainer's account, and
+a `gh` login. The first version cannot come from `komac update`, which starts
+from an existing package: `-ManifestDir` checks and submits a hand-written set
+instead.
+
+### Komac, and why it is pinned
+
+| | Pin | Why not the default |
+|---|---|---|
+| Komac | `2.16.0` | a package-manager install is whatever is newest that day, and this binary is handed a GitHub token |
+
+The script downloads `komac-2.16.0-x86_64-pc-windows-msvc.exe` into
+`build/komac/` and checks its SHA-256 on every run, cached or not. The token is
+`gh auth token`, set in the environment of the script's own process for its
+duration and never stored or printed. It carries `gh`'s scopes, which are
+broader than the `public_repo` Komac needs; that is acceptable only because
+nothing but a digest-pinned binary ever sees it.
+
+`komac update` carries a version's metadata forward from the previous manifest,
+re-reads the installer for the product code and the scope, and overwrites three
+fields: `License` and `LicenseUrl`, which the script puts back, and
+`ReleaseNotes`, which becomes the GitHub release's body — so write that for the
+people who will read it in `winget show`. `komac submit` reformats what it is
+given, which is why the script checks fields rather than layout.
+
+### Why not in CI
+
+Doc 14 has the long version: the pull request needs a classic token that can
+write to every public repository the maintainer owns, this one's releases
+included, and a long-lived secret like that is exactly what its
+non-negotiables keep out of the pipeline.
+
+### The update banner
+
+The banner appears when a release is published; `winget upgrade` catches up
+when the manifest merges, hours or days later. Both install the same bytes over
+the same `AppId`, so whichever a person follows, the other sees the result.
+
+### The first submission
+
+Not yet submitted.
 
 ## Linux
 

@@ -136,7 +136,7 @@ the window that is already there rather than starting a second one.
 | `docs/15_SPIKES_ROADMAP.md` | P0 spikes S1–S5, milestones M0–M4, release checklist |
 | `legal/` | PRIVACY, EULA, DISCLAIMER, THIRD_PARTY_NOTICES, licence texts |
 | `packaging/` | What the installers reference, and the scripts that build them |
-| `tool/` | Generators and containers: icons, fonts, goldens, Linux artefacts |
+| `tool/` | Generators and containers: icons, fonts, goldens, Linux artefacts; the WinGet submission script |
 
 ## License
 

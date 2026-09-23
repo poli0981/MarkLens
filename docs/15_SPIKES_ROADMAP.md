@@ -939,8 +939,15 @@ history of this file.
 - [ ] **The published release is not marked prerelease.** `UpdateService`
       ignores drafts and prereleases alike, so the tick that looks like caution
       disables the update banner permanently rather than delaying it
+- [ ] **WinGet, after publishing** (doc 11 "WinGet"):
+      `pwsh tool/winget/submit.ps1 -Version x.y.z` runs clean, then again with
+      `-Submit`, and the pull request is linked here. From this point the
+      installer's bytes are pinned — never replace the asset
 - [ ] Listings updated: SoftHarbor entry + poli0981.dev portfolio
 - [ ] Post-release: file association behaves after real install
+- [ ] Post-release: the winget-pkgs pull request is merged, and
+      `winget upgrade poli0981.MarkLens` on a machine with the previous version
+      reaches x.y.z. Unanswered review closes it after 5 + 3 quiet days
 - [ ] **Update banner fires from the previous version — the first release
       where this is a real check.** An installed v1.0.0 with the update check
       on asks `releases/latest` once a day; after v1.0.1 is *published* (not
