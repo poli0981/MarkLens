@@ -41,7 +41,7 @@
    else. Two `src` shapes turned out to reach the *local* branch while naming a
    host, and both are refused: a protocol-relative URL and a UNC path. See
    doc 04.
-4. **Zero network by default.** Exactly two opt-in-controlled calls exist:
+4. **Zero network by default.** Exactly two setting-controlled calls exist:
    - Update check (default on, off-switch in Settings): HTTPS to
      `api.github.com`, sends nothing but the request itself.
    - Remote images (default **off**): requests go to whatever host the

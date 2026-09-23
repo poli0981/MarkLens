@@ -221,8 +221,10 @@ class FilesSettings {
 
 /// The two settings that can cause any network traffic at all.
 ///
-/// Both default to the quiet answer. There is no third: MarkLens has no
-/// telemetry and no analytics, ever (CLAUDE.md rule 5).
+/// Remote images default to off. The update check defaults to on and has its
+/// own switch (doc 10), which is what the README, the package descriptions and
+/// `test/repo/network_claims_test.dart` say too. There is no third: MarkLens
+/// has no telemetry and no analytics, ever (CLAUDE.md rule 5).
 class NetworkSettings {
   /// Creates network settings.
   const NetworkSettings({

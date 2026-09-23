@@ -17,8 +17,9 @@ instant to open, remembers your session, never touches your files.
   documents. The only writes are its own config/session files.
 - **Render, not run.** MDX components and embedded HTML are displayed as inert
   placeholders — no JavaScript engine, no webview, ever.
-- **Offline by default.** Zero network traffic except two opt-in features:
-  the update check and remote images (off by default).
+- **No telemetry, and only two network features.** A once-a-day update check
+  against GitHub Releases (on by default, one switch in Settings turns it off)
+  and remote images (off by default) are the only traffic MarkLens ever makes.
 - **Identical output on both OSes.** Flutter's own renderer + bundled fonts
   mean a document looks the same on Windows and Ubuntu.
 

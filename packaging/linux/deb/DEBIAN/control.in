@@ -20,5 +20,6 @@ Description: fast, lightweight, read-only Markdown viewer
  interface.
  .
  MDX components and embedded HTML are displayed as inert placeholders. There is
- no JavaScript engine and no webview, and the only network traffic is an opt-in
- update check.
+ no JavaScript engine, no webview and no telemetry. The only network traffic is
+ an update check against GitHub Releases, at most once a day - on by default,
+ and off with one setting - and remote images, which are off by default.

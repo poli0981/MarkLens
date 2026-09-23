@@ -17,7 +17,8 @@ scope as security issues (see `docs/10_SECURITY_PRIVACY.md`):
 
 - Any code execution triggered by document content (MDX, HTML, links)
 - Any write, rename, or delete of user files by the app
-- Any network request outside the two documented opt-in features
+- Any network request outside the two documented, setting-controlled
+  features (the update check and remote images)
 - Crashes or hangs caused by crafted files
 
 Please do not open public issues for the above before contact.

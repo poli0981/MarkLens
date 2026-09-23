@@ -19,6 +19,11 @@ All notable changes to MarkLens are documented here. Format follows
   installing into the administrator's own profile. It is per-user only, as the
   README and doc 11 always said. If you chose "all users", uninstall that copy
   first: this installer cannot see it and would install a second one beside it.
+- **The package descriptions called the update check opt-in; it is on by
+  default.** The AppStream metadata — what GNOME Software and KDE Discover
+  show — the Debian package description and the README now say so, along with
+  the other network feature, remote images, which is off by default.
+  SECURITY.md and doc 10 said "opt-in" too.
 
 ## [1.0.1] - 2026-09-02
 

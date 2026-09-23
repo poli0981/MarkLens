@@ -213,7 +213,8 @@ should say so before they do:
   register a handler but cannot write the `UserChoice` hash that makes it the
   default — that is deliberately reserved for a choice the user makes.
 - **The installer is unsigned**, so SmartScreen warns on download. Code signing
-  is money and a process; it is a post-1.0 question (doc 15).
+  is money and a process; it is a post-1.0 question that nothing schedules
+  yet — this line used to send it to doc 15, which has never had it.
 
 ### Unattended, and only per-user — after v1.0.1
 
