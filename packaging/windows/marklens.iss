@@ -67,6 +67,12 @@ OutputBaseFilename={#AppName}-Setup-{#AppVersion}
 SetupIconFile=..\..\windows\runner\resources\app_icon.ico
 UninstallDisplayIcon={app}\{#AppExeName}
 UninstallDisplayName={#AppName}
+; associations.iss registers the .md and .mdx ProgId. Without this, Setup never
+; announces it (SHCNE_ASSOCCHANGED), and in Inno's own words the file type's
+; icon "likely won't be displayed until the user logs off or restarts". With
+; it, Setup and the uninstaller both tell Explorer to refresh - which Inno's
+; documentation says any installation that creates an association should do.
+ChangesAssociations=yes
 WizardStyle=modern
 Compression=lzma2/max
 SolidCompression=yes

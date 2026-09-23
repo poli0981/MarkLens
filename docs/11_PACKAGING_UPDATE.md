@@ -216,6 +216,21 @@ should say so before they do:
   is money and a process; it is a post-1.0 question that nothing schedules
   yet — this line used to send it to doc 15, which has never had it.
 
+**Setup tells Explorer when the associations change — after v1.0.1.**
+`associations.iss` registers the ProgId, and through v1.0.1 nothing announced
+it: without `ChangesAssociations=yes` Setup never sends `SHCNE_ASSOCCHANGED`,
+and Inno's documentation is plain about the result — the file type's icon
+"likely won't be displayed until the user logs off or restarts the computer".
+With it, Setup and the uninstaller both tell Explorer to refresh, which is what
+that documentation says any installation that creates an association should
+do. `test/repo/inno_script_test.dart` pins it. Verified on 2026-09-23 in a
+Windows 11 Sandbox, with an Explorer window already open on a folder of `.md`
+files and never refreshed by hand: after a silent install compiled from the
+script before this change, the files kept blank icons and their `.md`
+extensions; with it, the same window switched to the MarkLens icon within
+seconds and hid the extension of what was now a known type, and a silent
+uninstall switched it back.
+
 ### Unattended, and only per-user — after v1.0.1
 
 **A silent install never waits on the runtime warning.** WinGet runs an Inno

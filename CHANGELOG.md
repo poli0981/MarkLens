@@ -24,6 +24,11 @@ All notable changes to MarkLens are documented here. Format follows
   show — the Debian package description and the README now say so, along with
   the other network feature, remote images, which is off by default.
   SECURITY.md and doc 10 said "opt-in" too.
+- **Installing or uninstalling did not tell Explorer the `.md` association had
+  changed**, so the MarkLens icon for Markdown files could fail to appear until
+  you signed out or restarted. The installer and uninstaller now announce the
+  change, as Inno's documentation says any installer that registers file
+  associations should.
 
 ## [1.0.1] - 2026-09-02
 

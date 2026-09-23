@@ -146,6 +146,20 @@ void main() {
     );
   });
 
+  test('it tells Explorer when the associations change', () {
+    // associations.iss writes the ProgId; without ChangesAssociations Setup
+    // never sends SHCNE_ASSOCCHANGED, and an open Explorer window keeps the
+    // old icon and "Open with" list - on install and, for the stale entry, on
+    // uninstall too. Nothing fails; it just looks as if nothing happened.
+    expect(
+      _directive(main, 'ChangesAssociations'),
+      'yes',
+      reason:
+          'Inno says to set it whenever an installation creates a file '
+          'association, and this one does.',
+    );
+  });
+
   test('the version comes from the command line and cannot be forgotten', () {
     // pubspec.yaml is the single source of truth (doc 11) and build.ps1 reads
     // it. A version literal here would be a fourth copy with no guard - and
