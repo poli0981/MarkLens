@@ -4,6 +4,22 @@ All notable changes to MarkLens are documented here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versioning is
 [SemVer](https://semver.org/).
 
+## [Unreleased]
+
+### Fixed
+
+- **A silent install on a Windows without the Visual C++ runtime never
+  finished.** The installer's warning about the missing runtime was a message
+  box Inno Setup cannot suppress, so `winget` — or any
+  `/VERYSILENT /SUPPRESSMSGBOXES` deployment — waited on a question nobody
+  could see. Suppressed, it now answers "continue", which is what an
+  interactive install offers, and the setup log records it.
+- **The installer no longer offers to install for all users.** 1.0.0 and 1.0.1
+  asked at start-up, and "all users" put the uninstall entry under `HKLM` while
+  installing into the administrator's own profile. It is per-user only, as the
+  README and doc 11 always said. If you chose "all users", uninstall that copy
+  first: this installer cannot see it and would install a second one beside it.
+
 ## [1.0.1] - 2026-09-02
 
 ### Fixed

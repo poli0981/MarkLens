@@ -62,6 +62,46 @@ String? _directive(String script, String name) => RegExp(
   multiLine: true,
 ).firstMatch(script)?.group(1)?.trim();
 
+/// The `[Code]` section reduced to its calls.
+///
+/// Comments go first — `{ ... }`, `(* ... *)` — so a comment explaining why
+/// `MsgBox` is not used cannot count as a use; then string literals, so a URL's
+/// `//` is not mistaken for a line comment; then `//` comments. The order
+/// matters: a comment can hold an apostrophe, which would pair up with the
+/// next string's if strings went first.
+String _pascalCode(String script) {
+  final start = script.indexOf(RegExp(r'^\[Code\]$', multiLine: true));
+  if (start == -1) {
+    throw StateError('$_main has no [Code] section.');
+  }
+  return script
+      .substring(start)
+      .replaceAll(RegExp(r'\{[^}]*\}'), '')
+      .replaceAll(RegExp(r'\(\*[\s\S]*?\*\)'), '')
+      .replaceAll(RegExp("'[^']*'"), "''")
+      .replaceAll(RegExp(r'//[^\n]*'), '');
+}
+
+/// One section's entries, with Inno's trailing-`\` continuations joined, so an
+/// entry is one string however it happens to be wrapped.
+List<String> _entries(String script, String section) {
+  final header = RegExp(
+    '^\\[$section\\]\$',
+    multiLine: true,
+  ).firstMatch(script);
+  if (header == null) {
+    return const <String>[];
+  }
+  final rest = script.substring(header.end);
+  final next = RegExp(r'^\[', multiLine: true).firstMatch(rest);
+  return (next == null ? rest : rest.substring(0, next.start))
+      .replaceAll(RegExp(r'\\\n[ \t]*'), ' ')
+      .split('\n')
+      .map((line) => line.trim())
+      .where((line) => line.isNotEmpty && !line.startsWith(';'))
+      .toList();
+}
+
 void main() {
   final main = _read(_main);
   final associations = _read(_associations);
@@ -77,6 +117,17 @@ void main() {
       reason:
           'A per-user installer writing to {commonpf} would fail for exactly '
           'the users it is meant to serve.',
+    );
+    // And only per-user. `dialog` (1.0.0 and 1.0.1) let a start-up question,
+    // or /ALLUSERS, choose an administrative install nothing else here is
+    // written for: files in the administrator's own {localappdata}, the
+    // uninstall entry in HKLM. WinGet lists the installer as Scope: user.
+    expect(
+      _directive(main, 'PrivilegesRequiredOverridesAllowed'),
+      isNull,
+      reason:
+          'An override makes an all-users install possible, and nothing in '
+          'this script - the directory, the associations - is written for one.',
     );
   });
 
@@ -226,6 +277,53 @@ void main() {
           'prerequisite it cannot install - this one is per-user and cannot '
           'run a machine-wide redistributable - is a dead end.',
     );
+  });
+
+  test('an unattended install cannot stop on a message box', () {
+    // WinGet runs every Inno installer with /SUPPRESSMSGBOXES, and so does any
+    // scripted deployment. Inno cannot suppress a plain MsgBox, or a
+    // TaskDialogMsgBox: through 1.0.1 the runtime warning was the former, so a
+    // silent install on a machine without the runtime waited on a question
+    // nobody could see. \b keeps SuppressibleMsgBox( from matching.
+    final code = _pascalCode(main);
+    expect(
+      RegExp(r'\b(?:TaskDialog)?MsgBox\s*\(').hasMatch(code),
+      isFalse,
+      reason:
+          'Inno cannot suppress MsgBox or TaskDialogMsgBox; an unattended '
+          'install would wait on it for ever. Use SuppressibleMsgBox.',
+    );
+    expect(
+      RegExp(r'SuppressibleMsgBox\([\s\S]*?MB_YESNO,\s*IDYES\s*\)').hasMatch(
+        code,
+      ),
+      isTrue,
+      reason:
+          'Suppressed, the runtime warning must answer IDYES - continue - '
+          'which is what the interactive install offers.',
+    );
+  });
+
+  test('a silent install never starts the program', () {
+    // A launch left running by a silent install is a window nobody asked for,
+    // on a machine that may have nobody at it - and a process holding files a
+    // WinGet upgrade would need to replace.
+    final run = _entries(main, 'Run');
+    expect(run, isNotEmpty, reason: 'No [Run] entries - has the syntax moved?');
+    for (final entry in run.where((e) => e.contains('postinstall'))) {
+      expect(entry, contains('skipifsilent'), reason: entry);
+    }
+  });
+
+  test('doc 11 names the key the script reads, without the octal escape', () {
+    // The same mangling this file guards against in the script reached the
+    // doc: `\14` became a form feed and `\x64` a `d`, invisible in an editor.
+    final doc = _read('docs/11_PACKAGING_UPDATE.md');
+    expect(
+      doc,
+      contains(r'HKLM\SOFTWARE\Microsoft\VisualStudio\14.0\VC\Runtimes\x64'),
+    );
+    expect(doc, isNot(contains(String.fromCharCode(12))));
   });
 
   test('uninstall keeps the config directory unless asked', () {

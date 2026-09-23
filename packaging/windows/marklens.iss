@@ -40,8 +40,15 @@ AppCopyright=Copyright (C) 2026 {#AppPublisher}. GPL-3.0-only; see LICENSE.
 ; profile, and nothing another account can be surprised by. `lowest` also means
 ; the uninstall entry lands under HKCU, which is where associations.iss writes
 ; too - one privilege story for the whole installer.
+;
+; And *only* per-user, so there is deliberately no
+; PrivilegesRequiredOverridesAllowed. Through 1.0.1 it was `dialog`, which let a
+; start-up question - or /ALLUSERS - choose an administrative install that
+; nothing below is written for: the files stayed in that administrator's own
+; {localappdata} and the associations in their HKCU, while the uninstall entry
+; moved to HKLM. WinGet lists this installer as Scope: user (doc 11), and that
+; has to be true of every install, not just of the default answer.
 PrivilegesRequired=lowest
-PrivilegesRequiredOverridesAllowed=dialog
 DefaultDirName={localappdata}\Programs\{#AppName}
 DefaultGroupName={#AppName}
 DisableProgramGroupPage=yes
@@ -139,7 +146,13 @@ var
 
   It warns and offers to continue rather than refusing. Somebody may be
   installing ahead of the runtime deliberately, and an installer that blocks on
-  a prerequisite it cannot install is a dead end. }
+  a prerequisite it cannot install is a dead end.
+
+  Unattended, there is nobody to answer, so the question has to be one Inno
+  can suppress. A plain MsgBox is not: /SUPPRESSMSGBOXES - which WinGet always
+  passes - leaves it on screen, and a silent install waits on it for ever.
+  SuppressibleMsgBox returns IDYES when suppressed, which is the answer an
+  interactive install offers, and the setup log records which way it went. }
 function VCRedistInstalled(): Boolean;
 var
   Installed: Cardinal;
@@ -158,17 +171,23 @@ begin
   if VCRedistInstalled() then
     Exit;
 
-  if MsgBox(
+  Log('The Visual C++ Redistributable (x64) is not installed: no Installed=1 '
+    + 'under HKLM\' + VCRedistKey + ' in either registry view.');
+  if SuppressibleMsgBox(
       'MarkLens needs the Microsoft Visual C++ Redistributable (x64), which '
       + 'does not appear to be installed.' + #13#10#13#10
       + 'Without it Windows will refuse to start MarkLens with a message about '
       + 'a missing VCRUNTIME140_1.dll or MSVCP140.dll.' + #13#10#13#10
       + 'Download it from:' + #13#10 + VCRedistUrl + #13#10#13#10
       + 'Continue installing anyway?',
-      mbConfirmation, MB_YESNO) = IDNO then
+      mbConfirmation, MB_YESNO, IDYES) = IDNO then
   begin
+    Log('Cancelled at the Visual C++ runtime warning.');
     Result := False;
-  end;
+  end
+  else
+    Log('Continuing without the Visual C++ runtime. MarkLens will not start '
+      + 'until it is installed: ' + VCRedistUrl);
 end;
 
 function ConfigDirectory(): String;

@@ -133,7 +133,8 @@ is how About and the applications menu end up describing different programs.
 
 ## Windows (Inno Setup)
 
-- Per-user (`PrivilegesRequired=lowest`), install under
+- Per-user (`PrivilegesRequired=lowest`, and nothing that overrides it — see
+  "Unattended, and only per-user" below), install under
   `{localappdata}\Programs\MarkLens`.
 - File association: ProgId `MarkLens.Document` for `.md` and `.mdx` as an
   *optional task* (checked by default for `.md`, unchecked for `.mdx` —
@@ -186,7 +187,7 @@ developer machine has it, which is exactly why it went unnoticed until a Windows
 Sandbox.
 
 `InitializeSetup` reads
-`HKLM\SOFTWARE\Microsoft\VisualStudio.0\VC\Runtimesd` and warns with
+`HKLM\SOFTWARE\Microsoft\VisualStudio\14.0\VC\Runtimes\x64` and warns with
 the download URL. Three decisions inside that:
 
 - **Checked, not bundled.** The redistributable is a machine-wide install
@@ -198,7 +199,7 @@ the download URL. Three decisions inside that:
   running in, so both are read.
 - **It warns and offers to continue.** Somebody may be installing ahead of the
   runtime deliberately, and an installer that blocks on a prerequisite it cannot
-  install is a dead end.
+  install is a dead end. Unattended, the question answers itself — below.
 
 **The portable zip cannot warn about any of this**, which is why the README
 carries the same paragraph. Verified on Windows 10 and in a Windows 11 Sandbox.
@@ -211,6 +212,44 @@ should say so before they do:
   default — that is deliberately reserved for a choice the user makes.
 - **The installer is unsigned**, so SmartScreen warns on download. Code signing
   is money and a process; it is a post-1.0 question (doc 15).
+
+### Unattended, and only per-user — after v1.0.1
+
+**A silent install never waits on the runtime warning.** WinGet runs an Inno
+installer with `/SP- /SILENT /SUPPRESSMSGBOXES /NORESTART` (or `/VERYSILENT`),
+and so does any scripted deployment. Through v1.0.1 the warning above was a
+plain `MsgBox`, one of the few message boxes Inno *cannot* suppress: on a
+Windows without the runtime — a fresh install, a Sandbox — a silent install
+waited on a question nobody could see, for ever. It is now `SuppressibleMsgBox`
+with `IDYES` as the suppressed answer, so an unattended install does what an
+interactive one offers and continues, and the setup log (`/LOG`) records that
+the runtime was missing. The post-install launch was already `skipifsilent`.
+`test/repo/inno_script_test.dart` fails on any unsuppressible message box in
+`[Code]`, and on a `postinstall` entry without `skipifsilent`.
+
+**Per-user is the only install mode.** The script carried
+`PrivilegesRequiredOverridesAllowed=dialog`, which let a start-up question — or
+`/ALLUSERS` on the command line — choose an administrative install that nothing
+else in the script is written for: the files stayed in that administrator's own
+`{localappdata}` and the associations in their `HKCU`, while the uninstall entry
+moved to `HKLM`. The directive is gone, so neither the question nor the switch
+exists, and "per-user" — which is how WinGet lists this installer — is true of
+every install rather than of the default answer. Anybody who chose "all users"
+in 1.0.0 or 1.0.1 has a copy this installer cannot see; it installs beside it,
+so that copy has to be uninstalled by hand. The same test pins the directive's
+absence.
+
+Verified on 2026-09-23 in a Windows 11 Sandbox with no Visual C++ runtime in
+either registry view, against installers compiled from this script and from
+v1.0.1's. With `/SUPPRESSMSGBOXES`, `/VERYSILENT`, `/SILENT` and
+`/VERYSILENT /ALLUSERS` — the last from an elevated shell — each returned 0 in
+seconds, installed per-user with the uninstall entry under `HKCU` only
+(`MarkLens`, `poli0981`, `1.0.1`), logged the missing runtime and did not start
+the program; a silent uninstall removed it and kept `settings.json`. v1.0.1's
+script under the same switches was still showing the runtime question after 60
+seconds, and started by hand it opened on "Select Setup Install Mode"; this one
+opens on the runtime warning. Not verified: an upgrade over a running copy, and
+anything WinGet itself adds around the installer.
 
 ### The portable zip
 
