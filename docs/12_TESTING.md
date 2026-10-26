@@ -159,10 +159,10 @@ badge row.
 
 ## Coverage & gates
 
-Core ≥ **85%** lines, overall ≥ **70%**, reported as a CI artifact (doc 14).
-Unit failures block every PR.
+Core ≥ **85%** lines, overall ≥ **70%**, checked by the ubuntu leg of the `test`
+job and reported to SonarQube Cloud (doc 14). Unit failures block every PR.
 
-### What actually gates, as of M4
+### What actually gates, as of M4 (amended 2026-10)
 
 This section described intent for four milestones and is now written against
 the pipeline that exists, because a gate nobody enforces is worse than an
@@ -174,7 +174,8 @@ absent one — it is an absent one that people believe in.
 | Goldens (layout and renderer) | **Enforced**, `golden (ubuntu-24.04)`, every PR |
 | l10n parity and tri-locale layout | **Enforced**, part of the ordinary suite |
 | Artefacts build and start | **Enforced** by `release.yml` — `dpkg -i`, then `--version` under `xvfb`, for the `.deb` and the AppImage |
-| Coverage thresholds | **Not enforced.** `coverage/lcov.info` is uploaded every run and gated by nothing. This has said "switches on at M1" since M0 |
+| Coverage thresholds | **Enforced since 2026-10**, ubuntu leg of `test`, every PR. This said "switches on at M1" from M0 to v1.0.1 and gated nothing; measured first (96.6% core, 92.2% overall), then switched on |
+| SonarQube Cloud quality gate | **Enforced**, `sonarcloud`, every PR and `main`: the default gate on new code, coverage included. Skipped on fork and Dependabot PRs, which have no token (doc 14) |
 | Integration smoke (pyramid item 4) | **Not written.** See below |
 | Performance gate | Deliberately never in CI — profile mode, reference machine |
 | Exit timing | **Manual**, same class as the performance gate: `tool/exit_timing/measure_exit.ps1` posts `WM_CLOSE` to the built binary and reports when the window went and when the process did. Numbers and the reason they matter are in doc 03, "App exit"; re-take them when anything on that path changes |

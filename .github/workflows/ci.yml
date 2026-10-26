@@ -17,6 +17,11 @@ on:
   push:
     branches: [main]
   pull_request:
+  # A pull request is analysed by SonarQube Cloud as a pull request, which
+  # reports only the lines it changed. Dispatching this workflow on a branch
+  # gets a branch analysis instead — every issue in the tree, which is what a
+  # clean-up branch needs to see before it opens one.
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -95,13 +100,84 @@ jobs:
         # wrong place for that; the dedicated watch-observation workflow runs it
         # deliberately instead.
         run: flutter test --exclude-tags "golden || watcher-live" --coverage
+      - name: Coverage thresholds
+        # docs/12_TESTING.md: lib/core/ at least 85% of lines, the app at least
+        # 70%. That sentence said "switches on at M1" from M0 to v1.0.1 and
+        # gated nothing; this is it switching on. Generated l10n is left out,
+        # as SonarQube Cloud leaves it out. Linux paths only — the windows
+        # leg's lcov uses backslashes and adds nothing the ubuntu one lacks.
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          awk -F'[:,]' '
+            /^SF:/ { gen = ($2 ~ /^lib\/l10n\/gen\//); core = ($2 ~ /^lib\/core\//); next }
+            /^DA:/ && !gen {
+              all++; if ($3 > 0) allHit++
+              if (core) { c++; if ($3 > 0) cHit++ }
+            }
+            END {
+              printf "lib/       %5d/%-5d lines  %5.1f%%\n", allHit, all, 100 * allHit / all
+              printf "lib/core/  %5d/%-5d lines  %5.1f%%\n", cHit, c, 100 * cHit / c
+              if (100 * cHit / c < 85) { print "::error::lib/core/ line coverage is under 85% (docs/12_TESTING.md)"; failed = 1 }
+              if (100 * allHit / all < 70) { print "::error::lib/ line coverage is under 70% (docs/12_TESTING.md)"; failed = 1 }
+              exit failed
+            }' coverage/lcov.info
       - name: Upload coverage
         if: matrix.os == 'ubuntu-latest'
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: coverage
           path: coverage/lcov.info
           if-no-files-found: error
+
+  sonarcloud:
+    name: sonarcloud
+    needs: test
+    # SONAR_TOKEN is a repository secret, and two kinds of run never see one:
+    # a pull request from a fork, and anything Dependabot opens (it gets its own
+    # secret store, which is empty). Both would fail on authentication rather
+    # than on anything in the code, so they skip instead. Every other run fails
+    # loudly if the token is missing.
+    if: >-
+      github.event.pull_request.user.login != 'dependabot[bot]' &&
+      (github.event_name != 'pull_request' ||
+       github.event.pull_request.head.repo.full_name == github.repository)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # SonarQube Cloud reads blame to decide which lines are new code. A
+          # shallow clone makes every line look new.
+          fetch-depth: 0
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+      # The Dart analyzer resolves package imports through
+      # .dart_tool/package_config.json; without it every `package:` import is
+      # unresolved and the analysis is quietly incomplete rather than failing.
+      - run: flutter pub get
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: coverage
+          path: coverage
+      - name: Project version
+        id: version
+        # The "previous version" new-code period keys on this, so it has to be
+        # the version that ships, read from its single source of truth.
+        run: |
+          version="$(sed -n 's/^version:[[:space:]]*\([0-9]\+\.[0-9]\+\.[0-9]\+\).*/\1/p' pubspec.yaml)"
+          test -n "$version"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+      - name: Analyze
+        # sonar-project.properties carries the rest, including
+        # sonar.qualitygate.wait: a failed gate fails this job.
+        uses: SonarSource/sonarqube-scan-action@d209202bc7d53ff1cc128f7f907dac145c9d6ae9 # v8.3.0
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: -Dsonar.projectVersion=${{ steps.version.outputs.version }}
 
   golden:
     name: golden (ubuntu-24.04)

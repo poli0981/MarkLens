@@ -22,6 +22,7 @@ whenever a pin moves (CLAUDE.md rule 10). Full license texts live in
 | url_launcher | External links | BSD-3-Clause | 6.3.2 |
 | args | CLI parsing | BSD-3-Clause | 2.7.0 |
 | path (Dart team) | Path resolution | BSD-3-Clause | 1.9.1 |
+| intl (Dart team) | Plural rules for the generated localizations | BSD-3-Clause | 0.20.3 |
 | Noto Sans | UI & body font (subset, four faces) | SIL OFL 1.1 | 2.015 |
 | Noto Sans JP | Japanese fallback (subset, two faces) | SIL OFL 1.1 | 2.004 |
 | JetBrains Mono | Code font (subset, two faces) | SIL OFL 1.1 | 2.304 |

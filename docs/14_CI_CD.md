@@ -27,27 +27,33 @@ third-party action pinned by 40-character SHA, and a timeout on every job.
 
 ## CI (every PR + main)
 
-`.github/workflows/ci.yml`. Four jobs:
+`.github/workflows/ci.yml`. Five jobs:
 
-`analyze` → `test` → `golden`, with `build-smoke` branching off `analyze`.
+`analyze` → `test` → `golden` and `sonarcloud`, with `build-smoke` branching
+off `analyze`. It also runs on `workflow_dispatch`, which exists for the
+SonarQube Cloud branch analysis described below.
 
 - **`analyze`** (ubuntu): `flutter analyze`, `dart format --set-exit-if-changed`,
   a `gen-l10n` no-diff check (generated ARB output is committed, so
   regenerating must produce no diff), and an assertion that no golden failure
   dump is tracked (doc 12).
 - **`test`** (matrix `ubuntu-latest` + `windows-latest`): unit, widget and
-  architecture tests with `--exclude-tags "golden || watcher-live"`, coverage
-  uploaded as an artifact from the ubuntu leg. The doc 12 coverage thresholds
-  are **not** enforced here yet — see the note below rather than assuming they
-  are.
+  architecture tests with `--exclude-tags "golden || watcher-live"`. The ubuntu
+  leg then checks doc 12's coverage thresholds against its own lcov report —
+  `lib/core/` at least 85% of lines, `lib/` at least 70%, generated l10n left
+  out — and uploads the report as an artifact for `sonarcloud`.
 - **`golden`** (`ubuntu-24.04`, pinned): activates itself by grepping for the
   literal `@Tags(['golden'])`, so a golden costs nothing until one exists.
+- **`sonarcloud`** (after `test`): SonarQube Cloud analysis of `lib/` with that
+  coverage report. A failed quality gate fails the job. See below.
 - **`build-smoke`** (matrix): a debug build boots on both platforms.
 
 **The Flutter version is `env.FLUTTER_VERSION`, and it is duplicated** — into
-`watch-observation.yml`, into `tool/goldens/Dockerfile`, and into doc 01, which
-is the source of truth. Doc 01 says the four "must never disagree"; since M4
-that is a test rather than a rule, in `test/repo/pin_agreement_test.dart`.
+`release.yml`, `watch-observation.yml`, both `tool/*/Dockerfile`s, the README's
+stack line, the notices table, and doc 01, which is the source of truth. Doc 01
+says they "must never disagree"; since M4 that is a test rather than a rule, in
+`test/repo/pin_agreement_test.dart`, which since 2026-10 also holds every
+shipped package pin to doc 01's table and the notices.
 
 **Caching belongs to `subosito/flutter-action` and should stay there.** Setting
 `cache: true` and leaving `pub-cache` unset enables *both* caches, and the
@@ -57,11 +63,74 @@ make it true would give the same path two owners. Read the action before
 changing this; the absence of a visible cache step in `ci.yml` is not the
 absence of a cache.
 
-**Known gap, stated rather than implied:** doc 12 says the coverage thresholds
-(core ≥ 85%, overall ≥ 70%) switch on at M1. They did not. `coverage/lcov.info`
-is uploaded every run and gated by nothing. M4 prints the real numbers before
-deciding whether to enforce them or amend doc 12 — turning `main` red on an
-unmeasured threshold during a release week is not a gate, it is an accident.
+**The coverage thresholds switched on in 2026-10**, after saying "at M1" from
+M0 to v1.0.1 and gating nothing. They were measured before they were enforced,
+so turning them on could not turn `main` red by surprise: 96.6% of `lib/core/`
+and 92.2% of `lib/` on the day. The check is a dozen lines of `awk` over the
+lcov report rather than an action or a script in `tool/`, because the report
+format is that simple and doc 13 prefers our own fifty lines.
+
+## SonarQube Cloud
+
+Project `poli0981_MarkLens` in organization `poli0981`; configuration in
+`sonar-project.properties` at the repo root, which says why each line is there.
+
+**CI-based, not automatic analysis.** Automatic analysis is switched off on the
+SonarQube Cloud side and must stay off — two analyses of one project conflict.
+It cannot run `flutter pub get`, so the Dart analyzer would resolve none of the
+`package:` imports, and it never sees coverage. The `sonarcloud` job runs after
+`test`, sets up the same Flutter pin, runs `pub get`, downloads the ubuntu
+leg's lcov report and scans. `sonarqube-scan-action` is v6 or later on purpose:
+up to v3 it ran in a container that could see only the checkout, which is
+exactly the pub-cache blindness above.
+
+**What is analysed:** `lib/` as source, `test/`, `integration_test/` and
+`test_driver/` as tests, `lib/l10n/gen/` excluded (generated, and committed only
+so a fresh clone analyzes clean). The C++ runners and the Python tools are
+CodeQL's (below): C++ in SonarQube Cloud needs a compilation database the
+Flutter build does not produce.
+
+**The quality gate fails the job** (`sonar.qualitygate.wait`), so a red gate is
+a red check on the pull request rather than a badge somebody has to remember to
+look at. `sonar.projectVersion` comes from `pubspec.yaml` in the job, because
+the "previous version" new-code period keys on it: every release starts a new
+period, and the gate judges what changed since.
+
+**A pull request is analysed as a pull request** — issues on the lines it
+changed, nothing else. To see every issue on a branch, dispatch `ci` on it
+(`gh workflow run ci --ref <branch>`); that is a branch analysis.
+
+**`SONAR_TOKEN` is the one repository secret**, and it is read by this job
+alone. A pull request from a fork and anything Dependabot opens run without
+repository secrets, so the job skips itself there rather than failing on
+authentication; everywhere else a missing token fails loudly. It is long-lived,
+and it is allowed because it reaches SonarQube Cloud and nothing here — see
+"Non-negotiables" for why that is the line, and why a WinGet token is on the
+other side of it.
+
+## Code scanning, dependency audit, Dependabot
+
+- **CodeQL** (`codeql.yml`; push to `main`, every PR, weekly): `actions`,
+  `c-cpp` and `python`, all with `build-mode: none`. CodeQL has no Dart. What it
+  covers is everything else that runs: the workflows (the only place here that
+  holds a writable token), the C++ runners, and the Python under `tool/`.
+  Build-free C++ extraction has been GA since 2025-10, so the job needs no
+  Flutter toolchain, Windows SDK or GTK. The job holds `security-events: write`
+  to upload results, the second write grant in the repository and the only
+  other one `workflow_lint_test.dart` allows.
+- **Dependency review** (`dependency-review.yml`, every PR): what the PR does
+  to the dependency graph — `pubspec.lock` and the actions pinned here —
+  against the advisory database and a licence allow-list of what combines
+  into GPL-3.0-only. It is the half of rule 10's licence check a machine can
+  do, and the half that catches a licence arriving transitively. A licence the
+  graph cannot identify is reported, not failed, which is why the person's
+  check in doc 01 still exists.
+- **Dependabot** (`dependabot.yml`): `github-actions` and `pub`, each grouped
+  into one pull request a month. The `pub` group is doc 01's monthly batch PR,
+  opened by a bot; the licence check and the doc 01 / notices rows stay a
+  person's, and `test/repo/pin_agreement_test.dart` keeps the batch red until
+  they are done. Dependabot alerts and security updates are on in the
+  repository settings, as are secret scanning and push protection.
 
 ## Release (tag `v*`)
 
@@ -105,8 +174,9 @@ update banner, it disables it permanently.
 
 `test/repo/workflow_lint_test.dart` holds the shape: every action pinned to a
 40-character SHA, every workflow with an explicit `permissions:` block, every
-job with a timeout, no `-latest` image anywhere in `release.yml`, and **exactly
-one** job in the repository declaring `contents: write`.
+job with a timeout, no `-latest` image anywhere in `release.yml`, **exactly
+one** job in the repository declaring `contents: write`, and no other write
+grant anywhere but CodeQL's `security-events: write`.
 
 **WinGet is deliberately not a job here.** A pull request on
 `microsoft/winget-pkgs` has to come from a fork, which takes a classic token on
@@ -119,9 +189,17 @@ the procedure.
 
 ## Non-negotiables
 
-Least-privilege permissions everywhere, no long-lived secrets (release uses
-the ephemeral `GITHUB_TOKEN`), SHA-pinned third-party actions **and tools**, and
-Linux artifacts never built outside CI.
+Least-privilege permissions everywhere, no long-lived secret that can write to
+this repository or anything it publishes (release uses the ephemeral
+`GITHUB_TOKEN`), SHA-pinned third-party actions **and tools**, and Linux
+artifacts never built outside CI.
+
+The secret rule was "no long-lived secrets" until 2026-10, when `SONAR_TOKEN`
+became the first stored secret. The wording moved to what the rule was always
+for — the WinGet section above is the same argument — and the token fits it:
+whatever it can do, it does on SonarQube Cloud. It cannot push here, publish a
+release, or reach any repository. (It is a user token, so on SonarQube Cloud it
+carries its owner's permissions; that is the maintainer's to scope there.)
 
 "And tools" was added at M4, because the release path downloads two binaries
 that no `uses:` pin covers: `appimagetool`, and the AppImage runtime that

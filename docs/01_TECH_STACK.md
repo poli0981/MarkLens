@@ -10,9 +10,9 @@
   coexist. The binding contract either way: this file, `.fvmrc` (if it
   exists), and the `flutter-version` input in doc 14 must never disagree.
   **Since M4 that is checked rather than promised.** The version is written out
-  in five places — `ci.yml`, `release.yml`, `watch-observation.yml`, the two
-  `tool/*/Dockerfile`s and this line — and
-  `test/repo/pin_agreement_test.dart` fails if any of them drifts. A rule that spans four files and is kept by memory is a rule that is
+  in seven places — `ci.yml`, `release.yml`, `watch-observation.yml`, the two
+  `tool/*/Dockerfile`s, the README's stack line, the notices table and this
+  line — and `test/repo/pin_agreement_test.dart` fails if any of them drifts. A rule that spans four files and is kept by memory is a rule that is
   already broken somewhere nobody has looked.
 - **Lints:** `very_good_analysis` **10.3.0** (strict — mirrors the TS-strict
   habit), tuned in `analysis_options.yaml`. An `11.0.0-rc.1` exists;
@@ -198,6 +198,13 @@ Exact versions in `pubspec.yaml` (`x.y.z`, no carets), lockfile committed.
 Upgrades happen in a monthly batch PR: run `flutter pub outdated`, bump,
 re-verify licenses for anything new, run the full test suite + goldens.
 Never upgrade during feature work.
+
+**Since 2026-10 Dependabot opens that PR** — one grouped `pub` update a month
+(`.github/dependabot.yml`), with CI running the suite and goldens on it. The
+licence re-check and this table stay a person's, done on the bot's branch before
+merge, and `test/repo/pin_agreement_test.dart` keeps the PR red until this
+table and `legal/THIRD_PARTY_NOTICES.md` agree with `pubspec.yaml`. The Flutter
+SDK pin is not Dependabot's: it lives in the files listed under "Toolchain".
 
 ## Explicitly rejected
 

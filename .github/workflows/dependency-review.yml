@@ -1,0 +1,37 @@
+# docs/14_CI_CD.md, "Dependency audit"; CLAUDE.md rule 10.
+#
+# What a pull request does to the dependency graph — pubspec.lock and the
+# actions pinned here — checked against the advisory database and against a
+# licence allow-list. Rule 10's licence check is still a person's (doc 01, the
+# monthly batch): this is the half a machine can do, and it is the half that
+# catches a licence arriving *transitively*, which nobody reads a lockfile diff
+# closely enough to see.
+name: dependency-review
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  review:
+    name: review
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/dependency-review-action@a1d282b36b6f3519aa1f3fc636f609c47dddb294 # v5.0.0
+        with:
+          fail-on-severity: low
+          # Everything here combines into GPL-3.0-only (legal/THIRD_PARTY_NOTICES.md,
+          # "License compatibility notes"). LGPL-3.0 is SonarSource's scan
+          # action, which runs in CI and ships in nothing. AGPL is absent on
+          # purpose: GPLv3 section 13 permits the combination, and it would put
+          # a network clause on a viewer that promises no network. A licence the
+          # graph cannot identify is reported, not failed — the action's own
+          # rule — which is why the person's check in doc 01 still exists.
+          allow-licenses: >-
+            MIT, MIT-0, BSD-2-Clause, BSD-3-Clause, 0BSD, ISC, Apache-2.0,
+            Zlib, BSL-1.0, Unlicense, CC0-1.0, OFL-1.1, MPL-2.0, Python-2.0,
+            Unicode-DFS-2016, Unicode-3.0, LGPL-2.1-or-later, LGPL-3.0-only,
+            LGPL-3.0-or-later, GPL-3.0-only, GPL-3.0-or-later

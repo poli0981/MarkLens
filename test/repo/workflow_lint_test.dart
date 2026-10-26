@@ -115,6 +115,41 @@ void main() {
     );
   });
 
+  test('every other write permission is one doc 14 names', () {
+    // contents: write is the blast radius above; this is everything else a
+    // token can be granted. CodeQL needs security-events: write to upload its
+    // results, which reaches code scanning and nothing in the repository. A
+    // new entry here is a new capability somebody should have to justify.
+    final writes = <String>[];
+    for (final workflow in workflows) {
+      final yaml = workflow.readAsStringSync();
+      final topLevel = RegExp(
+        r'^permissions:\n((?:  .*\n)*)',
+        multiLine: true,
+      ).firstMatch(yaml)?.group(1);
+      for (final grant in RegExp(
+        r'([\w-]+):\s*write',
+      ).allMatches(topLevel ?? '')) {
+        writes.add('${_name(workflow)}:<top-level>:${grant.group(1)}');
+      }
+      _jobs(yaml).forEach((job, body) {
+        for (final grant in RegExp(r'([\w-]+):\s*write').allMatches(body)) {
+          writes.add('${_name(workflow)}:$job:${grant.group(1)}');
+        }
+      });
+    }
+    expect(
+      writes..sort(),
+      <String>[
+        'codeql.yml:analyze:security-events',
+        'release.yml:publish:contents',
+      ],
+      reason:
+          'doc 14 names two write grants in the repository. Anything else '
+          'is new reach for whatever runs in that job.',
+    );
+  });
+
   test('release.yml reads by default and never publishes by itself', () {
     final release = File('.github/workflows/release.yml').readAsStringSync();
     expect(

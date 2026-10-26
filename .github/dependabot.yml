@@ -1,17 +1,27 @@
 # docs/14_CI_CD.md, docs/01_TECH_STACK.md.
 #
-# Only `github-actions`, and the omission of `pub` is the point.
+# Two ecosystems, each arriving as ONE pull request a month — a group, not a PR
+# per package.
 #
-# Third-party actions are SHA-pinned per house convention, which is the right
-# call and also means nothing in this repo can tell that a pin has gone stale —
-# a SHA does not age visibly the way a version range does. Dependabot is the
-# only thing that watches them, so it is exactly the right tool here.
+# `github-actions`: third-party actions are SHA-pinned per house convention,
+# which is the right call and also means nothing in this repo can tell that a
+# pin has gone stale — a SHA does not age visibly the way a version range does.
+# Dependabot is the only thing that watches them. Grouped since its first round
+# (2026-08-29) arrived as three PRs for three lines of the same kind of change.
 #
-# `pub` is deliberately absent. doc 01 pins every package exactly and upgrades
-# them in a monthly batch PR with licence re-checks (rule 10) and a full suite
-# run, never during feature work. A bot opening one PR per package would fight
-# that policy rather than serve it, and the licence check is the half a bot
-# cannot do.
+# `pub` was deliberately absent until 2026-10, on the argument that doc 01's
+# policy — exact pins, upgraded in a monthly batch PR with licence re-checks
+# (rule 10) and a full suite run — is fought by a bot opening one PR per
+# package. A group *is* the monthly batch PR, so the bot now does the half a
+# bot can: `pub outdated`, the bumps, the lockfile, and CI's full suite and
+# goldens. The other half stays a person's, on that PR, before merge: the
+# licence of anything that moved, and doc 01's table and
+# legal/THIRD_PARTY_NOTICES.md updated to match. That is not left to memory —
+# test/repo/pin_agreement_test.dart fails while either disagrees with
+# pubspec.yaml, so the batch cannot go green until the person has done it.
+#
+# The Flutter SDK pin is not here and cannot be: it lives in five files that
+# Dependabot does not read (doc 01, "Toolchain").
 version: 2
 updates:
   - package-ecosystem: github-actions
@@ -22,3 +32,19 @@ updates:
       prefix: ci
     labels:
       - dependencies
+    groups:
+      actions:
+        patterns: ["*"]
+
+  - package-ecosystem: pub
+    directory: /
+    schedule:
+      interval: monthly
+    commit-message:
+      prefix: chore
+      include: scope
+    labels:
+      - dependencies
+    groups:
+      pub:
+        patterns: ["*"]

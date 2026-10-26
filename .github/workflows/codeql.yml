@@ -1,0 +1,55 @@
+# docs/14_CI_CD.md, "Code scanning".
+#
+# CodeQL has no Dart support, and the Dart is SonarQube Cloud's (ci.yml). What
+# CodeQL covers is everything else that runs: the workflows themselves — the one
+# place in the repo that holds a writable token — the C++ runners, and the
+# Python build tools under tool/. All three scan without a build, so this needs
+# no Flutter toolchain and costs a few minutes.
+#
+# The workflow file rather than GitHub's "default setup", for the reason every
+# other workflow here is a file: the pins and the permissions are reviewable,
+# and test/repo/workflow_lint_test.dart can check them.
+name: codeql
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  # Weekly, because new queries ship with CodeQL itself and an untouched file
+  # can grow an alert without anyone pushing anything.
+  schedule:
+    - cron: "17 3 * * 1"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: codeql-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  analyze:
+    name: analyze (${{ matrix.language }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    # Uploading results is the only write, and it is to code scanning, not to
+    # the repository.
+    permissions:
+      contents: read
+      security-events: write
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [actions, c-cpp, python]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: github/codeql-action/init@9b3254085494b55a0f7c4c2b3d2d52cc712ce370 # v4.39.1
+        with:
+          languages: ${{ matrix.language }}
+          # C++ included: the runners need the Windows SDK or GTK to compile,
+          # and build-free extraction infers include paths instead (GA since
+          # 2025-10). The findings are what matter, not a binary.
+          build-mode: none
+      - uses: github/codeql-action/analyze@9b3254085494b55a0f7c4c2b3d2d52cc712ce370 # v4.39.1
+        with:
+          category: /language:${{ matrix.language }}
