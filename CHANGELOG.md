@@ -6,6 +6,23 @@ All notable changes to MarkLens are documented here. Format follows
 
 ## [Unreleased]
 
+### Changed
+
+- **Built with Flutter 3.47.8** (was 3.47.1) and Dart 3.13.7, with every
+  dependency at the newest release that resolves alongside the others:
+  `file_picker` 13.3.0, `desktop_drop` 0.8.4, `riverpod` 3.4.3, `url_launcher`
+  6.3.3. Licences re-checked; none changed. `desktop_drop` stops at 0.8.4
+  because 0.9 needs a `cross_file` that `file_picker` 13 does not accept —
+  doc 01 records the wall.
+- **On Linux, drops from sandboxed apps** (Flatpak, Snap) are resolved through
+  the document portal, which `desktop_drop` 0.8.0 did not do — 0.8.1 added it.
+- **Every change is now analysed** by SonarQube Cloud (the Dart, with test
+  coverage) and CodeQL (the workflows, the native runners and the build
+  tools), and pull requests are checked for vulnerable or GPL-incompatible
+  dependencies. Doc 12's coverage thresholds — 85% of `lib/core/`, 70% of
+  `lib/` — are enforced for the first time; they had been written down since
+  M0.
+
 ### Fixed
 
 - **A silent install on a Windows without the Visual C++ runtime never

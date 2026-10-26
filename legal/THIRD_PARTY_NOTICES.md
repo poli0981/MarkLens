@@ -7,19 +7,19 @@ whenever a pin moves (CLAUDE.md rule 10). Full license texts live in
 
 | Component | Role | License | Version |
 |---|---|---|---|
-| Flutter SDK | Framework | BSD-3-Clause | 3.47.1 |
+| Flutter SDK | Framework | BSD-3-Clause | 3.47.8 |
 | flutter_markdown_plus | Markdown rendering | BSD-3-Clause | 1.0.12 |
 | markdown (Dart team) | Markdown parsing | BSD-3-Clause | 7.3.1 |
 | highlight | Syntax highlighting (tokeniser, pure Dart) | MIT | 0.7.0 |
 | highlight.js (grammars bundled by the above) | Highlight grammars | BSD-3-Clause | — |
 | flutter_svg | SVG rendering | MIT | 2.3.0 |
-| riverpod / flutter_riverpod | State management | MIT | 3.4.2 |
+| riverpod / flutter_riverpod | State management | MIT | 3.4.3 |
 | window_manager | Window control | MIT | 0.5.2 |
 | watcher | File watching | BSD-3-Clause | 1.2.1 |
-| file_picker | Native dialogs | MIT | 12.0.0 |
-| desktop_drop | Drag & drop | **Apache-2.0** | 0.8.0 |
+| file_picker | Native dialogs | MIT | 13.3.0 |
+| desktop_drop | Drag & drop | **Apache-2.0** | 0.8.4 |
 | path_provider | App directories | BSD-3-Clause | 2.1.6 |
-| url_launcher | External links | BSD-3-Clause | 6.3.2 |
+| url_launcher | External links | BSD-3-Clause | 6.3.3 |
 | args | CLI parsing | BSD-3-Clause | 2.7.0 |
 | path (Dart team) | Path resolution | BSD-3-Clause | 1.9.1 |
 | intl (Dart team) | Plural rules for the generated localizations | BSD-3-Clause | 0.20.3 |

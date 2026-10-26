@@ -32,7 +32,7 @@ concurrency:
 
 env:
   # Exact pin, recorded in docs/01_TECH_STACK.md. Must never disagree with it.
-  FLUTTER_VERSION: "3.47.1"
+  FLUTTER_VERSION: "3.47.8"
 
 jobs:
   analyze:

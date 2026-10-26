@@ -39,12 +39,13 @@ class PlatformSaveFilePrompt implements SaveFilePrompt {
     required String extension,
     required Uint8List bytes,
   }) async {
+    // No type filter. `type` and `allowedExtensions` were never read by
+    // saveFile, and file_picker 13.2 deprecated them for exactly that; the
+    // extension travels in the suggested name, which is what the dialog shows.
     final saved = await FilePicker.saveFile(
       fileName: '$suggestedName.$extension',
       bytes: bytes,
       mimeType: 'text/plain',
-      type: FileType.custom,
-      allowedExtensions: <String>[extension],
       windowsOptions: const WindowsOptions(lockParentWindow: true),
       linuxOptions: const LinuxOptions(lockParentWindow: true),
     );

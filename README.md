@@ -3,7 +3,7 @@
 **Project:** MarkLens — a fast, lightweight, read-only Markdown viewer
 **Repo:** `poli0981/MarkLens`
 **Platforms:** Windows 10+ · Ubuntu 22.04+ (Linux desktop)
-**Stack:** Flutter 3.47.1 stable / Dart 3.13.1 · **License:** GPL-3.0-only
+**Stack:** Flutter 3.47.8 stable / Dart 3.13.7 · **License:** GPL-3.0-only
 **Suite version:** 1.0 · **Date:** 2026-08-30
 **Status:** **v1.0.0 released** (2026-08-30) — M0–M4 closed. Verified on Ubuntu 26.04.1, Windows 10 and a Windows 11 Sandbox. One release-checklist item is carried to v1.0.1 rather than ticked: the manual ProcMon/`strace` read-only pass (`docs/15_SPIKES_ROADMAP.md`).
 
@@ -81,7 +81,7 @@ Windows uninstaller offers to remove them, unchecked.
 ## Build quickstart
 
 ```bash
-flutter --version        # 3.47.1 stable — exact pin in docs/01_TECH_STACK.md
+flutter --version        # 3.47.8 stable — exact pin in docs/01_TECH_STACK.md
 flutter pub get
 flutter analyze && dart format --set-exit-if-changed .
 flutter test

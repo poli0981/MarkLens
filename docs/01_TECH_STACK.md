@@ -2,9 +2,10 @@
 
 ## Toolchain
 
-- **Flutter 3.47.1 stable**, Dart **3.13.1** bundled (verified 2026-08-23;
-  3.47.1 is the hotfix released 2026-08-19). Upgrades happen deliberately,
-  never implicitly on a runner.
+- **Flutter 3.47.8 stable**, Dart **3.13.7** bundled (verified 2026-10-26;
+  3.47.8 is the hotfix released 2026-10-23, and the first pin to move: 3.47.1
+  from 2026-08-23 to then). Upgrades happen deliberately, never implicitly on a
+  runner.
 - The dev machine runs a **system install** at `C:\Dart\flutter`. FVM is
   *optional* — reach for it only if a second Flutter version ever has to
   coexist. The binding contract either way: this file, `.fvmrc` (if it
@@ -88,7 +89,9 @@ maintained port with a verified publisher appears.
 
 Exact versions verified on pub.dev 2026-08-23 and frozen against the committed
 `pubspec.lock`. Every row is an exact pin; licenses are re-checked whenever one
-moves (rule 10).
+moves (rule 10). The first batch moved five rows on 2026-10-26 — `riverpod`,
+`flutter_riverpod`, `file_picker`, `desktop_drop`, `url_launcher` — and every
+licence was unchanged on pub.dev.
 
 | Package | Role | License | Pin |
 |---|---|---|---|
@@ -96,13 +99,13 @@ moves (rule 10).
 | markdown (Dart team) | Parser/AST, pure Dart (front-matter-free source) | BSD-3 | `7.3.1` |
 | highlight | Code-block tokenising, pure Dart (bundles highlight.js grammars) | MIT (hl.js BSD-3) | `0.7.0` |
 | flutter_svg | SVG images (badges etc.) | **MIT** | `2.3.0` |
-| riverpod / flutter_riverpod | State | MIT | `3.4.2` |
+| riverpod / flutter_riverpod | State | MIT | `3.4.3` |
 | window_manager | Window geometry, minimum size, titles | **MIT** | `0.5.2` |
 | watcher (Dart team) | File/folder watching | BSD-3 | `1.2.1` |
-| file_picker | Open file/folder dialogs | MIT | `12.0.0` — see note |
-| desktop_drop | Drag & drop onto window | **Apache-2.0** | `0.8.0` |
+| file_picker | Open file/folder dialogs | MIT | `13.3.0` — see note |
+| desktop_drop | Drag & drop onto window | **Apache-2.0** | `0.8.4` — see note |
 | path_provider | Config directory (resolved in `app/`, injected into core) | BSD-3 | `2.1.6` |
-| url_launcher | External links in system browser | BSD-3 | `6.3.2` |
+| url_launcher | External links in system browser | BSD-3 | `6.3.3` |
 | args | CLI argument parsing | BSD-3 | `2.7.0` |
 | path (Dart team) | Path joining/normalizing in `core/` (link routing) | BSD-3 | `1.9.1` |
 | flutter_localizations + intl | i18n | SDK / BSD-3 | SDK / `0.20.3` |
@@ -117,9 +120,9 @@ Notes that matter:
   `Image.network` and `NetworkImage` are therefore banned outside the
   remote-image path, and `test/architecture/no_network_test.dart` enforces it
   (doc 10, invariant 4).
-- **`file_picker` 12 drags a `win32 ^6.3.0` chain** through
-  `windows_file_picker`, and that chain has already ruled two packages out of
-  this tree. `syntax_highlight` 0.5.0 cannot resolve against it at all (it
+- **`file_picker` 12 and 13 drag a `win32 ^6.3.0` chain** through
+  `windows_file_picker` (2.0.1 resolves `win32` 6.4.0), and that chain has
+  already ruled two packages out of this tree. `syntax_highlight` 0.5.0 cannot resolve against it at all (it
   needs `win32 ^5.x` via `super_native_extensions` → `device_info_plus`), and
   `package_info_plus` could only be held at `10.x` for the same reason —
   8.0.3–9.x want `win32 ^5.5.3`. `package_info_plus` has since been **removed**
@@ -133,6 +136,19 @@ Notes that matter:
   `FilePickerPrompt` in `app/open_files.dart`, which is the only place in the
   app that touches the plugin — so a widget test can drive File → Open with a
   stub, and the next major bump is one file.
+- **`file_picker` 13 was that next major bump, and it cost one call.** It
+  removed the top-level `lockParentWindow` (already in the platform options
+  here), made `PlatformFile.length()` async (unused here), and 13.2 deprecated
+  `type` and `allowedExtensions` on `saveFile` because `saveFile` never read
+  them — the diagnostic-log export passed both, and now passes neither.
+- **`desktop_drop` is held at 0.8.4 by a `cross_file` wall.** 0.9 moved to
+  `cross_file ^0.4.0` while every `file_picker` 13 package wants
+  `^0.3.5+4`, so the two cannot share a tree until `file_picker` moves. 0.9 is
+  also a rewrite of the drop API (`onDrop(DropDetails)`, typed items), which
+  `app/drop_target.dart` alone would absorb. A second, smaller wall comes with
+  it: 0.8.x pins `dbus ^0.7`, which holds `file_picker_linux` at 2.0.0 (2.0.1
+  wants `dbus ^0.8`). 0.8.1 is the release worth having in the meantime — on
+  Linux it accepts drops from sandboxed apps through the document portal.
 - **`desktop_drop` is Apache-2.0**, not BSD/MIT. Apache-2.0 is one-way
   compatible into GPLv3, so it is fine for a GPL-3.0-only project — recorded
   explicitly so nobody has to re-derive it later.

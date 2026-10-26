@@ -12,7 +12,7 @@ RUN useradd -ms /bin/bash builder
 USER builder
 WORKDIR /home/builder
 
-ARG FLUTTER_VERSION=3.47.1
+ARG FLUTTER_VERSION=3.47.8
 RUN curl -fsSL -o flutter.tar.xz \
       "https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_${FLUTTER_VERSION}-stable.tar.xz" \
     && tar xf flutter.tar.xz && rm flutter.tar.xz
