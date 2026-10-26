@@ -20,7 +20,7 @@ typedef SessionLoad = ({SessionState state, JsonLoadOutcome outcome});
 /// still pending, so quitting never loses the last second of a session.
 class SessionStore {
   /// Creates a store writing into [directory].
-  SessionStore({
+  new({
     required Directory directory,
     this.debounce = const Duration(seconds: 1),
   }) : _store = JsonStore(directory: directory, name: 'session');

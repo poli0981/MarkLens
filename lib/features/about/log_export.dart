@@ -26,7 +26,7 @@ enum LogExportOutcome {
 /// write outside its config directory at all.
 class LogExporter {
   /// Creates an exporter.
-  const LogExporter({this.suggestedName = 'marklens-log'});
+  const new({this.suggestedName = 'marklens-log'});
 
   /// The filename offered by the dialog, without its extension.
   final String suggestedName;

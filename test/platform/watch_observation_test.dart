@@ -264,7 +264,7 @@ void main() {
 }
 
 class _Observed {
-  _Observed({required this.type, required this.path, required this.atMs});
+  new({required this.type, required this.path, required this.atMs});
 
   final String type;
   final String path;

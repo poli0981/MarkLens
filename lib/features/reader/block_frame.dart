@@ -17,7 +17,7 @@ import 'package:marklens/app/theme/reader_tokens.dart';
 /// budget intact.
 class BlockFrame extends StatefulWidget {
   /// Wraps [child], the widget the renderer produced for block [index].
-  const BlockFrame({
+  const new({
     required this.index,
     required this.scroller,
     required this.child,

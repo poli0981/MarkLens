@@ -179,9 +179,8 @@ void main() {
       tester,
     ) async {
       config.createSync(recursive: true);
-      File(
-        '${config.path}${Platform.pathSeparator}session.json',
-      ).writeAsStringSync('{ truncated');
+      File('${config.path}${Platform.pathSeparator}session.json')
+          .writeAsStringSync('{ truncated');
 
       final container = await pumpApp(tester);
 
@@ -284,9 +283,7 @@ void main() {
 
       container
           .read(openSetProvider.notifier)
-          .close(
-            container.read(openSetProvider).entries.single.identity,
-          );
+          .close(container.read(openSetProvider).entries.single.identity);
       await tester.pump(const Duration(milliseconds: 50));
 
       expect(

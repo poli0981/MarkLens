@@ -80,9 +80,8 @@ void main() {
     test('a stale lock is taken over rather than obeyed', () async {
       config.createSync(recursive: true);
       // A port nothing is listening on: what a crash leaves behind.
-      File(
-        '${config.path}${Platform.pathSeparator}instance.lock',
-      ).writeAsStringSync('1');
+      File('${config.path}${Platform.pathSeparator}instance.lock')
+          .writeAsStringSync('1');
 
       final instance = instanceIn(config);
       expect(
@@ -96,9 +95,8 @@ void main() {
 
     test('an unreadable lock is treated as no lock', () async {
       config.createSync(recursive: true);
-      File(
-        '${config.path}${Platform.pathSeparator}instance.lock',
-      ).writeAsStringSync('not a port');
+      File('${config.path}${Platform.pathSeparator}instance.lock')
+          .writeAsStringSync('not a port');
 
       expect(
         await instanceIn(config).acquire(const <String>[]),
@@ -149,10 +147,7 @@ void main() {
       first.forwardedPaths.listen((_) => received++);
 
       final port = int.parse(first.lockFile.readAsStringSync());
-      final socket = await Socket.connect(
-        InternetAddress.loopbackIPv4,
-        port,
-      );
+      final socket = await Socket.connect(InternetAddress.loopbackIPv4, port);
       socket.write('{"run": "something"}\n');
       await socket.flush();
       await socket.close();
@@ -227,9 +222,7 @@ void main() {
 
       expect(sibling.listSync(), isEmpty);
       expect(
-        config.listSync().map(
-          (e) => e.path.split(RegExp(r'[/\\]')).last,
-        ),
+        config.listSync().map((e) => e.path.split(RegExp(r'[/\\]')).last),
         <String>['instance.lock'],
       );
     });

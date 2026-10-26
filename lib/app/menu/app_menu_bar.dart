@@ -34,7 +34,7 @@ import 'package:marklens/l10n/gen/app_localizations.dart';
 /// because the letter has to differ per language.
 class AppMenuBar extends ConsumerWidget {
   /// Creates the menu bar.
-  const AppMenuBar({required this.fileMenuController, super.key});
+  const new({required this.fileMenuController, super.key});
 
   /// Opens the File menu when `Alt` is tapped on its own.
   ///

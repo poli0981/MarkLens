@@ -267,10 +267,7 @@ void main() {
     });
 
     testWidgets('fills the window when the setting says zero', (tester) async {
-      await pump(
-        tester,
-        ReaderView(doc: parse('# Doc\n'), contentMaxWidth: 0),
-      );
+      await pump(tester, ReaderView(doc: parse('# Doc\n'), contentMaxWidth: 0));
       expect(find.byType(ReaderView), findsOneWidget);
       expect(find.textContaining('Doc').first, findsOneWidget);
     });

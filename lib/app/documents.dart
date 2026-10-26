@@ -9,7 +9,7 @@ import 'package:marklens/core/models/opened_file.dart';
 @immutable
 class ActiveDocument {
   /// Creates a state.
-  const ActiveDocument({this.file, this.doc, this.failedPath});
+  const new({this.file, this.doc, this.failedPath});
 
   /// Nothing open — the empty state.
   static const ActiveDocument none = ActiveDocument();

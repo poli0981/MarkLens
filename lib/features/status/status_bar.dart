@@ -17,7 +17,7 @@ import 'package:marklens/l10n/gen/app_localizations.dart';
 /// The bottom bar.
 class StatusBar extends ConsumerWidget {
   /// Creates the status bar.
-  const StatusBar({super.key});
+  const new({super.key});
 
   /// Separator between fields, as doc 06 draws it.
   static const String separator = '  ·  ';
@@ -66,7 +66,7 @@ class StatusBar extends ConsumerWidget {
 
 /// Position, word count and notice count — the fields that never truncate.
 class _Trailing extends ConsumerWidget {
-  const _Trailing({required this.doc, required this.style});
+  const new({required this.doc, required this.style});
 
   final DocModel? doc;
   final TextStyle? style;

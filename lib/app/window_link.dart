@@ -77,7 +77,7 @@ abstract class WindowLink {
 /// The real window.
 class PlatformWindowLink implements WindowLink {
   /// Creates a link to the platform window.
-  const PlatformWindowLink();
+  const new();
 
   /// The doc 00 platform floor is a desktop, so a window smaller than this is
   /// a mistake rather than a preference.
@@ -186,7 +186,7 @@ class PlatformWindowLink implements WindowLink {
 /// window minus the geometry.
 class NoWindowLink implements WindowLink {
   /// Creates a no-op link.
-  const NoWindowLink();
+  const new();
 
   @override
   Future<void> prepare() async {}

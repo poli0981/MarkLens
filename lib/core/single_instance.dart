@@ -36,7 +36,7 @@ enum InstanceRole {
 /// received here is ever executed (CLAUDE.md rule 2).
 class SingleInstance {
   /// Creates a coordinator storing its lock in [directory].
-  SingleInstance({
+  new({
     required this.directory,
     this.connectTimeout = const Duration(seconds: 2),
   });

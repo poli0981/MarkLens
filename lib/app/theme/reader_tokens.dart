@@ -19,7 +19,7 @@ import 'package:flutter/material.dart';
 @immutable
 class ReaderTokens extends ThemeExtension<ReaderTokens> {
   /// Creates a token set.
-  const ReaderTokens({
+  const new({
     required this.bg,
     required this.bgAlt,
     required this.fg,

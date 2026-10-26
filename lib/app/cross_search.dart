@@ -10,7 +10,7 @@ import 'package:marklens/core/search/search_service.dart';
 @immutable
 class CrossSearchState {
   /// Creates a state.
-  const CrossSearchState({
+  const new({
     this.query = '',
     this.caseSensitive = false,
     this.results = const <FileHits>[],

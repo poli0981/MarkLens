@@ -182,18 +182,16 @@ void main() {
     // ubuntu-26.04 images already exist. A release built on "whatever that
     // means today" is not reproducible, and on Linux the image *is* the glibc
     // floor.
-    _jobs(File('.github/workflows/release.yml').readAsStringSync()).forEach((
-      job,
-      body,
-    ) {
-      final runsOn = RegExp(r'runs-on:\s*(\S+)').firstMatch(body)?.group(1);
-      expect(runsOn, isNotNull, reason: '$job has no runs-on.');
-      expect(
-        runsOn,
-        isNot(contains('-latest')),
-        reason: 'release.yml job "$job" runs on $runsOn.',
-      );
-    });
+    _jobs(File('.github/workflows/release.yml').readAsStringSync())
+        .forEach((job, body) {
+          final runsOn = RegExp(r'runs-on:\s*(\S+)').firstMatch(body)?.group(1);
+          expect(runsOn, isNotNull, reason: '$job has no runs-on.');
+          expect(
+            runsOn,
+            isNot(contains('-latest')),
+            reason: 'release.yml job "$job" runs on $runsOn.',
+          );
+        });
   });
 
   test('every job has a timeout', () {

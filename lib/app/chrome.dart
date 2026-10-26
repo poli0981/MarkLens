@@ -30,7 +30,7 @@ enum SidebarPanel {
 @immutable
 class ChromeState {
   /// Creates a chrome state.
-  const ChromeState({
+  const new({
     this.sidebarVisible = true,
     this.outlineVisible = true,
     this.sidebarWidth = 280,

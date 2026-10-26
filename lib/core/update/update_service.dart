@@ -21,7 +21,7 @@ import 'package:marklens/core/update/semver.dart';
 /// A release newer than the running binary.
 class AvailableUpdate {
   /// Creates an available update.
-  const AvailableUpdate({required this.version, required this.page});
+  const new({required this.version, required this.page});
 
   /// The released version.
   final SemVer version;
@@ -43,7 +43,7 @@ abstract class UpdateTransport {
 /// nowhere else.
 class HttpUpdateTransport implements UpdateTransport {
   /// Creates a transport.
-  const HttpUpdateTransport({this.timeout = const Duration(seconds: 10)});
+  const new({this.timeout = const Duration(seconds: 10)});
 
   /// How long the request may take before it is abandoned.
   ///
@@ -83,7 +83,7 @@ class HttpUpdateTransport implements UpdateTransport {
 /// Asks GitHub whether there is a newer release.
 class UpdateService {
   /// Creates a service.
-  UpdateService({this.transport = const HttpUpdateTransport(), Uri? endpoint})
+  new({this.transport = const HttpUpdateTransport(), Uri? endpoint})
     : endpoint = endpoint ?? defaultEndpoint;
 
   /// The endpoint doc 11 names.

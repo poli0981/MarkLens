@@ -21,7 +21,7 @@ class WatchService {
   ///
   /// [openWatcher] is injected so a test can replay event sequences without a
   /// real filesystem or real time.
-  WatchService({
+  new({
     this.registry = ExtensionRegistry.standard,
     bool Function(String path)? pathExists,
     this.openWatcher = _openDirectoryWatcher,
@@ -198,10 +198,8 @@ class WatchService {
         subscription.cancel().catchError((Object _) {}),
     ];
     _watchers.clear();
-    await Future.wait(cancels).timeout(
-      disposeTimeout,
-      onTimeout: () => const <void>[],
-    );
+    await Future.wait(cancels)
+        .timeout(disposeTimeout, onTimeout: () => const <void>[]);
     await _normalizer.dispose();
   }
 

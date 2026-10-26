@@ -40,11 +40,16 @@ Uint8List _bytes(String relative) {
 
 /// `(width, height)` from a PNG's IHDR, which is always the first chunk.
 (int, int) _pngSize(Uint8List png, String where) {
-  expect(
-    png.sublist(0, 8),
-    <int>[0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A],
-    reason: '$where does not start with the PNG signature.',
-  );
+  expect(png.sublist(0, 8), <int>[
+    0x89,
+    0x50,
+    0x4E,
+    0x47,
+    0x0D,
+    0x0A,
+    0x1A,
+    0x0A,
+  ], reason: '$where does not start with the PNG signature.');
   final header = ByteData.sublistView(png);
   return (header.getUint32(16), header.getUint32(20));
 }

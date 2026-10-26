@@ -48,7 +48,7 @@ typedef LinkOutcome = ({LinkOutcomeKind kind, String? detail});
 /// (`docs/10_SECURITY_PRIVACY.md`, invariant 2).
 class LinkRouter {
   /// Creates a router over [ref].
-  const LinkRouter(this.ref);
+  const new(this.ref);
 
   /// The scope this router reads and writes through.
   final Ref ref;
@@ -68,7 +68,7 @@ class LinkRouter {
     return switch (target) {
       AnchorLink(:final slug) => _anchor(slug),
       DocumentLink(:final path, :final anchor) => _document(path, anchor),
-      ExternalLink(:final uri) => _external(uri),
+      ExternalLink(:final uri) => await _external(uri),
       UnsupportedLink(:final href, :final scheme) => (
         kind: LinkOutcomeKind.unsupported,
         detail: scheme ?? ExtensionRegistry.basenameOf(href),

@@ -189,10 +189,7 @@ void main() {
       // cannot be ARB keys, because nothing Dart renders them. Copying is the
       // only option; copying without a check is how the two drift.
       final entry = _read(_desktopEntry);
-      const arbFiles = <String, String>{
-        'vi': 'app_vi',
-        'ja': 'app_ja',
-      };
+      const arbFiles = <String, String>{'vi': 'app_vi', 'ja': 'app_ja'};
       for (final locale in arbFiles.entries) {
         final arb = jsonDecode(
           _read('lib/l10n/${locale.value}.arb'),

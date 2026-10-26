@@ -40,7 +40,7 @@ import 'package:window_manager/window_manager.dart';
 /// depend on the scope after an `await`.
 class ShutdownSequence {
   /// Creates a sequence over the given collaborators.
-  ShutdownSequence({
+  new({
     required this.recordGeometry,
     required this.flushSettings,
     required this.flushSession,

@@ -35,7 +35,7 @@ abstract class LauncherLink {
 /// The real launcher.
 class PlatformLauncherLink implements LauncherLink {
   /// Creates a launcher.
-  const PlatformLauncherLink();
+  const new();
 
   @override
   Future<bool> open(Uri uri) async {
@@ -70,7 +70,7 @@ class PlatformLauncherLink implements LauncherLink {
 /// What a widget test gets: records what it was asked to open, opens nothing.
 class RecordingLauncherLink implements LauncherLink {
   /// Creates a recording launcher.
-  RecordingLauncherLink({this.succeeds = true});
+  new({this.succeeds = true});
 
   /// Whether [open] reports success.
   final bool succeeds;

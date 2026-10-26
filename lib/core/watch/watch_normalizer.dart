@@ -31,7 +31,7 @@ class WatchNormalizer {
   /// Creates a normalizer.
   ///
   /// [pathExists] is asked once per path when its window closes.
-  WatchNormalizer({
+  new({
     required this.pathExists,
     this.debounce = const Duration(milliseconds: 200),
   });

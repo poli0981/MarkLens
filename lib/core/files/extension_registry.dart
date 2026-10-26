@@ -13,7 +13,7 @@
 class ExtensionRegistry {
   /// Creates a registry over [extensions], lower-cased and stripped of any
   /// leading dot the caller may have included.
-  factory ExtensionRegistry([Iterable<String> extensions = defaultExtensions]) {
+  factory([Iterable<String> extensions = defaultExtensions]) {
     final normalized = <String>{
       for (final extension in extensions)
         if (_normalize(extension) case final value when value.isNotEmpty) value,
@@ -21,7 +21,7 @@ class ExtensionRegistry {
     return ExtensionRegistry._(List<String>.unmodifiable(normalized));
   }
 
-  const ExtensionRegistry._(this.extensions);
+  const new _(this.extensions);
 
   /// The default registry, usable where a `const` default is needed.
   ///

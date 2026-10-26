@@ -58,7 +58,7 @@ typedef DocCacheKey = ({
 /// correctness work.
 class DocCache {
   /// Creates a cache holding at most [capacity] documents.
-  DocCache({this.capacity = defaultCapacity})
+  new({this.capacity = defaultCapacity})
     : assert(capacity > 0, 'a cache that holds nothing is a bug, not a config');
 
   /// The doc 02 default, matched to the charter's RAM budget.

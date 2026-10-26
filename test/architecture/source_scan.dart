@@ -10,7 +10,7 @@ import 'dart:io';
 /// relative to the package root so assertions read the same on both OSes.
 class SourceFile {
   /// Reads a source file.
-  SourceFile(this.path, this.contents);
+  new(this.path, this.contents);
 
   /// Package-relative path, e.g. `lib/core/markdown/pipeline.dart`.
   final String path;
@@ -37,10 +37,7 @@ List<SourceFile> dartSourcesUnder(String directory) {
       .whereType<File>()
       .where((f) => f.path.endsWith('.dart'))
       .map(
-        (f) => SourceFile(
-          f.path.replaceAll(r'\', '/'),
-          f.readAsStringSync(),
-        ),
+        (f) => SourceFile(f.path.replaceAll(r'\', '/'), f.readAsStringSync()),
       )
       .toList()
     ..sort((a, b) => a.path.compareTo(b.path));

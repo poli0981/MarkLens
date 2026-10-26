@@ -15,7 +15,7 @@ import 'package:marklens/core/watch/watch_service.dart';
 /// changes — every badge it raises was already being drawn.
 class WatchCoordinator {
   /// Creates a coordinator over [ref].
-  WatchCoordinator(this.ref);
+  new(this.ref);
 
   /// The scope this coordinator reads and writes.
   final Ref ref;

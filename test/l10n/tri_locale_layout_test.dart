@@ -126,11 +126,7 @@ void main() {
   /// Fails with the overflow, if the last frame produced one.
   void expectNoOverflow(WidgetTester tester, String what) {
     final thrown = tester.takeException();
-    expect(
-      thrown,
-      isNull,
-      reason: '$what does not fit — $thrown',
-    );
+    expect(thrown, isNull, reason: '$what does not fit — $thrown');
   }
 
   /// A window narrow enough to be honest, and one that is comfortable.

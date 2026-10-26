@@ -218,9 +218,7 @@ void main() {
       final doc = withoutRewrite.parse(
         path: 'gfm/06_footnotes_and_html.md',
         bytes: tortureFixtures()
-            .firstWhere(
-              (f) => f.relativePath == 'gfm/06_footnotes_and_html.md',
-            )
+            .firstWhere((f) => f.relativePath == 'gfm/06_footnotes_and_html.md')
             .readAsBytes(),
         isMdx: false,
       );
@@ -334,9 +332,7 @@ void main() {
     ) async {
       final doc = pipeline.parse(
         path: 'footnotes.md',
-        bytes: utf8.encode(
-          'Text.[^1]\n\n[^1]: The note.\n\nMore text.\n',
-        ),
+        bytes: utf8.encode('Text.[^1]\n\n[^1]: The note.\n\nMore text.\n'),
         isMdx: false,
       );
 
@@ -354,7 +350,7 @@ void main() {
 
 /// A rewriter that does nothing, used to prove the alignment gate has teeth.
 class _PassThroughRewriter implements RawBlockRewriter {
-  const _PassThroughRewriter();
+  const new();
 
   @override
   RawBlockRewrite rewrite(String source) => (source: source, rewritten: 0);

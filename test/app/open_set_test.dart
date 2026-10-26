@@ -251,10 +251,7 @@ void main() {
       controller()
         ..openPaths(<String>[at('a.md')])
         ..recordScroll(identityOf('a.md'), 0.42);
-      expect(
-        container.read(openSetProvider).entries.single.scroll,
-        0.42,
-      );
+      expect(container.read(openSetProvider).entries.single.scroll, 0.42);
     });
   });
 

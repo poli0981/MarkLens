@@ -25,7 +25,7 @@ import 'package:marklens/l10n/gen/app_localizations.dart';
 /// and never a message, so this is the only place any of them is phrased.
 class NoticeBar extends StatelessWidget {
   /// Creates a notice bar for [notices].
-  const NoticeBar({required this.notices, required this.onDismiss, super.key});
+  const new({required this.notices, required this.onDismiss, super.key});
 
   /// Everything the pipeline reported about this document.
   final List<DocNotice> notices;

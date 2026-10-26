@@ -22,7 +22,7 @@ import 'package:marklens/features/reader/reader_view.dart';
 
 /// Returns whatever it was told to, without touching a platform dialog.
 class _StubPrompt implements FilePickerPrompt {
-  _StubPrompt(this.paths);
+  new(this.paths);
 
   List<String> paths;
   String? folder;

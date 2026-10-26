@@ -23,7 +23,7 @@ import 'package:watcher/watcher.dart' as w;
 /// single-subscription stream hands its `onCancel` future back through
 /// `cancel()` — a broadcast one runs it and returns at once.
 class _FakeWatcher implements w.DirectoryWatcher {
-  _FakeWatcher(this.path, {Future<void> Function()? onCancel})
+  new(this.path, {Future<void> Function()? onCancel})
     : controller = StreamController<w.WatchEvent>(onCancel: onCancel);
 
   @override
@@ -62,14 +62,11 @@ void main() {
     );
   });
 
-  tearDown(() async => service.dispose());
+  tearDown(() => service.dispose());
 
   group('which directories get a watcher', () {
     test('one per open root', () {
-      service.watch(
-        roots: <String>[r'C:\a', r'C:\b'],
-        files: const <String>[],
-      );
+      service.watch(roots: <String>[r'C:\a', r'C:\b'], files: const <String>[]);
       expect(opened.keys, unorderedEquals(<String>[r'C:\a', r'C:\b']));
     });
 
@@ -124,11 +121,9 @@ void main() {
         )..watch(roots: <String>[paths.$1], files: <String>[paths.$2]);
         addTearDown(service.dispose);
 
-        expect(
-          service.watchedDirectories,
-          <String>[paths.$1],
-          reason: '${paths.$2} is already inside ${paths.$1}',
-        );
+        expect(service.watchedDirectories, <String>[
+          paths.$1,
+        ], reason: '${paths.$2} is already inside ${paths.$1}');
       }
     });
 

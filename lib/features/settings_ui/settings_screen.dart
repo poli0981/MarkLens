@@ -17,7 +17,7 @@ import 'package:marklens/l10n/gen/app_localizations.dart';
 /// unread from M1 to M3 did not.
 class SettingsScreen extends ConsumerWidget {
   /// Creates the screen.
-  const SettingsScreen({super.key});
+  const new({super.key});
 
   /// Shows it over [context].
   static Future<void> show(BuildContext context) => showDialog<void>(
@@ -174,7 +174,7 @@ class SettingsScreen extends ConsumerWidget {
 }
 
 class _Section extends StatelessWidget {
-  const _Section({required this.title});
+  const new({required this.title});
 
   final String title;
 
@@ -183,15 +183,14 @@ class _Section extends StatelessWidget {
     padding: const EdgeInsets.only(top: 20, bottom: 6),
     child: Text(
       title,
-      style: Theme.of(context).textTheme.labelMedium?.copyWith(
-        color: ReaderTokens.of(context).accent,
-      ),
+      style: Theme.of(context).textTheme.labelMedium
+          ?.copyWith(color: ReaderTokens.of(context).accent),
     ),
   );
 }
 
 class _Switch extends StatelessWidget {
-  const _Switch({
+  const new({
     required this.label,
     required this.value,
     required this.onChanged,
@@ -220,7 +219,7 @@ class _Switch extends StatelessWidget {
 /// and doc 09 wants no fixed-width boxes around translated text — a segmented
 /// row wraps its labels where a dropdown clips them.
 class _Choice<T> extends StatelessWidget {
-  const _Choice({
+  const new({
     required this.label,
     required this.value,
     required this.values,
@@ -264,7 +263,7 @@ class _Choice<T> extends StatelessWidget {
 }
 
 class _Slider extends StatelessWidget {
-  const _Slider({
+  const new({
     required this.label,
     required this.value,
     required this.min,
@@ -293,9 +292,8 @@ class _Slider extends StatelessWidget {
             ),
             Text(
               display,
-              style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                color: ReaderTokens.of(context).fgMuted,
-              ),
+              style: Theme.of(context).textTheme.labelMedium
+                  ?.copyWith(color: ReaderTokens.of(context).fgMuted),
             ),
           ],
         ),
@@ -317,7 +315,7 @@ class _Slider extends StatelessWidget {
 /// gates folder scans, the dialog filter, drag-drop and CLI args alike — so
 /// this one control decides what the whole app considers a document.
 class _Extensions extends StatefulWidget {
-  const _Extensions({required this.extensions, required this.onChanged});
+  const new({required this.extensions, required this.onChanged});
 
   final List<String> extensions;
   final ValueChanged<List<String>> onChanged;
@@ -365,12 +363,10 @@ class _ExtensionsState extends State<_Extensions> {
               for (final extension in widget.extensions)
                 InputChip(
                   label: Text(extension),
-                  onDeleted: () => widget.onChanged(
-                    <String>[
-                      for (final kept in widget.extensions)
-                        if (kept != extension) kept,
-                    ],
-                  ),
+                  onDeleted: () => widget.onChanged(<String>[
+                    for (final kept in widget.extensions)
+                      if (kept != extension) kept,
+                  ]),
                 ),
             ],
           ),

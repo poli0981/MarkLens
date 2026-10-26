@@ -9,7 +9,7 @@ import 'package:marklens/core/search/in_file_search.dart';
 @immutable
 class FindState {
   /// Creates a find state.
-  const FindState({
+  const new({
     this.visible = false,
     this.query = '',
     this.caseSensitive = false,

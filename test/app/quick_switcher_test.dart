@@ -89,9 +89,9 @@ void main() {
 
     final container = containerOf(tester);
     if (open.isNotEmpty) {
-      container.read(openSetProvider.notifier).openPaths(
-        <String>[for (final name in open) at(name)],
-      );
+      container.read(openSetProvider.notifier).openPaths(<String>[
+        for (final name in open) at(name),
+      ]);
       await tester.pumpAndSettle();
     }
     return container;
@@ -264,10 +264,7 @@ void main() {
 
       // doc 06's first-run surface: "drop hint + Open buttons + recent list".
       expect(find.textContaining('Drop', findRichText: true), findsWidgets);
-      expect(
-        find.widgetWithText(FilledButton, 'Open Folder…'),
-        findsOneWidget,
-      );
+      expect(find.widgetWithText(FilledButton, 'Open Folder…'), findsOneWidget);
       expect(find.widgetWithText(TextButton, 'README.md'), findsOneWidget);
     });
 

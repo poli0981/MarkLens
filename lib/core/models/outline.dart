@@ -4,7 +4,7 @@
 /// Pure data. Nothing here may reference Flutter (CLAUDE.md rule 3).
 class Outline {
   /// Creates an outline from a flat, document-order list of [entries].
-  const Outline(this.entries);
+  const new(this.entries);
 
   /// An outline with no headings — the correct result for a heading-less
   /// document, not an error (docs/06_UI_UX.md).
@@ -52,7 +52,7 @@ class Outline {
 /// A single heading in the [Outline].
 class OutlineEntry {
   /// Creates a heading entry.
-  const OutlineEntry({
+  const new({
     required this.level,
     required this.text,
     required this.slug,

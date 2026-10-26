@@ -28,7 +28,7 @@ enum LogLevel {
 /// One line of the log.
 class LogEntry {
   /// Creates an entry.
-  const LogEntry({
+  const new({
     required this.time,
     required this.level,
     required this.source,
@@ -69,7 +69,7 @@ class LogEntry {
 /// A bounded, in-memory log.
 class LogBuffer {
   /// Creates a buffer holding at most [capacity] entries.
-  LogBuffer({this.capacity = defaultCapacity})
+  new({this.capacity = defaultCapacity})
     : assert(capacity > 0, 'a log that holds nothing is not a log');
 
   /// Doc 02's figure.

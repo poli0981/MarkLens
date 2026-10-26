@@ -20,7 +20,7 @@ import 'package:marklens/l10n/gen/app_localizations.dart';
 /// (`docs/02_ARCHITECTURE.md`).
 class SidebarTree extends ConsumerWidget {
   /// Creates the sidebar.
-  const SidebarTree({super.key});
+  const new({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -37,9 +37,8 @@ class SidebarTree extends ConsumerWidget {
         child: Text(
           l10n.sidebarEmpty,
           textAlign: TextAlign.center,
-          style: Theme.of(
-            context,
-          ).textTheme.bodySmall?.copyWith(color: tokens.fgMuted),
+          style: Theme.of(context).textTheme.bodySmall
+              ?.copyWith(color: tokens.fgMuted),
         ),
       );
     }
@@ -68,9 +67,7 @@ class SidebarTree extends ConsumerWidget {
                       .togglePin(row.entry!.identity),
                   onReveal: () => ref
                       .read(launcherLinkProvider)
-                      .reveal(
-                        ExtensionRegistry.parentOf(row.entry!.file.path),
-                      ),
+                      .reveal(ExtensionRegistry.parentOf(row.entry!.file.path)),
                   onClose: () => ref
                       .read(openSetProvider.notifier)
                       .close(row.entry!.identity),
@@ -169,10 +166,10 @@ class SidebarTree extends ConsumerWidget {
 /// One line of the sidebar: a group header, or a document.
 class SidebarRow {
   /// A group header for [label].
-  const SidebarRow.group(this.label) : entry = null, detail = '';
+  const new group(this.label) : entry = null, detail = '';
 
   /// A document row.
-  const SidebarRow.file({
+  const new file({
     required this.entry,
     required this.label,
     required this.detail,
@@ -189,7 +186,7 @@ class SidebarRow {
 }
 
 class _GroupRow extends StatelessWidget {
-  const _GroupRow({required this.label});
+  const new({required this.label});
 
   final String label;
 
@@ -206,10 +203,8 @@ class _GroupRow extends StatelessWidget {
       child: Text(
         label,
         overflow: TextOverflow.ellipsis,
-        style: Theme.of(context).textTheme.labelSmall?.copyWith(
-          color: tokens.fgMuted,
-          fontWeight: FontWeight.w700,
-        ),
+        style: Theme.of(context).textTheme.labelSmall
+            ?.copyWith(color: tokens.fgMuted, fontWeight: FontWeight.w700),
       ),
     );
   }
@@ -223,7 +218,7 @@ class _GroupRow extends StatelessWidget {
 const double _detailMaxWidth = 96;
 
 class _FileRow extends StatelessWidget {
-  const _FileRow({
+  const new({
     required this.row,
     required this.active,
     required this.onActivate,

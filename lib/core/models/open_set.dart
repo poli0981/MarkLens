@@ -3,7 +3,7 @@ import 'package:marklens/core/models/opened_file.dart';
 /// One document MarkLens knows about, and what the UI needs to say about it.
 class OpenEntry {
   /// Creates an entry.
-  const OpenEntry({
+  const new({
     required this.file,
     this.pinned = false,
     this.stale = false,
@@ -46,7 +46,7 @@ class OpenEntry {
 /// Everything that is open, in the order it is shown.
 class OpenSet {
   /// Creates an open set.
-  const OpenSet({
+  const new({
     this.entries = const <OpenEntry>[],
     this.roots = const <String>[],
     this.activeIdentity,

@@ -47,15 +47,11 @@ void main() {
     }
   });
 
-  void writeSettings(Map<String, Object?> json) =>
-      File(at('settings.json')).writeAsStringSync(
-        jsonEncode(<String, Object?>{'version': 1, ...json}),
-      );
+  void writeSettings(Map<String, Object?> json) => File(at('settings.json'))
+      .writeAsStringSync(jsonEncode(<String, Object?>{'version': 1, ...json}));
 
-  void writeSession(Map<String, Object?> json) =>
-      File(at('session.json')).writeAsStringSync(
-        jsonEncode(<String, Object?>{'version': 1, ...json}),
-      );
+  void writeSession(Map<String, Object?> json) => File(at('session.json'))
+      .writeAsStringSync(jsonEncode(<String, Object?>{'version': 1, ...json}));
 
   ProviderContainer containerOf(WidgetTester tester) =>
       ProviderScope.containerOf(
@@ -287,11 +283,9 @@ void main() {
           file.name,
       ];
 
-      expect(
-        scanned(),
-        <String>['readme.md'],
-        reason: '.rst is not in the default set',
-      );
+      expect(scanned(), <String>[
+        'readme.md',
+      ], reason: '.rst is not in the default set');
 
       container.read(settingsProvider.notifier).setExtensions(<String>[
         ...container.read(settingsProvider).files.extensions,
@@ -369,9 +363,7 @@ void main() {
 
       container
           .read(settingsProvider.notifier)
-          .setAllowRemoteImages(
-            allow: true,
-          );
+          .setAllowRemoteImages(allow: true);
       await tester.pumpAndSettle();
 
       expect(

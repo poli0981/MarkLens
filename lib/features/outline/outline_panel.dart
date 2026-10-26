@@ -15,7 +15,7 @@ import 'package:marklens/l10n/gen/app_localizations.dart';
 /// The outline panel.
 class OutlinePanel extends ConsumerWidget {
   /// Creates the panel.
-  const OutlinePanel({super.key});
+  const new({super.key});
 
   /// Row height. Fixed, so a thousand headings scroll without measuring.
   static const double rowExtent = 24;
@@ -59,9 +59,8 @@ class OutlinePanel extends ConsumerWidget {
                 padding: const EdgeInsets.all(12),
                 child: Text(
                   l10n.outlineEmpty,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.bodySmall?.copyWith(color: tokens.fgMuted),
+                  style: Theme.of(context).textTheme.bodySmall
+                      ?.copyWith(color: tokens.fgMuted),
                 ),
               )
             : _Entries(
@@ -74,7 +73,7 @@ class OutlinePanel extends ConsumerWidget {
 }
 
 class _Entries extends StatelessWidget {
-  const _Entries({required this.outline, required this.scroller});
+  const new({required this.outline, required this.scroller});
 
   final Outline outline;
   final BlockScroller scroller;
@@ -106,11 +105,7 @@ class _Entries extends StatelessWidget {
 }
 
 class _Row extends StatelessWidget {
-  const _Row({
-    required this.entry,
-    required this.current,
-    required this.onTap,
-  });
+  const new({required this.entry, required this.current, required this.onTap});
 
   final OutlineEntry entry;
   final bool current;

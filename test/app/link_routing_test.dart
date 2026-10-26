@@ -22,7 +22,7 @@ import 'package:marklens/core/session/session_store.dart';
 import 'package:marklens/features/reader/reader_view.dart';
 
 class _StubPrompt implements FilePickerPrompt {
-  _StubPrompt(this.paths);
+  new(this.paths);
 
   List<String> paths;
 
@@ -135,9 +135,7 @@ Landed.
     // Firing the recognizer is what a tap on it does.
     final text = tester
         .widgetList<RichText>(find.byType(RichText))
-        .firstWhere(
-          (rich) => rich.text.toPlainText().contains(label),
-        );
+        .firstWhere((rich) => rich.text.toPlainText().contains(label));
     var fired = false;
     text.text.visitChildren((span) {
       final recognizer = span is TextSpan ? span.recognizer : null;

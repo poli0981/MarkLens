@@ -17,7 +17,7 @@ import 'package:marklens/l10n/gen/app_localizations.dart';
 /// is the whole point of showing it.
 class AboutMarkLens extends ConsumerWidget {
   /// Creates the dialog.
-  const AboutMarkLens({super.key});
+  const new({super.key});
 
   /// Shows it over [context].
   static Future<void> show(BuildContext context) => showDialog<void>(

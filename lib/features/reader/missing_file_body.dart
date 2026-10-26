@@ -19,11 +19,7 @@ import 'package:marklens/l10n/gen/app_localizations.dart';
 /// thing that is not there.
 class MissingFileBody extends ConsumerWidget {
   /// Creates the body.
-  const MissingFileBody({
-    required this.path,
-    required this.identity,
-    super.key,
-  });
+  const new({required this.path, required this.identity, super.key});
 
   /// The path that could not be read.
   final String path;
@@ -45,11 +41,7 @@ class MissingFileBody extends ConsumerWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
-              Icon(
-                Icons.help_outline,
-                size: 32,
-                color: tokens.fgMuted,
-              ),
+              Icon(Icons.help_outline, size: 32, color: tokens.fgMuted),
               const SizedBox(height: 12),
               Text(
                 l10n.missingFileTitle(ExtensionRegistry.basenameOf(path)),

@@ -27,7 +27,7 @@ const int _colon = 0x3A;
 /// One JSX tag, located in the string it was found in.
 class JsxTag {
   /// Creates a tag.
-  const JsxTag({
+  const new({
     required this.start,
     required this.end,
     required this.name,
@@ -97,7 +97,7 @@ String? jsxTagNameAt(String source, int start) {
 /// The result of scanning a block-level region from its opening tag.
 class JsxRegion {
   /// Creates a region.
-  const JsxRegion({
+  const new({
     required this.open,
     required this.end,
     required this.balanced,

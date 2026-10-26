@@ -27,7 +27,7 @@ MarkdownRenderer defaultRendererFactory(
 /// swap cannot change the app's typography (`docs/02_ARCHITECTURE.md`).
 class ReaderView extends StatefulWidget {
   /// Creates a reader for [doc].
-  const ReaderView({
+  const new({
     required this.doc,
     this.scroller,
     this.identity,
@@ -244,7 +244,7 @@ class _ReaderViewState extends State<ReaderView> {
 /// shows one problem at a time with the rest counted. Hiding ESM statements is
 /// the feature working.
 class _MdxChip extends StatelessWidget {
-  const _MdxChip({required this.count});
+  const new({required this.count});
 
   final int count;
 
@@ -264,9 +264,8 @@ class _MdxChip extends StatelessWidget {
         ),
         child: Text(
           AppLocalizations.of(context).readerMdxImportsHidden(count),
-          style: Theme.of(
-            context,
-          ).textTheme.labelSmall?.copyWith(color: tokens.fgMuted),
+          style: Theme.of(context).textTheme.labelSmall
+              ?.copyWith(color: tokens.fgMuted),
         ),
       ),
     );
@@ -276,7 +275,7 @@ class _MdxChip extends StatelessWidget {
 /// Constrains the reading column, or lets it fill the window when the setting
 /// says zero (`docs/05_SESSION_AND_SETTINGS.md`).
 class _Column extends StatelessWidget {
-  const _Column({required this.maxWidth, required this.child});
+  const new({required this.maxWidth, required this.child});
 
   final double maxWidth;
   final Widget child;

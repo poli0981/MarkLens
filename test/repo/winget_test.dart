@@ -60,10 +60,8 @@ String? _define(String iss, String name) => RegExp(
 ).firstMatch(iss)?.group(1);
 
 /// A `Directive=value` line from `[Setup]`.
-String? _directive(String iss, String name) => RegExp(
-  '^$name=(.*)\$',
-  multiLine: true,
-).firstMatch(iss)?.group(1)?.trim();
+String? _directive(String iss, String name) =>
+    RegExp('^$name=(.*)\$', multiLine: true).firstMatch(iss)?.group(1)?.trim();
 
 void main() {
   final code = _powershellCode(_read(_script));

@@ -91,11 +91,10 @@ void main() {
 
       final rows = SidebarTree.buildRows(container.read(openSetProvider));
       expect(rows.first.entry, isNull, reason: 'the root becomes a header');
-      expect(
-        rows.skip(1).map((r) => r.label),
-        <String>['2.md', '10.md'],
-        reason: 'natural sort inside a folder (docs/07)',
-      );
+      expect(rows.skip(1).map((r) => r.label), <String>[
+        '2.md',
+        '10.md',
+      ], reason: 'natural sort inside a folder (docs/07)');
     });
 
     test('a file below the root shows its folder', () {
@@ -287,10 +286,8 @@ void main() {
     /// The width the shell gives the sidebar by default (`docs/05`).
     const double sidebarWidth = 280;
 
-    Future<void> pumpSidebar(WidgetTester tester) => pump(
-      tester,
-      const SizedBox(width: sidebarWidth, child: SidebarTree()),
-    );
+    Future<void> pumpSidebar(WidgetTester tester) =>
+        pump(tester, const SizedBox(width: sidebarWidth, child: SidebarTree()));
 
     testWidgets('shows the whole file name when there is room for it', (
       tester,
@@ -315,9 +312,9 @@ void main() {
       tester,
     ) async {
       writeFile('a-rather-deeply-nested-folder/README.md');
-      controller().openPaths(
-        <String>[at('a-rather-deeply-nested-folder/README.md')],
-      );
+      controller().openPaths(<String>[
+        at('a-rather-deeply-nested-folder/README.md'),
+      ]);
       await pumpSidebar(tester);
 
       final label = tester.renderObject<RenderParagraph>(
@@ -341,9 +338,9 @@ void main() {
 
     testWidgets('a name too long for any row still ellipsises', (tester) async {
       writeFile('notes/a-file-name-far-too-long-to-fit-in-any-sidebar.md');
-      controller().openPaths(
-        <String>[at('notes/a-file-name-far-too-long-to-fit-in-any-sidebar.md')],
-      );
+      controller().openPaths(<String>[
+        at('notes/a-file-name-far-too-long-to-fit-in-any-sidebar.md'),
+      ]);
       await pumpSidebar(tester);
 
       final label = tester.renderObject<RenderParagraph>(

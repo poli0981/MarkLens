@@ -7,7 +7,7 @@ import 'package:marklens/core/files/extension_registry.dart';
 /// thousand restored entries free at startup (`docs/03_DATA_FLOW.md`).
 class OpenedFile {
   /// Creates an entry.
-  const OpenedFile({
+  const new({
     required this.path,
     required this.identity,
     required this.modified,

@@ -22,10 +22,11 @@ void main() {
       }
 
       expect(log.length, 3);
-      expect(
-        log.entries.map((e) => e.message),
-        <String>['entry 7', 'entry 8', 'entry 9'],
-      );
+      expect(log.entries.map((e) => e.message), <String>[
+        'entry 7',
+        'entry 8',
+        'entry 9',
+      ]);
     });
 
     test('doc 02 says five hundred', () {
@@ -58,10 +59,11 @@ void main() {
         ..warn('a', 'degraded', now: at)
         ..error('a', 'failed', now: at);
 
-      expect(
-        log.entries.map((e) => e.level),
-        <LogLevel>[LogLevel.info, LogLevel.warning, LogLevel.error],
-      );
+      expect(log.entries.map((e) => e.level), <LogLevel>[
+        LogLevel.info,
+        LogLevel.warning,
+        LogLevel.error,
+      ]);
     });
   });
 

@@ -20,43 +20,43 @@ import 'package:flutter/widgets.dart';
 /// Open one or more documents.
 class OpenFilesIntent extends Intent {
   /// Creates the intent.
-  const OpenFilesIntent();
+  const new();
 }
 
 /// Open a folder of documents.
 class OpenFolderIntent extends Intent {
   /// Creates the intent.
-  const OpenFolderIntent();
+  const new();
 }
 
 /// Reload the active document from disk.
 class ReloadDocumentIntent extends Intent {
   /// Creates the intent.
-  const ReloadDocumentIntent();
+  const new();
 }
 
 /// Copy the whole document as Markdown source (`docs/06_UI_UX.md`).
 class CopyDocumentIntent extends Intent {
   /// Creates the intent.
-  const CopyDocumentIntent();
+  const new();
 }
 
 /// Close the active tab.
 class CloseTabIntent extends Intent {
   /// Creates the intent.
-  const CloseTabIntent();
+  const new();
 }
 
 /// Reopen the most recently closed tab.
 class ReopenTabIntent extends Intent {
   /// Creates the intent.
-  const ReopenTabIntent();
+  const new();
 }
 
 /// Move to the next or previous tab in most-recently-used order.
 class CycleTabIntent extends Intent {
   /// Creates the intent.
-  const CycleTabIntent({required this.forward});
+  const new({required this.forward});
 
   /// Whether to move forward through the MRU order.
   final bool forward;
@@ -65,31 +65,31 @@ class CycleTabIntent extends Intent {
 /// Open the fuzzy quick switcher.
 class QuickSwitcherIntent extends Intent {
   /// Creates the intent.
-  const QuickSwitcherIntent();
+  const new();
 }
 
 /// Find within the active document.
 class FindInFileIntent extends Intent {
   /// Creates the intent.
-  const FindInFileIntent();
+  const new();
 }
 
 /// Search across all open files.
 class FindAcrossFilesIntent extends Intent {
   /// Creates the intent.
-  const FindAcrossFilesIntent();
+  const new();
 }
 
 /// Change the reading zoom level.
 class ZoomIntent extends Intent {
   /// Zoom in one step.
-  const ZoomIntent.zoomIn() : step = 1;
+  const new zoomIn() : step = 1;
 
   /// Zoom out one step.
-  const ZoomIntent.zoomOut() : step = -1;
+  const new zoomOut() : step = -1;
 
   /// Return to 100%.
-  const ZoomIntent.reset() : step = 0;
+  const new reset() : step = 0;
 
   /// `1` to zoom in, `-1` to zoom out, `0` to reset.
   final int step;
@@ -98,25 +98,25 @@ class ZoomIntent extends Intent {
 /// Show or hide the sidebar.
 class ToggleSidebarIntent extends Intent {
   /// Creates the intent.
-  const ToggleSidebarIntent();
+  const new();
 }
 
 /// Show or hide the outline panel.
 class ToggleOutlineIntent extends Intent {
   /// Creates the intent.
-  const ToggleOutlineIntent();
+  const new();
 }
 
 /// Enter or leave full screen.
 class ToggleFullScreenIntent extends Intent {
   /// Creates the intent.
-  const ToggleFullScreenIntent();
+  const new();
 }
 
 /// Open the settings screen.
 class OpenSettingsIntent extends Intent {
   /// Creates the intent.
-  const OpenSettingsIntent();
+  const new();
 }
 
 /// Move keyboard focus to the menu bar.
@@ -133,7 +133,7 @@ class OpenSettingsIntent extends Intent {
 /// tell "focus the menu" from "the user is typing Alt+F4".
 class FocusMenuBarIntent extends Intent {
   /// Creates the intent.
-  const FocusMenuBarIntent();
+  const new();
 }
 
 /// Every shortcut in `docs/06_UI_UX.md`, and no others.

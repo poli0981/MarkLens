@@ -13,7 +13,7 @@ import 'package:marklens/app/theme/reader_tokens.dart';
 /// part of the image a reader can still get.
 class ImagePlaceholder extends StatelessWidget {
   /// Creates a placeholder.
-  const ImagePlaceholder({
+  const new({
     required this.icon,
     required this.message,
     this.detail,

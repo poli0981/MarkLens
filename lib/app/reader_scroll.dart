@@ -25,7 +25,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// which is the one door.
 class BlockScroller {
   /// Creates a scroller. One per reader.
-  BlockScroller() {
+  new() {
     controller.addListener(_onScroll);
   }
 

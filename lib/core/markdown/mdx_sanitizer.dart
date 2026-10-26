@@ -49,7 +49,7 @@ typedef MdxSanitizeResult = ({
 /// What a placeholder fence says about the component it replaced.
 class MdxPlaceholder {
   /// Creates a placeholder description.
-  const MdxPlaceholder({required this.name, required this.attributes});
+  const new({required this.name, required this.attributes});
 
   /// The component's name, dots included.
   final String name;
@@ -73,10 +73,7 @@ MdxPlaceholder? mdxPlaceholderOf(String? metadata) {
   if (words.length < 2 || words.first != mdxPlaceholderMetadata) {
     return null;
   }
-  return MdxPlaceholder(
-    name: words[1],
-    attributes: words.sublist(2),
-  );
+  return MdxPlaceholder(name: words[1], attributes: words.sublist(2));
 }
 
 /// Rewrites `.mdx` source so its structure is readable and nothing can run.
@@ -102,10 +99,7 @@ MdxPlaceholder? mdxPlaceholderOf(String? metadata) {
 /// amended to say so.
 class MdxSanitizer {
   /// Creates a sanitizer.
-  const MdxSanitizer({
-    this.nestingLimit = 20,
-    this.esmStatementLineLimit = 100,
-  });
+  const new({this.nestingLimit = 20, this.esmStatementLineLimit = 100});
 
   /// Nesting deeper than this bails out (doc 04, transform 5).
   final int nestingLimit;
@@ -382,9 +376,7 @@ class MdxSanitizer {
       if (unit == _lessThan) {
         final tag = parseJsxTag(line, i);
         if (tag != null && tag.isComponent) {
-          out.write(
-            jsxCodeSpan('⟨${tag.closing ? '/' : ''}${tag.name}⟩'),
-          );
+          out.write(jsxCodeSpan('⟨${tag.closing ? '/' : ''}${tag.name}⟩'));
           i = tag.end;
           continue;
         }
@@ -586,7 +578,7 @@ class MdxSanitizer {
 
 /// One document's shared allowance for searching forward.
 class _ScanBudget {
-  _ScanBudget(this.remaining);
+  new(this.remaining);
 
   /// Characters still available. Never negative.
   int remaining;
@@ -605,7 +597,7 @@ class _ScanBudget {
 
 /// One block-level region, rewritten.
 class _BlockReplacement {
-  const _BlockReplacement({
+  const new({
     required this.replacement,
     required this.endLineExclusive,
     required this.bailedOut,
@@ -618,7 +610,7 @@ class _BlockReplacement {
 
 /// An open fenced code block, so the scanner can leave its contents alone.
 class _FenceState {
-  const _FenceState(this.marker, this.length);
+  const new(this.marker, this.length);
 
   /// The fence opened by [line], or `null`.
   static _FenceState? opening(String line) {

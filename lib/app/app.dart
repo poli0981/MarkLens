@@ -32,7 +32,7 @@ import 'package:window_manager/window_manager.dart';
 /// are M1 step 6, so the panels beside the reader are still placeholders.
 class MarkLensApp extends ConsumerWidget {
   /// Creates the app shell.
-  const MarkLensApp({super.key});
+  const new({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -66,7 +66,7 @@ class MarkLensApp extends ConsumerWidget {
 /// Menu bar, shortcut bindings, and the placeholder reader body.
 class AppShell extends ConsumerStatefulWidget {
   /// Creates the shell.
-  const AppShell({super.key});
+  const new({super.key});
 
   @override
   ConsumerState<AppShell> createState() => _AppShellState();
@@ -292,9 +292,8 @@ class _AppShellState extends ConsumerState<AppShell> with WindowListener {
     final resolved = ref.read(openSetProvider.notifier).openPaths(paths);
     if (resolved < paths.length && mounted) {
       _notify(
-        AppLocalizations.of(
-          context,
-        ).readerOpenFailed(ExtensionRegistry.basenameOf(paths.first)),
+        AppLocalizations.of(context)
+            .readerOpenFailed(ExtensionRegistry.basenameOf(paths.first)),
       );
     }
   }
@@ -588,11 +587,7 @@ class _AppShellState extends ConsumerState<AppShell> with WindowListener {
                         if (ref.watch(
                           findProvider.select((find) => find.visible),
                         ))
-                          const Positioned(
-                            top: 8,
-                            right: 16,
-                            child: FindBar(),
-                          ),
+                          const Positioned(top: 8, right: 16, child: FindBar()),
                       ],
                     ),
                   ),
@@ -617,7 +612,7 @@ class _AppShellState extends ConsumerState<AppShell> with WindowListener {
 /// bullseye either. `IgnorePointer`, so the veil never eats the drop it is
 /// advertising.
 class _DropOverlay extends StatelessWidget {
-  const _DropOverlay();
+  const new();
 
   @override
   Widget build(BuildContext context) {
@@ -652,7 +647,7 @@ class _DropOverlay extends StatelessWidget {
 /// same launcher seam and the same scheme check as any other external link.
 class UpdateBanner extends ConsumerWidget {
   /// Creates the banner.
-  const UpdateBanner({super.key});
+  const new({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -703,7 +698,7 @@ class UpdateBanner extends ConsumerWidget {
 /// list — which is the first-run surface that has been specified since M0 and
 /// showed one line of text until M3.
 class _EmptyState extends ConsumerWidget {
-  const _EmptyState({required this.fontScale});
+  const new({required this.fontScale});
 
   final double fontScale;
 
@@ -751,9 +746,8 @@ class _EmptyState extends ConsumerWidget {
                 alignment: Alignment.centerLeft,
                 child: Text(
                   l10n.emptyStateRecent,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.labelSmall?.copyWith(color: tokens.fgMuted),
+                  style: Theme.of(context).textTheme.labelSmall
+                      ?.copyWith(color: tokens.fgMuted),
                 ),
               ),
               for (final path in recent.take(_emptyStateRecentLimit))
@@ -784,7 +778,7 @@ const int _emptyStateRecentLimit = 5;
 
 /// The reading surface, or the empty state when nothing is open.
 class _Body extends ConsumerWidget {
-  const _Body();
+  const new();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -809,9 +803,7 @@ class _Body extends ConsumerWidget {
       }
       return _EmptyState(fontScale: reading.fontScale);
     }
-    final entry = ref.watch(
-      openSetProvider.select((set) => set.active),
-    );
+    final entry = ref.watch(openSetProvider.select((set) => set.active));
     return ReaderView(
       doc: doc,
       scroller: ref.watch(readerScrollProvider),

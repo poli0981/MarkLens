@@ -31,7 +31,7 @@ abstract class WatchLink {
 /// The real watcher.
 class PlatformWatchLink implements WatchLink {
   /// Creates a link over [service].
-  PlatformWatchLink(this.service);
+  new(this.service);
 
   /// The pure-Dart service underneath.
   final WatchService service;
@@ -62,7 +62,7 @@ class PlatformWatchLink implements WatchLink {
 /// badge, never to an error.
 class NoWatchLink implements WatchLink {
   /// Creates a link that watches nothing.
-  const NoWatchLink();
+  const new();
 
   @override
   Stream<WatchEvent> get events => const Stream<WatchEvent>.empty();

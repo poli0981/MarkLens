@@ -102,10 +102,7 @@ void main() {
     });
 
     test('a root that does not exist yields nothing rather than throwing', () {
-      expect(
-        service.scanRoots(<String>[at('no-such-folder')]).files,
-        isEmpty,
-      );
+      expect(service.scanRoots(<String>[at('no-such-folder')]).files, isEmpty);
     });
 
     test('an empty root list is not an error', () {
@@ -166,10 +163,7 @@ void main() {
     test('identity is stable across scans', () {
       final first = service.scanRoots(<String>[root.path]).files;
       final second = service.scanRoots(<String>[root.path]).files;
-      expect(
-        first.map((f) => f.identity),
-        second.map((f) => f.identity),
-      );
+      expect(first.map((f) => f.identity), second.map((f) => f.identity));
     });
 
     test('the displayed path keeps its on-disk casing', () {

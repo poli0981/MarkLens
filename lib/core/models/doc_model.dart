@@ -17,7 +17,7 @@ class DocModel {
   /// could disagree with the text beside it; computing it from
   /// [sanitizedSource] makes that unrepresentable. The cost is one linear scan
   /// per parse, against a parse that is already linear.
-  DocModel({
+  new({
     required this.path,
     required this.rawSource,
     required this.sanitizedSource,
@@ -103,7 +103,7 @@ class DocModel {
 /// document with footnotes: it has no source of its own and spans nothing.
 class SourceBlock {
   /// Creates a block spanning [startLine]–[endLine].
-  const SourceBlock({
+  const new({
     required this.index,
     required this.startLine,
     required this.endLine,
@@ -133,11 +133,7 @@ class SourceBlock {
 /// A document's leading `---` front-matter block.
 class FrontMatter {
   /// Creates a front-matter model.
-  const FrontMatter({
-    required this.raw,
-    required this.fields,
-    required this.parsed,
-  });
+  const new({required this.raw, required this.fields, required this.parsed});
 
   /// The block exactly as written, fences excluded.
   ///
@@ -159,7 +155,7 @@ class FrontMatter {
 /// resolved through ARB at the widget layer (CLAUDE.md rule 4, docs/09_I18N).
 class DocNotice {
   /// Creates a notice.
-  const DocNotice(this.kind, {this.detail});
+  const new(this.kind, {this.detail});
 
   /// What went wrong.
   final DocNoticeKind kind;

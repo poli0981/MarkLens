@@ -69,9 +69,8 @@ void main() {
     test('a statement whose braces never close is left alone', () {
       const source = 'export default function L() {\nunclosed forever\n';
 
-      final result = const MdxSanitizer(
-        esmStatementLineLimit: 2,
-      ).sanitize(source);
+      final result = const MdxSanitizer(esmStatementLineLimit: 2)
+          .sanitize(source);
 
       expect(result.source, source, reason: 'leaving text is the safe answer');
       expect(result.esmRemoved, 0);
@@ -241,11 +240,9 @@ void main() {
     test('one bail-out notice, however many regions bailed', () {
       final result = run('unterminated_tag.mdx');
 
-      expect(
-        kindsOf(result),
-        <String>['mdxBailOut'],
-        reason: 'doc 06 counts notices; duplicates would inflate the count',
-      );
+      expect(kindsOf(result), <String>[
+        'mdxBailOut',
+      ], reason: 'doc 06 counts notices; duplicates would inflate the count');
       expect(result.notices.single.kind, DocNoticeKind.mdxBailOut);
     });
   });
@@ -396,11 +393,9 @@ void main() {
         lessThan(const Duration(seconds: 20)),
         reason: 'quadratic rescanning is a denial of service (rule 9)',
       );
-      expect(
-        kindsOf(result),
-        <String>['mdxBailOut'],
-        reason: 'the budget changes how long it takes, never what comes out',
-      );
+      expect(kindsOf(result), <String>[
+        'mdxBailOut',
+      ], reason: 'the budget changes how long it takes, never what comes out');
     });
 
     test('and running out of budget still bails out, never truncates', () {

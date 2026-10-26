@@ -274,9 +274,7 @@ The needle is here.
       // Start somewhere else, so activation is observable.
       container
           .read(openSetProvider.notifier)
-          .activate(
-            container.read(openSetProvider).entries.last.identity,
-          );
+          .activate(container.read(openSetProvider).entries.last.identity);
       await tester.pumpAndSettle();
       await openPanel(tester);
       await type(tester, 'needle');
@@ -284,10 +282,7 @@ The needle is here.
       await tester.tap(inPanel(find.text('The needle is here.')));
       await tester.pumpAndSettle();
 
-      expect(
-        container.read(openSetProvider).active?.file.name,
-        'alpha.md',
-      );
+      expect(container.read(openSetProvider).active?.file.name, 'alpha.md');
       expect(
         container.read(readerScrollProvider).controller.offset,
         greaterThan(0),

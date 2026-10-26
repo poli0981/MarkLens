@@ -23,7 +23,7 @@ import 'package:marklens/core/models/outline.dart';
 /// `generateDeepMdxNesting()` exists specifically to break a recursive walker.
 class OutlineBuilder {
   /// Creates a builder.
-  const OutlineBuilder();
+  const new();
 
   /// Builds the outline for [nodes], the top-level nodes of one parse.
   ///

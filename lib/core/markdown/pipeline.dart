@@ -21,7 +21,7 @@ import 'package:marklens/core/models/outline.dart';
 /// See `docs/02_ARCHITECTURE.md`, "The seam".
 class MarkdownPipeline {
   /// Creates a pipeline from its stages.
-  const MarkdownPipeline({
+  const new({
     this.frontMatterSplitter = const FrontMatterSplitter(),
     this.mdxSanitizer = const MdxSanitizer(),
     this.rawBlockRewriter = const RawBlockRewriter(),

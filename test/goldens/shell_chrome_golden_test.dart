@@ -42,7 +42,7 @@ class _FixedSettings extends AppSettingsController {
 
 /// Pins the active document, so no golden depends on the filesystem.
 class _FixedDocument extends ActiveDocumentController {
-  _FixedDocument(this._value);
+  new(this._value);
 
   final ActiveDocument _value;
 

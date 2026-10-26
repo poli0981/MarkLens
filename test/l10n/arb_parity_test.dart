@@ -39,9 +39,7 @@ const Map<String, String> borrowedInVietnamese = <String, String>{
 };
 
 Map<String, String> messages(String locale) {
-  final raw = jsonDecode(
-    File('lib/l10n/app_$locale.arb').readAsStringSync(),
-  );
+  final raw = jsonDecode(File('lib/l10n/app_$locale.arb').readAsStringSync());
   final map = raw as Map<String, Object?>;
   return <String, String>{
     for (final entry in map.entries)

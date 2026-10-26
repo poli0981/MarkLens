@@ -156,11 +156,9 @@ void main() {
         ..save(const SessionState(openRoots: <String>['/quitting']))
         ..dispose();
 
-      expect(
-        store.load().state.openRoots,
-        <String>['/quitting'],
-        reason: 'quitting must not lose the last second of a session',
-      );
+      expect(store.load().state.openRoots, <String>[
+        '/quitting',
+      ], reason: 'quitting must not lose the last second of a session');
     });
 
     test('saving after dispose does nothing', () {
@@ -187,11 +185,9 @@ void main() {
 
       final loaded = store.load();
       expect(loaded.outcome, JsonLoadOutcome.ok);
-      expect(
-        loaded.state.documents.map((d) => d.path),
-        <String>['/good.md'],
-        reason: 'losing one tab beats losing the session',
-      );
+      expect(loaded.state.documents.map((d) => d.path), <String>[
+        '/good.md',
+      ], reason: 'losing one tab beats losing the session');
     });
 
     test('scroll is clamped into 0..1', () {

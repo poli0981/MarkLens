@@ -34,7 +34,7 @@ import 'package:marklens/features/reader/rendering/reader_style.dart';
 ///   block to us and zero children to the renderer.
 class FlutterMarkdownPlusRenderer implements MarkdownRenderer {
   /// Creates the reader renderer.
-  const FlutterMarkdownPlusRenderer({
+  const new({
     this.controller,
     this.onBlockCount,
     this.highlighter,
@@ -107,7 +107,7 @@ class _BlockListMarkdown extends MarkdownWidget {
   // Not const: `markdownExtensionSet` cannot be, because the package builds
   // `ExtensionSet.gitHubFlavored` as a static final. Naming the set is worth
   // more than a const constructor on one private widget.
-  _BlockListMarkdown({
+  new({
     required super.data,
     required CodeBlockBuilder codeBlocks,
     required super.styleSheet,

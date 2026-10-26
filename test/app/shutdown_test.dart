@@ -35,7 +35,7 @@ class _NoPrompt implements FilePickerPrompt {
 
 /// A window that remembers who attached, so the test can close it.
 class _RecordingWindowLink implements WindowLink {
-  _RecordingWindowLink(this.order);
+  new(this.order);
 
   final List<String> order;
   WindowListener? listener;
@@ -78,7 +78,7 @@ class _RecordingWindowLink implements WindowLink {
 }
 
 class _RecordingWatchLink implements WatchLink {
-  _RecordingWatchLink(this.order, {this.hang = false});
+  new(this.order, {this.hang = false});
 
   final List<String> order;
   final bool hang;

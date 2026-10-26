@@ -16,7 +16,7 @@ import 'package:marklens/l10n/gen/app_localizations.dart';
 /// written in, and whether the reader has turned remote images on.
 class ImagePolicy {
   /// Creates a policy for one document.
-  const ImagePolicy({
+  const new({
     required this.documentPath,
     this.allowRemote = false,
     this.maxBytes = maxImageBytes,
@@ -50,7 +50,7 @@ class ImagePolicy {
 /// 1 MB document.
 class DocumentImage extends StatefulWidget {
   /// Creates an image.
-  const DocumentImage({
+  const new({
     required this.source,
     required this.allowRemote,
     this.alt,
@@ -199,9 +199,7 @@ class _DocumentImageState extends State<DocumentImage> {
     if (size > widget.maxBytes && !_loadAnyway) {
       return ImagePlaceholder(
         icon: Icons.hourglass_empty,
-        message: l10n.readerImageTooLarge(
-          ExtensionRegistry.basenameOf(path),
-        ),
+        message: l10n.readerImageTooLarge(ExtensionRegistry.basenameOf(path)),
         alt: widget.alt,
         action: TextButton(
           onPressed: () => setState(() => _loadAnyway = true),

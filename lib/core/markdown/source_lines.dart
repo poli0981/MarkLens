@@ -14,10 +14,10 @@ library;
 
 /// The lines of a source string, with their offsets.
 class SourceLines {
-  SourceLines._(this.source, this.contents, this.starts);
+  new _(this.source, this.contents, this.starts);
 
   /// Scans [source] into lines, splitting on LF, CR and CRLF alike.
-  factory SourceLines.of(String source) {
+  factory of(String source) {
     final contents = <String>[];
     final starts = <int>[];
     var lineStart = 0;

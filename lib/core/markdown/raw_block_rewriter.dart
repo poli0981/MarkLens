@@ -96,7 +96,7 @@ String markdownFenceMarker(String body) {
 /// nested line ranges the recorder deliberately does not collect.
 class RawBlockRewriter {
   /// Creates a rewriter.
-  const RawBlockRewriter();
+  const new();
 
   static const int _lineFeed = 0x0A;
 

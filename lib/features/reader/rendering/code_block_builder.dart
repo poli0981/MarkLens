@@ -25,7 +25,7 @@ import 'package:marklens/l10n/gen/app_localizations.dart';
 /// content behind a click is not a reader's job (`docs/06_UI_UX.md`).
 class CodeBlockBuilder extends MarkdownElementBuilder {
   /// Creates a builder that colours code with [highlighter].
-  CodeBlockBuilder({required this.highlighter});
+  new({required this.highlighter});
 
   /// Turns code into spans. An unknown language yields plain spans rather than
   /// an error — that is the seam's contract (`docs/01_TECH_STACK.md`).
@@ -75,7 +75,7 @@ class CodeBlockBuilder extends MarkdownElementBuilder {
 }
 
 class _CodeBlock extends StatefulWidget {
-  const _CodeBlock({
+  const new({
     required this.source,
     required this.language,
     required this.isRawHtml,
@@ -167,7 +167,7 @@ class _CodeBlockState extends State<_CodeBlock> {
 }
 
 class _Header extends StatelessWidget {
-  const _Header({
+  const new({
     required this.label,
     required this.detail,
     required this.expanded,
@@ -250,7 +250,7 @@ class _Header extends StatelessWidget {
 }
 
 class _Body extends StatelessWidget {
-  const _Body({
+  const new({
     required this.source,
     required this.language,
     required this.highlighter,

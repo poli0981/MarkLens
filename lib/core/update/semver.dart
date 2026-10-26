@@ -9,7 +9,7 @@ library;
 /// A parsed `major.minor.patch[-prerelease]` version.
 class SemVer implements Comparable<SemVer> {
   /// Creates a version.
-  const SemVer(this.major, this.minor, this.patch, [this.prerelease]);
+  const new(this.major, this.minor, this.patch, [this.prerelease]);
 
   /// Parses [value], or returns `null` when it is not a version.
   ///

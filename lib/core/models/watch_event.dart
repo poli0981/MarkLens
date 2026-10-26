@@ -21,7 +21,7 @@ enum WatchEventKind {
 /// One normalized filesystem event for one document.
 class WatchEvent {
   /// Creates a watch event.
-  const WatchEvent({required this.path, required this.kind});
+  const new({required this.path, required this.kind});
 
   /// Canonical absolute path of the document.
   final String path;

@@ -18,7 +18,7 @@ import 'package:marklens/l10n/gen/app_localizations.dart';
 /// strip cannot show a thousand files.
 class SearchPanel extends ConsumerStatefulWidget {
   /// Creates the panel.
-  const SearchPanel({super.key});
+  const new({super.key});
 
   @override
   ConsumerState<SearchPanel> createState() => _SearchPanelState();
@@ -110,7 +110,7 @@ class _SearchPanelState extends ConsumerState<SearchPanel> {
 
 /// "12 matches in 3 files", or why there are none.
 class _Summary extends StatelessWidget {
-  const _Summary({required this.state});
+  const new({required this.state});
 
   final CrossSearchState state;
 
@@ -118,9 +118,8 @@ class _Summary extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final tokens = ReaderTokens.of(context);
-    final style = Theme.of(
-      context,
-    ).textTheme.labelSmall?.copyWith(color: tokens.fgMuted);
+    final style = Theme.of(context).textTheme.labelSmall
+        ?.copyWith(color: tokens.fgMuted);
 
     final text = switch (state) {
       CrossSearchState(query: '') => '',
@@ -133,7 +132,7 @@ class _Summary extends StatelessWidget {
 }
 
 class _Results extends ConsumerWidget {
-  const _Results({required this.state});
+  const new({required this.state});
 
   final CrossSearchState state;
 
@@ -159,8 +158,8 @@ class _Results extends ConsumerWidget {
 
 /// One line in the flattened result list: a file header, or one of its hits.
 class _Row {
-  const _Row.file(this.file) : hitIndex = -1;
-  const _Row.hit(this.file, this.hitIndex);
+  const new file(this.file) : hitIndex = -1;
+  const new hit(this.file, this.hitIndex);
 
   final FileHits file;
   final int hitIndex;

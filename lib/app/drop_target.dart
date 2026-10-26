@@ -23,7 +23,7 @@ abstract class DropTargetLink {
 /// The real drop target.
 class PlatformDropTargetLink implements DropTargetLink {
   /// Creates a drop target.
-  const PlatformDropTargetLink();
+  const new();
 
   @override
   Widget wrap({
@@ -47,7 +47,7 @@ class PlatformDropTargetLink implements DropTargetLink {
 /// resolves to — there is nothing between the two but the plugin.
 class NoDropTargetLink implements DropTargetLink {
   /// Creates an inert drop target.
-  const NoDropTargetLink();
+  const new();
 
   @override
   Widget wrap({

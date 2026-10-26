@@ -39,10 +39,7 @@ void main() {
       expect(loaded.settings.recentLimit, 20);
       expect(loaded.settings.reading.fontScale, 1.0);
       expect(loaded.settings.reading.contentMaxWidth, 760);
-      expect(
-        loaded.settings.reading.frontMatter,
-        FrontMatterDisplay.collapsed,
-      );
+      expect(loaded.settings.reading.frontMatter, FrontMatterDisplay.collapsed);
       expect(loaded.settings.files.fileCap, 1000);
       expect(loaded.settings.files.watchEnabled, isTrue);
       expect(loaded.settings.files.extensions, <String>[

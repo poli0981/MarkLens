@@ -19,7 +19,7 @@ typedef ScanResult = ({List<OpenedFile> files, bool capExceeded});
 /// class is only the walk itself (`docs/07_FILES_AND_WATCH.md`).
 class FileService {
   /// Creates a service.
-  const FileService({
+  const new({
     this.registry = ExtensionRegistry.standard,
     this.fileCap = defaultFileCap,
     this.maxDocumentBytes = defaultMaxDocumentBytes,

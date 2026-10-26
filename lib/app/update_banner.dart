@@ -8,7 +8,7 @@ import 'package:marklens/core/update/update_service.dart';
 @immutable
 class UpdateBannerState {
   /// Creates a banner state.
-  const UpdateBannerState({
+  const new({
     this.available,
     this.checking = false,
     this.checkedManually = false,
@@ -102,10 +102,7 @@ class UpdateBannerController extends Notifier<UpdateBannerState> {
     // exists to bound *requests*, and retrying every launch because the last
     // one was offline is the behaviour it is there to prevent.
     ref.read(lastUpdateCheckProvider.notifier).stamp();
-    state = UpdateBannerState(
-      available: found,
-      checkedManually: manual,
-    );
+    state = UpdateBannerState(available: found, checkedManually: manual);
   }
 }
 

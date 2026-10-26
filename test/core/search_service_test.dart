@@ -35,11 +35,7 @@ void main() {
     List<String> paths,
     String query, {
     bool caseSensitive = false,
-  }) => searchFiles((
-    paths: paths,
-    query: query,
-    caseSensitive: caseSensitive,
-  ));
+  }) => searchFiles((paths: paths, query: query, caseSensitive: caseSensitive));
 
   group('the scan', () {
     test('finds every match, with its line and a context line', () {

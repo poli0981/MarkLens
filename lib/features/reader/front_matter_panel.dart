@@ -13,7 +13,7 @@ import 'package:marklens/l10n/gen/app_localizations.dart';
 /// the user's text to report an error is worse than showing it.
 class FrontMatterPanel extends StatefulWidget {
   /// Creates a panel for [frontMatter].
-  const FrontMatterPanel({
+  const new({
     required this.frontMatter,
     this.display = FrontMatterDisplay.collapsed,
     super.key,
@@ -70,10 +70,7 @@ class _FrontMatterPanelState extends State<FrontMatterPanel> {
           InkWell(
             onTap: () => setState(() => _expanded = !_expanded),
             child: Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 12,
-                vertical: 8,
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               child: Row(
                 children: <Widget>[
                   Icon(
@@ -106,7 +103,7 @@ class _FrontMatterPanelState extends State<FrontMatterPanel> {
 }
 
 class _Fields extends StatelessWidget {
-  const _Fields({required this.fields});
+  const new({required this.fields});
 
   final Map<String, String> fields;
 
@@ -156,7 +153,7 @@ class _Fields extends StatelessWidget {
 }
 
 class _Raw extends StatelessWidget {
-  const _Raw({required this.raw});
+  const new({required this.raw});
 
   final String raw;
 

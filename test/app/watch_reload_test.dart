@@ -128,10 +128,7 @@ void main() {
       expect(inReader(find.text('Before')), findsOneWidget);
 
       write('doc.md', '# After the edit\n');
-      await push(
-        tester,
-        WatchEvent(path: path, kind: WatchEventKind.changed),
-      );
+      await push(tester, WatchEvent(path: path, kind: WatchEventKind.changed));
 
       expect(inReader(find.text('After the edit')), findsOneWidget);
       expect(inReader(find.text('Before')), findsNothing);
@@ -159,10 +156,7 @@ void main() {
           .identity;
 
       write('other.md', '# Other, edited elsewhere\n');
-      await push(
-        tester,
-        WatchEvent(path: other, kind: WatchEventKind.changed),
-      );
+      await push(tester, WatchEvent(path: other, kind: WatchEventKind.changed));
 
       expect(
         container.read(openSetProvider).entryFor(otherIdentity)!.stale,
@@ -183,10 +177,7 @@ void main() {
 
       await push(
         tester,
-        WatchEvent(
-          path: at('unrelated.md'),
-          kind: WatchEventKind.changed,
-        ),
+        WatchEvent(path: at('unrelated.md'), kind: WatchEventKind.changed),
       );
 
       expect(
@@ -205,10 +196,7 @@ void main() {
       await tester.pumpAndSettle();
 
       File(path).deleteSync();
-      await push(
-        tester,
-        WatchEvent(path: path, kind: WatchEventKind.missing),
-      );
+      await push(tester, WatchEvent(path: path, kind: WatchEventKind.missing));
 
       final entry = container.read(openSetProvider).entries.single;
       expect(entry.file.missing, isTrue);

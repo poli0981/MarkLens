@@ -14,13 +14,13 @@ import 'package:marklens/core/links/document_reference.dart';
 
 /// Where a link goes.
 sealed class LinkTarget {
-  const LinkTarget();
+  const new();
 }
 
 /// A `#heading` in the document already open.
 class AnchorLink extends LinkTarget {
   /// Creates an anchor target.
-  const AnchorLink(this.slug);
+  const new(this.slug);
 
   /// The GitHub-style slug, without its `#` (`docs/04_MARKDOWN_PIPELINE.md`).
   final String slug;
@@ -29,7 +29,7 @@ class AnchorLink extends LinkTarget {
 /// Another document MarkLens opens, optionally at one of its headings.
 class DocumentLink extends LinkTarget {
   /// Creates a document target.
-  const DocumentLink({required this.path, this.anchor});
+  const new({required this.path, this.anchor});
 
   /// Absolute path, resolved against the linking document's directory.
   final String path;
@@ -43,7 +43,7 @@ class DocumentLink extends LinkTarget {
 /// The only variant that may reach `url_launcher`.
 class ExternalLink extends LinkTarget {
   /// Creates an external target.
-  const ExternalLink(this.uri);
+  const new(this.uri);
 
   /// The URL, guaranteed to have an `http` or `https` scheme.
   final Uri uri;
@@ -56,7 +56,7 @@ class ExternalLink extends LinkTarget {
 /// Refused with a notice, never followed (`docs/10_SECURITY_PRIVACY.md`).
 class UnsupportedLink extends LinkTarget {
   /// Creates a refusal.
-  const UnsupportedLink({required this.href, this.scheme});
+  const new({required this.href, this.scheme});
 
   /// The href exactly as the document wrote it.
   final String href;

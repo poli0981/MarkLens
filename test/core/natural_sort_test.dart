@@ -43,10 +43,11 @@ void main() {
       // `07` and `7` are the same number, so they land next to each other and
       // both before `8` — but they are still different names, and the ordering
       // has to stay total, so they are not reported as equal.
-      expect(
-        _sorted(<String>['8.md', '07.md', '7.md']),
-        <String>['07.md', '7.md', '8.md'],
-      );
+      expect(_sorted(<String>['8.md', '07.md', '7.md']), <String>[
+        '07.md',
+        '7.md',
+        '8.md',
+      ]);
       expect(compareNatural('07.md', '7.md'), isNot(0));
     });
 
@@ -62,10 +63,11 @@ void main() {
     });
 
     test('several number runs in one name', () {
-      expect(
-        _sorted(<String>['v1.10.md', 'v1.2.md', 'v1.9.md']),
-        <String>['v1.2.md', 'v1.9.md', 'v1.10.md'],
-      );
+      expect(_sorted(<String>['v1.10.md', 'v1.2.md', 'v1.9.md']), <String>[
+        'v1.2.md',
+        'v1.9.md',
+        'v1.10.md',
+      ]);
     });
   });
 

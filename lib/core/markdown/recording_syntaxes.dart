@@ -35,7 +35,7 @@ import 'package:marklens/core/markdown/markdown_flavor.dart';
 /// [IndexedLine] is a signal that the parse has descended below the top level.
 class IndexedLine extends md.Line {
   /// Wraps [content] as line [index] of the document.
-  IndexedLine(super.content, this.index);
+  new(super.content, this.index);
 
   /// Zero-based line number in the source the recorder was given.
   final int index;
@@ -125,7 +125,7 @@ mixin _Recorder on md.BlockSyntax {
 
 class _RecordingFencedCodeBlockSyntax extends md.FencedCodeBlockSyntax
     with _Recorder {
-  _RecordingFencedCodeBlockSyntax(this.recorder);
+  new(this.recorder);
 
   @override
   final BlockSpanRecorder recorder;
@@ -136,7 +136,7 @@ class _RecordingFencedCodeBlockSyntax extends md.FencedCodeBlockSyntax
 }
 
 class _RecordingTableSyntax extends md.TableSyntax with _Recorder {
-  _RecordingTableSyntax(this.recorder);
+  new(this.recorder);
 
   @override
   final BlockSpanRecorder recorder;
@@ -149,7 +149,7 @@ class _RecordingTableSyntax extends md.TableSyntax with _Recorder {
 class _RecordingUnorderedListWithCheckboxSyntax
     extends md.UnorderedListWithCheckboxSyntax
     with _Recorder {
-  _RecordingUnorderedListWithCheckboxSyntax(this.recorder);
+  new(this.recorder);
 
   @override
   final BlockSpanRecorder recorder;
@@ -162,7 +162,7 @@ class _RecordingUnorderedListWithCheckboxSyntax
 class _RecordingOrderedListWithCheckboxSyntax
     extends md.OrderedListWithCheckboxSyntax
     with _Recorder {
-  _RecordingOrderedListWithCheckboxSyntax(this.recorder);
+  new(this.recorder);
 
   @override
   final BlockSpanRecorder recorder;
@@ -173,7 +173,7 @@ class _RecordingOrderedListWithCheckboxSyntax
 }
 
 class _RecordingFootnoteDefSyntax extends md.FootnoteDefSyntax with _Recorder {
-  _RecordingFootnoteDefSyntax(this.recorder);
+  new(this.recorder);
 
   @override
   final BlockSpanRecorder recorder;
@@ -184,7 +184,7 @@ class _RecordingFootnoteDefSyntax extends md.FootnoteDefSyntax with _Recorder {
 }
 
 class _RecordingHtmlBlockSyntax extends md.HtmlBlockSyntax with _Recorder {
-  _RecordingHtmlBlockSyntax(this.recorder);
+  new(this.recorder);
 
   @override
   final BlockSpanRecorder recorder;
@@ -204,7 +204,7 @@ class _RecordingHtmlBlockSyntax extends md.HtmlBlockSyntax with _Recorder {
 /// `linesToConsume` in the package, so it is exactly one special case.
 class _RecordingSetextHeaderSyntax extends md.SetextHeaderSyntax
     with _Recorder {
-  _RecordingSetextHeaderSyntax(this.recorder);
+  new(this.recorder);
 
   @override
   final BlockSpanRecorder recorder;
@@ -228,7 +228,7 @@ class _RecordingSetextHeaderSyntax extends md.SetextHeaderSyntax
 }
 
 class _RecordingHeaderSyntax extends md.HeaderSyntax with _Recorder {
-  _RecordingHeaderSyntax(this.recorder);
+  new(this.recorder);
 
   @override
   final BlockSpanRecorder recorder;
@@ -239,7 +239,7 @@ class _RecordingHeaderSyntax extends md.HeaderSyntax with _Recorder {
 }
 
 class _RecordingCodeBlockSyntax extends md.CodeBlockSyntax with _Recorder {
-  _RecordingCodeBlockSyntax(this.recorder);
+  new(this.recorder);
 
   @override
   final BlockSpanRecorder recorder;
@@ -250,7 +250,7 @@ class _RecordingCodeBlockSyntax extends md.CodeBlockSyntax with _Recorder {
 }
 
 class _RecordingBlockquoteSyntax extends md.BlockquoteSyntax with _Recorder {
-  _RecordingBlockquoteSyntax(this.recorder);
+  new(this.recorder);
 
   @override
   final BlockSpanRecorder recorder;
@@ -262,7 +262,7 @@ class _RecordingBlockquoteSyntax extends md.BlockquoteSyntax with _Recorder {
 
 class _RecordingHorizontalRuleSyntax extends md.HorizontalRuleSyntax
     with _Recorder {
-  _RecordingHorizontalRuleSyntax(this.recorder);
+  new(this.recorder);
 
   @override
   final BlockSpanRecorder recorder;
@@ -274,7 +274,7 @@ class _RecordingHorizontalRuleSyntax extends md.HorizontalRuleSyntax
 
 class _RecordingUnorderedListSyntax extends md.UnorderedListSyntax
     with _Recorder {
-  _RecordingUnorderedListSyntax(this.recorder);
+  new(this.recorder);
 
   @override
   final BlockSpanRecorder recorder;
@@ -285,7 +285,7 @@ class _RecordingUnorderedListSyntax extends md.UnorderedListSyntax
 }
 
 class _RecordingOrderedListSyntax extends md.OrderedListSyntax with _Recorder {
-  _RecordingOrderedListSyntax(this.recorder);
+  new(this.recorder);
 
   @override
   final BlockSpanRecorder recorder;
@@ -296,7 +296,7 @@ class _RecordingOrderedListSyntax extends md.OrderedListSyntax with _Recorder {
 }
 
 class _RecordingParagraphSyntax extends md.ParagraphSyntax with _Recorder {
-  _RecordingParagraphSyntax(this.recorder);
+  new(this.recorder);
 
   @override
   final BlockSpanRecorder recorder;
@@ -338,8 +338,7 @@ List<md.BlockSyntax> recordingBlockSyntaxes(BlockSpanRecorder recorder) =>
 
 /// Parses [lines] while recording where each top-level block came from.
 List<md.Node> parseRecording(List<String> lines, BlockSpanRecorder recorder) =>
-    buildMarkdownDocument(
-      blockSyntaxes: recordingBlockSyntaxes(recorder),
-    ).parseLineList(<md.Line>[
-      for (var i = 0; i < lines.length; i++) IndexedLine(lines[i], i),
-    ]);
+    buildMarkdownDocument(blockSyntaxes: recordingBlockSyntaxes(recorder))
+        .parseLineList(<md.Line>[
+          for (var i = 0; i < lines.length; i++) IndexedLine(lines[i], i),
+        ]);

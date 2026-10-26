@@ -108,10 +108,9 @@ void main() {
     });
 
     test('P6 real deletion — one missing', () async {
-      final events = await run(
-        <(int, String)>[(7, 'note.md')],
-        existsAfter: <String>{},
-      );
+      final events = await run(<(int, String)>[
+        (7, 'note.md'),
+      ], existsAfter: <String>{});
 
       expect(events, hasLength(1));
       expect(events.single.kind, WatchEventKind.missing);
@@ -122,10 +121,10 @@ void main() {
     test('an add that leaves nothing behind still reports missing', () async {
       // A file created and immediately removed inside one window. The last
       // raw event says "add", but the truth is that it is gone.
-      final events = await run(
-        <(int, String)>[(0, 'gone.md'), (10, 'gone.md')],
-        existsAfter: <String>{},
-      );
+      final events = await run(<(int, String)>[
+        (0, 'gone.md'),
+        (10, 'gone.md'),
+      ], existsAfter: <String>{});
 
       expect(events.single.kind, WatchEventKind.missing);
     });

@@ -28,7 +28,7 @@ typedef FrontMatterSplit = ({String body, FrontMatter? frontMatter});
 ///   the panel shows.
 class FrontMatterSplitter {
   /// Creates a splitter.
-  const FrontMatterSplitter();
+  const new();
 
   /// A key that is flat, unquoted and starts at column zero. Anything else —
   /// indentation, a bare list item, a comment — makes the block unparsed.

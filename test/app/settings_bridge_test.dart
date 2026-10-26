@@ -100,9 +100,7 @@ void main() {
     testWidgets('and is applied on the next launch', (tester) async {
       settingsFile().writeAsStringSync(
         jsonEncode(
-          const AppSettings(
-            reading: ReadingSettings(fontScale: 1.5),
-          ).toJson(),
+          const AppSettings(reading: ReadingSettings(fontScale: 1.5)).toJson(),
         ),
       );
 

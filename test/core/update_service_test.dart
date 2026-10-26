@@ -9,7 +9,7 @@ import 'package:marklens/core/update/update_service.dart';
 /// The transport is a stub throughout. The real one opens a socket, and a unit
 /// test that reached the internet would be testing GitHub's uptime.
 class _StubTransport implements UpdateTransport {
-  _StubTransport(this.body);
+  new(this.body);
 
   String? body;
   final List<Uri> asked = <Uri>[];
@@ -83,9 +83,8 @@ void main() {
     test('reports a newer release, with its page', () async {
       final transport = _StubTransport(release('v1.2.0'));
 
-      final found = await UpdateService(transport: transport).check(
-        current: current,
-      );
+      final found = await UpdateService(transport: transport)
+          .check(current: current);
 
       expect(found?.version.toString(), '1.2.0');
       expect(found?.page.toString(), 'https://example.com/r/v1.2.0');
@@ -148,9 +147,8 @@ void main() {
       final log = LogBuffer();
       final transport = _StubTransport(null);
 
-      final found = await UpdateService(
-        transport: transport,
-      ).check(current: current, log: log);
+      final found = await UpdateService(transport: transport)
+          .check(current: current, log: log);
 
       expect(found, isNull);
       expect(log.length, 1);
@@ -170,9 +168,8 @@ void main() {
         '{"tag_name":"not-a-version"}',
         '{"tag_name":"v1.2.0"',
       ]) {
-        final found = await UpdateService(
-          transport: _StubTransport(body),
-        ).check(current: current, log: log);
+        final found = await UpdateService(transport: _StubTransport(body))
+            .check(current: current, log: log);
         expect(found, isNull, reason: 'body was "$body"');
       }
       expect(log.entries.every((e) => e.level == LogLevel.warning), isTrue);
@@ -183,9 +180,8 @@ void main() {
       () async {
         final transport = _StubTransport('{"tag_name":"v2.0.0"}');
 
-        final found = await UpdateService(transport: transport).check(
-          current: current,
-        );
+        final found = await UpdateService(transport: transport)
+            .check(current: current);
 
         expect(found, isNotNull);
         expect(found!.page.host, 'github.com');
@@ -195,9 +191,8 @@ void main() {
     test('up to date is logged at info, because nothing went wrong', () async {
       final log = LogBuffer();
 
-      await UpdateService(
-        transport: _StubTransport(release('v1.0.0')),
-      ).check(current: current, log: log);
+      await UpdateService(transport: _StubTransport(release('v1.0.0')))
+          .check(current: current, log: log);
 
       expect(log.entries.single.level, LogLevel.info);
     });

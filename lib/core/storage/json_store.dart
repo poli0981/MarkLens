@@ -43,7 +43,7 @@ typedef JsonLoadResult = ({Map<String, Object?> data, JsonLoadOutcome outcome});
 /// directory it was given.
 class JsonStore {
   /// Creates a store for `<name>.json` inside [directory].
-  const JsonStore({required this.directory, required this.name});
+  const new({required this.directory, required this.name});
 
   /// The app's config directory. Nothing outside it is ever written.
   final Directory directory;

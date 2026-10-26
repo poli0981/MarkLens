@@ -15,7 +15,7 @@ import 'package:marklens/l10n/gen/app_localizations.dart';
 /// Query, case toggle, counter, and the two arrows.
 class FindBar extends ConsumerStatefulWidget {
   /// Creates the bar.
-  const FindBar({super.key});
+  const new({super.key});
 
   @override
   ConsumerState<FindBar> createState() => _FindBarState();

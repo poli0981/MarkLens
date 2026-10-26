@@ -14,7 +14,7 @@ typedef SettingsLoad = ({AppSettings settings, JsonLoadOutcome outcome});
 /// something, which is rare, unlike the scroll position the session tracks.
 class SettingsStore {
   /// Creates a store writing into [directory].
-  SettingsStore({required Directory directory})
+  new({required Directory directory})
     : _store = JsonStore(directory: directory, name: 'settings');
 
   final JsonStore _store;

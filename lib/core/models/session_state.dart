@@ -1,7 +1,7 @@
 /// Where the window was, so it comes back where it was left.
 class WindowGeometry {
   /// Creates a geometry.
-  const WindowGeometry({
+  const new({
     required this.x,
     required this.y,
     required this.width,
@@ -73,11 +73,7 @@ class WindowGeometry {
 /// One document in the open set, as the session remembers it.
 class SessionDocument {
   /// Creates an entry.
-  const SessionDocument({
-    required this.path,
-    this.scroll = 0,
-    this.pinned = false,
-  });
+  const new({required this.path, this.scroll = 0, this.pinned = false});
 
   /// Reads an entry from [json], or returns `null` if it has no usable path.
   static SessionDocument? fromJson(Object? json) {
@@ -127,7 +123,7 @@ class SessionDocument {
 /// better outcome than losing the session (rule 9).
 class SessionState {
   /// Creates a session.
-  const SessionState({
+  const new({
     this.window,
     this.sidebarWidth = 280,
     this.outlineVisible = true,
@@ -139,7 +135,7 @@ class SessionState {
   });
 
   /// Reads a session from [json].
-  factory SessionState.fromJson(Map<String, Object?> json) {
+  factory fromJson(Map<String, Object?> json) {
     const fallback = SessionState.empty;
     final documents = <SessionDocument>[
       for (final entry in _readList(json['files']))

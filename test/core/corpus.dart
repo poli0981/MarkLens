@@ -14,7 +14,7 @@ import 'dart:io';
 /// One file in the torture corpus.
 class TortureFixture {
   /// Wraps [file], which must live under [corpusRoot].
-  TortureFixture(this.file);
+  new(this.file);
 
   /// The fixture on disk.
   final File file;

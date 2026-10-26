@@ -15,7 +15,7 @@ import 'package:marklens/core/models/open_set.dart';
 /// hidden tabs is a second, worse file list next to the sidebar.
 class TabStrip extends ConsumerWidget {
   /// Creates the strip.
-  const TabStrip({super.key});
+  const new({super.key});
 
   /// Height of the strip, so the shell can reserve it.
   static const double height = 34;
@@ -67,14 +67,14 @@ class TabStrip extends ConsumerWidget {
 }
 
 class _TabModel {
-  const _TabModel({required this.entry, required this.active});
+  const new({required this.entry, required this.active});
 
   final OpenEntry entry;
   final bool active;
 }
 
 class _Tab extends StatelessWidget {
-  const _Tab({
+  const new({
     required this.model,
     required this.onActivate,
     required this.onClose,
@@ -123,11 +123,7 @@ class _Tab extends StatelessWidget {
               if (entry.pinned)
                 Padding(
                   padding: const EdgeInsets.only(right: 6),
-                  child: Icon(
-                    Icons.push_pin,
-                    size: 12,
-                    color: tokens.fgMuted,
-                  ),
+                  child: Icon(Icons.push_pin, size: 12, color: tokens.fgMuted),
                 ),
               Flexible(
                 child: Text(

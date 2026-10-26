@@ -21,9 +21,7 @@ void main() {
 
   setUp(() {
     root = Directory.systemTemp.createTempSync('marklens_store_');
-    config = Directory(
-      '${root.path}${Platform.pathSeparator}config',
-    );
+    config = Directory('${root.path}${Platform.pathSeparator}config');
     store = JsonStore(directory: config, name: 'settings');
   });
 
@@ -136,11 +134,9 @@ void main() {
 
     test('no temp file is left behind', () {
       store.save(<String, Object?>{'version': 1});
-      expect(
-        namesIn(config),
-        <String>['settings.json'],
-        reason: 'the temp file is renamed over the target, never left lying',
-      );
+      expect(namesIn(config), <String>[
+        'settings.json',
+      ], reason: 'the temp file is renamed over the target, never left lying');
     });
 
     test('a second write replaces the first', () {
@@ -192,11 +188,10 @@ void main() {
 
       expect(namesIn(sibling), <String>['keep.txt']);
       expect(marker.readAsStringSync(), 'untouched');
-      expect(
-        namesIn(root),
-        <String>['config', 'other'],
-        reason: 'nothing appeared beside the config directory',
-      );
+      expect(namesIn(root), <String>[
+        'config',
+        'other',
+      ], reason: 'nothing appeared beside the config directory');
     });
 
     test('a quarantine stays inside it too', () {

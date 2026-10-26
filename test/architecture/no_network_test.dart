@@ -70,10 +70,7 @@ void main() {
       // The forwarder landed at M1. It is allowed by path so the exception is
       // visible and bounded; the token list stayed exactly as strict, so
       // nothing else in lib/ can open a socket by accident.
-      expect(
-        networkAllowedPrefixes,
-        contains('lib/core/single_instance.dart'),
-      );
+      expect(networkAllowedPrefixes, contains('lib/core/single_instance.dart'));
       expect(networkApis, contains('Socket.connect'));
       expect(
         networkApis,

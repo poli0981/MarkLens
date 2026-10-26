@@ -113,11 +113,7 @@ void main() {
     ) async {
       // The behaviour that makes the lazy list acceptable: a drag reaches
       // blocks that did not exist when the mouse went down, with no gaps.
-      await _pump(
-        tester,
-        longDocument(120),
-        size: const Size(800, 600),
-      );
+      await _pump(tester, longDocument(120), size: const Size(800, 600));
 
       final builtAtStart = find.byType(RichText).evaluate().length;
 

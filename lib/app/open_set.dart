@@ -343,11 +343,7 @@ class OpenSetController extends Notifier<OpenSet> {
         continue;
       }
       entries.add(
-        OpenEntry(
-          file: file,
-          pinned: document.pinned,
-          scroll: document.scroll,
-        ),
+        OpenEntry(file: file, pinned: document.pinned, scroll: document.scroll),
       );
       if (document.path == activePath) {
         active = file.identity;

@@ -12,7 +12,7 @@ import 'package:marklens/core/storage/json_store.dart';
 /// what it is given, atomically and no more than once a second.
 class SessionLink {
   /// Creates a link over [ref].
-  const SessionLink(this.ref);
+  const new(this.ref);
 
   /// The scope this link reads and writes through.
   final Ref ref;

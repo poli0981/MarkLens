@@ -15,9 +15,16 @@
   `tool/*/Dockerfile`s, the README's stack line, the notices table and this
   line — and `test/repo/pin_agreement_test.dart` fails if any of them drifts. A rule that spans four files and is kept by memory is a rule that is
   already broken somewhere nobody has looked.
-- **Lints:** `very_good_analysis` **10.3.0** (strict — mirrors the TS-strict
-  habit), tuned in `analysis_options.yaml`. An `11.0.0-rc.1` exists;
-  prereleases are not pinned.
+- **Lints:** `very_good_analysis` **11.0.0** (strict — mirrors the TS-strict
+  habit), tuned in `analysis_options.yaml`. 11 added seven rules for Dart
+  3.13, and one of them fired: `unnecessary_type_name_in_constructor`, so a
+  constructor is declared with `new` rather than the class name —
+  `const new({super.key})`, `const new reset()`, `factory fromJson(...)`.
+  Adopted rather than silenced (189 constructors, all by `dart fix`), because
+  it is where the language is going and the ruleset is the house style. 11
+  also sets the formatter's `trailing_commas: automate`, so whether an
+  argument list splits is the formatter's call rather than the author's; it
+  reflowed 58 files on the day, in the same commit.
 - **State:** Riverpod **3.4.2** (`riverpod` in pure-Dart layers,
   `flutter_riverpod` at the widget edge). Note this is Riverpod **3.x** — the
   API differs materially from the v2 that most tutorials and answers assume.

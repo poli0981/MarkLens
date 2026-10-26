@@ -17,7 +17,7 @@ abstract class FilePickerPrompt {
 /// The real dialog.
 class PlatformFilePickerPrompt implements FilePickerPrompt {
   /// Creates a prompt.
-  const PlatformFilePickerPrompt();
+  const new();
 
   @override
   Future<List<String>> pickDocuments(ExtensionRegistry registry) async {

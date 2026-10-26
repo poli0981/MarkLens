@@ -21,7 +21,7 @@ import 'package:marklens/core/update/update_service.dart';
 import 'package:marklens/features/about/about_dialog.dart';
 
 class _StubTransport implements UpdateTransport {
-  _StubTransport(this.body);
+  new(this.body);
 
   String? body;
   int calls = 0;

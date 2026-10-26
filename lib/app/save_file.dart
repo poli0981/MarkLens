@@ -31,7 +31,7 @@ abstract class SaveFilePrompt {
 /// The real dialog.
 class PlatformSaveFilePrompt implements SaveFilePrompt {
   /// Creates a prompt.
-  const PlatformSaveFilePrompt();
+  const new();
 
   @override
   Future<String?> save({
@@ -61,7 +61,7 @@ class PlatformSaveFilePrompt implements SaveFilePrompt {
 /// What a widget test gets: records the bytes, writes nothing.
 class StubSaveFilePrompt implements SaveFilePrompt {
   /// Creates a stub that answers with [destination].
-  StubSaveFilePrompt([this.destination]);
+  new([this.destination]);
 
   /// The path the dialog "chose", or `null` for a cancelled dialog.
   String? destination;

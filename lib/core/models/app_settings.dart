@@ -71,14 +71,14 @@ enum FrontMatterDisplay {
 /// Reading-surface preferences.
 class ReadingSettings {
   /// Creates reading settings.
-  const ReadingSettings({
+  const new({
     this.fontScale = 1,
     this.contentMaxWidth = 760,
     this.frontMatter = FrontMatterDisplay.collapsed,
   });
 
   /// Reads reading settings from [json], clamping anything out of range.
-  factory ReadingSettings.fromJson(Map<String, Object?> json) {
+  factory fromJson(Map<String, Object?> json) {
     const fallback = ReadingSettings();
     final width = _readInt(json['contentMaxWidth'], fallback.contentMaxWidth);
     return ReadingSettings(
@@ -157,14 +157,14 @@ class ReadingSettings {
 /// Which files are opened, and how many.
 class FilesSettings {
   /// Creates file settings.
-  const FilesSettings({
+  const new({
     this.extensions = ExtensionRegistry.defaultExtensions,
     this.fileCap = 1000,
     this.watchEnabled = true,
   });
 
   /// Reads file settings from [json], clamping anything out of range.
-  factory FilesSettings.fromJson(Map<String, Object?> json) {
+  factory fromJson(Map<String, Object?> json) {
     const fallback = FilesSettings();
     final extensions = ExtensionRegistry(
       _readStrings(json['extensions'], fallback.extensions),
@@ -227,13 +227,10 @@ class FilesSettings {
 /// has no telemetry and no analytics, ever (CLAUDE.md rule 5).
 class NetworkSettings {
   /// Creates network settings.
-  const NetworkSettings({
-    this.allowRemoteImages = false,
-    this.updateCheck = true,
-  });
+  const new({this.allowRemoteImages = false, this.updateCheck = true});
 
   /// Reads network settings from [json].
-  factory NetworkSettings.fromJson(Map<String, Object?> json) {
+  factory fromJson(Map<String, Object?> json) {
     const fallback = NetworkSettings();
     return NetworkSettings(
       allowRemoteImages: _readBool(
@@ -271,7 +268,7 @@ class NetworkSettings {
 /// file someone hand-edited badly must not stop the app opening (rule 9).
 class AppSettings {
   /// Creates settings.
-  const AppSettings({
+  const new({
     this.language = AppLanguage.system,
     this.theme = ThemePreference.system,
     this.restoreSession = true,
@@ -282,7 +279,7 @@ class AppSettings {
   });
 
   /// Reads settings from [json].
-  factory AppSettings.fromJson(Map<String, Object?> json) {
+  factory fromJson(Map<String, Object?> json) {
     const fallback = AppSettings();
     return AppSettings(
       language: _readEnum(

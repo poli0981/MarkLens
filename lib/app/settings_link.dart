@@ -68,12 +68,10 @@ class AppSettingsController extends Notifier<AppSettings> {
   /// Zoom *is* `reading.fontScale` under the shorter name doc 06's View menu
   /// uses. It used to be a second number on `ChromeState` that was never read
   /// from or written to disk, beside this one that was never read at all.
-  void zoomBy(int step) => setFontScale(
-    switch (step) {
-      0 => 1,
-      final int s => state.reading.fontScale + s * zoomStep,
-    },
-  );
+  void zoomBy(int step) => setFontScale(switch (step) {
+    0 => 1,
+    final int s => state.reading.fontScale + s * zoomStep,
+  });
 
   /// Sets the reading scale directly, clamped to 50%–300%.
   void setFontScale(double scale) =>
@@ -119,9 +117,7 @@ class AppSettingsController extends Notifier<AppSettings> {
   /// Off by default, and the placeholder shows the URL: a document naming a
   /// host is precisely a tracking beacon (doc 10, invariant 4).
   void setAllowRemoteImages({required bool allow}) => _apply(
-    state.copyWith(
-      network: state.network.copyWith(allowRemoteImages: allow),
-    ),
+    state.copyWith(network: state.network.copyWith(allowRemoteImages: allow)),
   );
 
   /// Whether the GitHub Releases check runs (`docs/11_PACKAGING_UPDATE.md`).

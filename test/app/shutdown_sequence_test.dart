@@ -20,7 +20,7 @@ import 'package:marklens/core/single_instance.dart';
 import 'package:window_manager/window_manager.dart';
 
 class _RecordingWatchLink implements WatchLink {
-  _RecordingWatchLink(this.order, {this.hang = false});
+  new(this.order, {this.hang = false});
 
   final List<String> order;
 
@@ -53,7 +53,7 @@ class _RecordingWatchLink implements WatchLink {
 }
 
 class _RecordingWindowLink implements WindowLink {
-  _RecordingWindowLink(this.order);
+  new(this.order);
 
   final List<String> order;
   int closed = 0;
@@ -89,7 +89,7 @@ class _RecordingWindowLink implements WindowLink {
 }
 
 class _RecordingInstance extends SingleInstance {
-  _RecordingInstance(this.order, {required super.directory});
+  new(this.order, {required super.directory});
 
   final List<String> order;
   int released = 0;
@@ -102,7 +102,7 @@ class _RecordingInstance extends SingleInstance {
   }
 }
 
-class _Listener with WindowListener {}
+class _Listener with WindowListener;
 
 void main() {
   late Directory config;
@@ -191,9 +191,8 @@ void main() {
   });
 
   test('a geometry query that fails still writes and still leaves', () async {
-    await sequence(
-      recordGeometry: () async => throw StateError('no window'),
-    ).run();
+    await sequence(recordGeometry: () async => throw StateError('no window'))
+        .run();
 
     expect(order, containsAllInOrder(<String>['settings', 'session']));
     expect(window.closed, 1);

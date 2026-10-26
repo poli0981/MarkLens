@@ -12,7 +12,7 @@ import 'package:marklens/features/reader/rendering/code_highlighter.dart';
 /// of our own code over a utility dependency).
 class HighlightJsCodeHighlighter implements CodeHighlighter {
   /// Creates a highlighter that paints scopes using [theme].
-  const HighlightJsCodeHighlighter({required this.theme, this.baseStyle});
+  const new({required this.theme, this.baseStyle});
 
   /// Maps a highlight.js scope name (`keyword`, `string`, `comment`, …) to the
   /// style it should paint with. Scopes absent from the map render as

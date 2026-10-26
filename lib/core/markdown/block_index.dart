@@ -44,7 +44,7 @@ typedef BlockIndexResult = ({
 /// reference definitions — all three legitimately render as nothing.
 class BlockIndexer {
   /// Creates an indexer.
-  const BlockIndexer();
+  const new();
 
   /// Parses [source] and locates its top-level blocks.
   BlockIndexResult index(String source) {

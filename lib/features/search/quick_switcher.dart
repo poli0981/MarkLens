@@ -21,7 +21,7 @@ typedef SwitcherEntry = ({String path, String name, String folder, bool open});
 /// you keep open, and it must not move the document underneath it.
 class QuickSwitcher extends ConsumerStatefulWidget {
   /// Creates the switcher.
-  const QuickSwitcher({super.key});
+  const new({super.key});
 
   /// Shows it over [context] and activates whatever is chosen.
   static Future<void> show(BuildContext context) => showDialog<void>(
@@ -191,9 +191,8 @@ class _QuickSwitcherState extends ConsumerState<QuickSwitcher> {
                   padding: const EdgeInsets.fromLTRB(14, 0, 14, 16),
                   child: Text(
                     l10n.quickSwitcherEmpty,
-                    style: Theme.of(
-                      context,
-                    ).textTheme.bodySmall?.copyWith(color: tokens.fgMuted),
+                    style: Theme.of(context).textTheme.bodySmall
+                        ?.copyWith(color: tokens.fgMuted),
                   ),
                 )
               else
@@ -219,11 +218,7 @@ class _QuickSwitcherState extends ConsumerState<QuickSwitcher> {
 }
 
 class _Row extends StatelessWidget {
-  const _Row({
-    required this.entry,
-    required this.selected,
-    required this.onTap,
-  });
+  const new({required this.entry, required this.selected, required this.onTap});
 
   final SwitcherEntry entry;
   final bool selected;

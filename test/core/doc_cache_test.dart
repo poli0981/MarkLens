@@ -9,16 +9,13 @@ import 'package:marklens/core/models/doc_model.dart';
 import 'package:marklens/core/models/opened_file.dart';
 import 'package:marklens/core/models/outline.dart';
 
-OpenedFile _file(
-  String identity, {
-  DateTime? modified,
-  int size = 10,
-}) => OpenedFile(
-  path: identity,
-  identity: identity,
-  modified: modified ?? DateTime(2026, 8, 26, 12),
-  size: size,
-);
+OpenedFile _file(String identity, {DateTime? modified, int size = 10}) =>
+    OpenedFile(
+      path: identity,
+      identity: identity,
+      modified: modified ?? DateTime(2026, 8, 26, 12),
+      size: size,
+    );
 
 DocModel _doc(String path) => DocModel(
   path: path,

@@ -36,7 +36,7 @@ const int maxImageBytes = 25 * 1024 * 1024;
 
 /// Where an image comes from.
 sealed class ImageSource {
-  const ImageSource();
+  const new();
 
   /// Whether it is an SVG, which needs a different decoder.
   bool get isSvg;
@@ -45,7 +45,7 @@ sealed class ImageSource {
 /// A file on this machine, resolved against the document's directory.
 class LocalImageSource extends ImageSource {
   /// Creates a local source.
-  const LocalImageSource({required this.path, required this.isSvg});
+  const new({required this.path, required this.isSvg});
 
   /// Absolute path. Existence and size are the reader's questions, not this
   /// class's.
@@ -63,7 +63,7 @@ class LocalImageSource extends ImageSource {
 /// (`docs/10_SECURITY_PRIVACY.md`, invariant 4).
 class RemoteImageSource extends ImageSource {
   /// Creates a remote source.
-  const RemoteImageSource({required this.uri, required this.isSvg});
+  const new({required this.uri, required this.isSvg});
 
   /// The URL, guaranteed to have an `http` or `https` scheme.
   final Uri uri;
@@ -76,7 +76,7 @@ class RemoteImageSource extends ImageSource {
 /// neither local nor `http(s)` — `data:`, `file:`, anything else.
 class UnsupportedImageSource extends ImageSource {
   /// Creates a refusal.
-  const UnsupportedImageSource({required this.src, required this.reason});
+  const new({required this.src, required this.reason});
 
   /// The `src` exactly as the document wrote it.
   final String src;

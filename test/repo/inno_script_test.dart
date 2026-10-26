@@ -308,9 +308,8 @@ void main() {
           'install would wait on it for ever. Use SuppressibleMsgBox.',
     );
     expect(
-      RegExp(r'SuppressibleMsgBox\([\s\S]*?MB_YESNO,\s*IDYES\s*\)').hasMatch(
-        code,
-      ),
+      RegExp(r'SuppressibleMsgBox\([\s\S]*?MB_YESNO,\s*IDYES\s*\)')
+          .hasMatch(code),
       isTrue,
       reason:
           'Suppressed, the runtime warning must answer IDYES - continue - '

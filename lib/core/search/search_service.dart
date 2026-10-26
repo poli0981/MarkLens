@@ -22,11 +22,7 @@ typedef CrossSearchHit = ({int line, int column, String preview});
 /// Every match in one file, in file order.
 class FileHits {
   /// Creates a file's hits.
-  const FileHits({
-    required this.path,
-    required this.hits,
-    this.truncated = false,
-  });
+  const new({required this.path, required this.hits, this.truncated = false});
 
   /// The file, as it was handed in.
   final String path;
@@ -63,7 +59,7 @@ const int previewLimit = 200;
 /// someone types into a search box should not quietly be a pattern.
 class SearchService {
   /// Creates a search service.
-  const SearchService();
+  const new();
 
   /// Searches [paths] for [query], off the UI isolate.
   ///

@@ -88,10 +88,7 @@ void main() {
         isNot(contains('title: kept')),
         reason: 'the front matter must never reach the renderer (docs/04)',
       );
-      expect(
-        doc.frontMatter!.fields,
-        <String, String>{'title': 'kept'},
-      );
+      expect(doc.frontMatter!.fields, <String, String>{'title': 'kept'});
     });
   });
 
@@ -146,13 +143,12 @@ void main() {
     test('a document at the threshold is not flagged', () {
       const source = '# Small';
       final doc =
-          MarkdownPipeline(
-            largeDocumentBytes: utf8.encode(source).length,
-          ).parse(
-            path: '/tmp/borderline.md',
-            bytes: utf8.encode(source),
-            isMdx: false,
-          );
+          MarkdownPipeline(largeDocumentBytes: utf8.encode(source).length)
+              .parse(
+                path: '/tmp/borderline.md',
+                bytes: utf8.encode(source),
+                isMdx: false,
+              );
       expect(doc.notices, isEmpty);
     });
 
@@ -172,7 +168,7 @@ void main() {
 
 /// An indexer that always reports a parse it cannot vouch for.
 class _DegradedIndexer implements BlockIndexer {
-  const _DegradedIndexer();
+  const new();
 
   @override
   BlockIndexResult index(String source) =>
