@@ -117,7 +117,7 @@ void main() {
         doc.notices.map((n) => n.kind),
         contains(DocNoticeKind.invalidUtf8),
       );
-      expect(doc.sanitizedSource, contains('�'));
+      expect(doc.sanitizedSource, contains('\uFFFD'));
       // The valid tail must survive intact rather than being discarded.
       expect(doc.sanitizedSource, contains('Tiếng Việt'));
     });

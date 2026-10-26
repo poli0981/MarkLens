@@ -87,7 +87,7 @@ void main() {
       final nasty = <String>[
         "const s = 'unterminated",
         '{{{{{{{{{{',
-        'contains � replacement chars',
+        'contains \uFFFD replacement chars',
         'x' * 20000,
         '\n' * 500,
       ];

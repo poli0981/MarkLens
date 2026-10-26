@@ -33,7 +33,7 @@ void main() {
       // 0xFF never appears in valid UTF-8.
       final result = MarkdownPipeline.decodeSource(<int>[0x41, 0xFF, 0x42]);
       expect(result.lossy, isTrue);
-      expect(result.text, contains('�'));
+      expect(result.text, contains('\uFFFD'));
       expect(result.text, startsWith('A'));
     });
 
