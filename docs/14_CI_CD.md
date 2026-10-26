@@ -95,6 +95,14 @@ look at. `sonar.projectVersion` comes from `pubspec.yaml` in the job, because
 the "previous version" new-code period keys on it: every release starts a new
 period, and the gate judges what changed since.
 
+**The very first analysis of `main` failed the job, once, and could not have
+passed.** With nothing before it there is no new-code period, so the gate has
+no conditions to evaluate and reports `NONE` — and the scanner treats anything
+but `OK` as a failure. That was `a440d92`, the merge that added the job: 0
+issues, 0 hotspots, 91.8% coverage, red. Re-running the job made the second
+analysis, which has a period, and the gate passed. It recurs only if the
+project is deleted and created again; anything else red on `main` is real.
+
 **The free plan reads back `main` and pull requests into `main`, and nothing
 else.** A pull request is analysed as a pull request — issues on the lines it
 changed, nothing more — so the full issue list lives on `main`'s analysis. A

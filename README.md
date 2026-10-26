@@ -1,5 +1,10 @@
 # MarkLens
 
+[![ci](https://github.com/poli0981/MarkLens/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/poli0981/MarkLens/actions/workflows/ci.yml)
+[![Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=poli0981_MarkLens&metric=alert_status)](https://sonarcloud.io/summary/overall?id=poli0981_MarkLens)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=poli0981_MarkLens&metric=coverage)](https://sonarcloud.io/summary/overall?id=poli0981_MarkLens)
+[![CodeQL](https://github.com/poli0981/MarkLens/actions/workflows/codeql.yml/badge.svg?branch=main)](https://github.com/poli0981/MarkLens/actions/workflows/codeql.yml)
+
 **Project:** MarkLens — a fast, lightweight, read-only Markdown viewer
 **Repo:** `poli0981/MarkLens`
 **Platforms:** Windows 10+ · Ubuntu 22.04+ (Linux desktop)
@@ -133,7 +138,7 @@ the window that is already there rather than starting a second one.
 | `docs/11_PACKAGING_UPDATE.md` | Installers, file association, update check |
 | `docs/12_TESTING.md` | Test pyramid, torture corpus, golden policy, DoD |
 | `docs/13_CODE_QUALITY.md` | Lints, naming, commit conventions |
-| `docs/14_CI_CD.md` | CI jobs, the release pipeline, pinning non-negotiables |
+| `docs/14_CI_CD.md` | CI jobs, SonarQube Cloud, CodeQL, Dependabot, the release pipeline, pinning non-negotiables |
 | `docs/15_SPIKES_ROADMAP.md` | P0 spikes S1–S5, milestones M0–M4, release checklist |
 | `legal/` | PRIVACY, EULA, DISCLAIMER, THIRD_PARTY_NOTICES, licence texts |
 | `packaging/` | What the installers reference, and the scripts that build them |
