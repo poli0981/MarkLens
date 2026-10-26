@@ -4,7 +4,11 @@ All notable changes to MarkLens are documented here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versioning is
 [SemVer](https://semver.org/).
 
-## [Unreleased]
+## [1.0.2] - 2026-10-26
+
+A maintenance release. The toolchain and every dependency move to current,
+the four installer and packaging fixes that have waited on `main` since
+September ship, and the code is now analysed on every change.
 
 ### Changed
 

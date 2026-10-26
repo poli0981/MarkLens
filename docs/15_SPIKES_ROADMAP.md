@@ -911,46 +911,52 @@ one that is deferred, because it teaches everyone to skip the list.
 
 ## Release checklist (every tag)
 
-Ticked below as they stand for **v1.0.1** (2026-09-02, one fix: the
-five-second close on Windows, doc 03 "App exit"); the v1.0.0 state is in the
+Ticked below as they stand for **v1.0.2** (2026-10-26: Flutter 3.47.8 and the
+first dependency batch, the four installer and packaging fixes merged in
+September, SonarQube Cloud and CodeQL in CI); the earlier states are in the
 history of this file.
 
 - [x] Version bumped in `pubspec.yaml` **and `lib/app/version.dart`**; CHANGELOG
       section written — `test/app/version_test.dart` checks all three, and now
       allows `[Unreleased]` on top between releases; `release.yml`'s
       `verify-version` is what refuses a tag whose heading was not renamed
-- [x] Full suite green on the dev machine (goldens excluded by design there);
-      both runners are the PR's CI. **Integration smoke is still unwritten**
-      (doc 12); what stands in for it is `release.yml` installing the `.deb`
-      and starting both Linux artefacts
+- [x] Full suite green on the dev machine (goldens excluded by design there):
+      1304 tests on 3.47.8. Both runners, the goldens and the SonarQube Cloud
+      gate are the PR's CI. **Integration smoke is still unwritten** (doc 12);
+      what stands in for it is `release.yml` installing the `.deb` and starting
+      both Linux artefacts
 - [x] vi/ja translations complete — no string changed in this release;
       `arb_parity_test.dart` is green
 - [ ] Read-only audit: write-grep test green (**yes**) + manual ProcMon/strace
-      pass (**not done for v1.0.1 either**; carried again). The exit sequence
-      writes only `session.json` and `settings.json`, both already covered by
-      the automated half
-- [ ] **`release.yml` rehearsed via `workflow_dispatch`** before the tag
-- [ ] Artifacts smoke-tested on a clean Windows VM and Ubuntu. Linux was
-      confirmed by the maintainer not to have the close defect; the Windows
-      fix was verified on the reference machine against the built binary
-      (`tool/exit_timing/measure_exit.ps1`: 5.7–5.8 s installed v1.0.0, ~185 ms
-      after), not yet on a machine that never built the project
-- [ ] `SHA256SUMS` verified; release notes written; tag `v1.0.1`; publish draft
+      pass (**not done for v1.0.2 either**; carried a third time). Nothing in
+      this release adds a write path; `no_write_test` is unchanged and green
+- [x] **`release.yml` rehearsed via `workflow_dispatch`** before the tag — the
+      first release where it was: run 40317845034 on the PR branch, all three
+      build jobs green on 3.47.8, both Linux artefacts started under `xvfb`
+- [ ] Artifacts smoke-tested on a clean Windows VM and Ubuntu. Not for this
+      release: the Linux artefacts start in `release.yml`'s container, and the
+      installer changes were run in Windows Sandbox when they merged (#7, #10,
+      and the SandboxTest evidence on winget-pkgs#439835) — on a 3.47.1 build,
+      not this one
+- [ ] `SHA256SUMS` verified; release notes written; tag `v1.0.2`; publish draft
 - [ ] **The published release is not marked prerelease.** `UpdateService`
       ignores drafts and prereleases alike, so the tick that looks like caution
       disables the update banner permanently rather than delaying it
 - [ ] **WinGet, after publishing** (doc 11 "WinGet"):
       `pwsh tool/winget/submit.ps1 -Version x.y.z` runs clean, then again with
       `-Submit`, and the pull request is linked here. From this point the
-      installer's bytes are pinned — never replace the asset
+      installer's bytes are pinned — never replace the asset. **Waiting for
+      v1.0.2:** the first submission, winget-pkgs#439835 (1.0.1, a new
+      package), is still open, and an update cannot be submitted against a
+      package that is not in the repository yet
 - [ ] Listings updated: SoftHarbor entry + poli0981.dev portfolio
 - [ ] Post-release: file association behaves after real install
 - [ ] Post-release: the winget-pkgs pull request is merged, and
       `winget upgrade poli0981.MarkLens` on a machine with the previous version
       reaches x.y.z. Unanswered review closes it after 5 + 3 quiet days
-- [ ] **Update banner fires from the previous version — the first release
-      where this is a real check.** An installed v1.0.0 with the update check
-      on asks `releases/latest` once a day; after v1.0.1 is *published* (not
-      drafted) it must show "MarkLens 1.0.1 is available" and Open Release must
-      land on the release page. Deferred from v1.0.0 by decision, because at
-      v1.0.0 there was nothing to upgrade from
+- [ ] **Update banner fires from the previous version.** An installed v1.0.1
+      with the update check on asks `releases/latest` once a day; after v1.0.2
+      is *published* (not drafted) it must show "MarkLens 1.0.2 is available"
+      and Open Release must land on the release page. v1.0.1 was the first
+      release where this was a real check (from v1.0.0); doc 15 never recorded
+      whether it fired, so this is still the first confirmed one
