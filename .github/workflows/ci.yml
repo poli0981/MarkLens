@@ -17,11 +17,6 @@ on:
   push:
     branches: [main]
   pull_request:
-  # A pull request is analysed by SonarQube Cloud as a pull request, which
-  # reports only the lines it changed. Dispatching this workflow on a branch
-  # gets a branch analysis instead — every issue in the tree, which is what a
-  # clean-up branch needs to see before it opens one.
-  workflow_dispatch:
 
 permissions:
   contents: read
@@ -137,6 +132,11 @@ jobs:
     # secret store, which is empty). Both would fail on authentication rather
     # than on anything in the code, so they skip instead. Every other run fails
     # loudly if the token is missing.
+    #
+    # The triggers above are also exactly what the SonarQube Cloud free plan
+    # can read back: `main`, and pull requests into it. An analysis of any other
+    # branch uploads and then answers 403 to the quality-gate query, which the
+    # first run of this job found by dispatching on a feature branch.
     if: >-
       github.event.pull_request.user.login != 'dependabot[bot]' &&
       (github.event_name != 'pull_request' ||

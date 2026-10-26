@@ -30,8 +30,7 @@ third-party action pinned by 40-character SHA, and a timeout on every job.
 `.github/workflows/ci.yml`. Five jobs:
 
 `analyze` → `test` → `golden` and `sonarcloud`, with `build-smoke` branching
-off `analyze`. It also runs on `workflow_dispatch`, which exists for the
-SonarQube Cloud branch analysis described below.
+off `analyze`.
 
 - **`analyze`** (ubuntu): `flutter analyze`, `dart format --set-exit-if-changed`,
   a `gen-l10n` no-diff check (generated ARB output is committed, so
@@ -96,9 +95,14 @@ look at. `sonar.projectVersion` comes from `pubspec.yaml` in the job, because
 the "previous version" new-code period keys on it: every release starts a new
 period, and the gate judges what changed since.
 
-**A pull request is analysed as a pull request** — issues on the lines it
-changed, nothing else. To see every issue on a branch, dispatch `ci` on it
-(`gh workflow run ci --ref <branch>`); that is a branch analysis.
+**The free plan reads back `main` and pull requests into `main`, and nothing
+else.** A pull request is analysed as a pull request — issues on the lines it
+changed, nothing more — so the full issue list lives on `main`'s analysis. A
+*branch* analysis is a paid feature: it uploads, and then the quality-gate
+query answers 403 ("not allowed to access data from non main branches"). The
+first run of the job found that by dispatching `ci` on a feature branch, which
+is why `ci` has no `workflow_dispatch` trigger: on this plan there is nothing
+for it to do that a re-run of the last `main` run does not.
 
 **`SONAR_TOKEN` is the one repository secret**, and it is read by this job
 alone. A pull request from a fork and anything Dependabot opens run without
