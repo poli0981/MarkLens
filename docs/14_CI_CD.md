@@ -124,11 +124,15 @@ other side of it.
   other one `workflow_lint_test.dart` allows.
 - **Dependency review** (`dependency-review.yml`, every PR): what the PR does
   to the dependency graph — `pubspec.lock` and the actions pinned here —
-  against the advisory database and a licence allow-list of what combines
-  into GPL-3.0-only. It is the half of rule 10's licence check a machine can
-  do, and the half that catches a licence arriving transitively. A licence the
-  graph cannot identify is reported, not failed, which is why the person's
-  check in doc 01 still exists.
+  against the advisory database, so a version with a known advisory fails at
+  review time rather than arriving as an alert after the merge.
+  **Vulnerabilities only**, and the reason is worth keeping: it was written
+  with a GPL-compatible licence allow-list, and its first run failed every pub
+  package. GitHub's dependency graph reports pub licences in lowercase (`mit`,
+  `bsd-3-clause`), the action's SPDX parser rejects those as invalid, and an
+  unparseable licence is a hard failure there. Rule 10's licence check
+  therefore stays wholly a person's (doc 01); the workflow says when to switch
+  the allow-list back on.
 - **Dependabot** (`dependabot.yml`): `github-actions` and `pub`, each grouped
   into one pull request a month. The `pub` group is doc 01's monthly batch PR,
   opened by a bot; the licence check and the doc 01 / notices rows stay a

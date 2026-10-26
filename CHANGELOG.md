@@ -18,8 +18,8 @@ All notable changes to MarkLens are documented here. Format follows
   the document portal, which `desktop_drop` 0.8.0 did not do — 0.8.1 added it.
 - **Every change is now analysed** by SonarQube Cloud (the Dart, with test
   coverage) and CodeQL (the workflows, the native runners and the build
-  tools), and pull requests are checked for vulnerable or GPL-incompatible
-  dependencies. Doc 12's coverage thresholds — 85% of `lib/core/`, 70% of
+  tools), and pull requests are checked for dependencies with known
+  vulnerabilities. Doc 12's coverage thresholds — 85% of `lib/core/`, 70% of
   `lib/` — are enforced for the first time; they had been written down since
   M0.
 
