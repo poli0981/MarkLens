@@ -938,10 +938,15 @@ history of this file.
       installer changes were run in Windows Sandbox when they merged (#7, #10,
       and the SandboxTest evidence on winget-pkgs#439835) — on a 3.47.1 build,
       not this one
-- [ ] `SHA256SUMS` verified; release notes written; tag `v1.0.2`; publish draft
-- [ ] **The published release is not marked prerelease.** `UpdateService`
+- [x] `SHA256SUMS` verified; release notes written; tag `v1.0.2`; publish draft
+      — all four checksums `OK` after downloading the draft's assets, and the
+      portable `marklens.exe --version` printed `MarkLens 1.0.2`. Notes are the
+      CHANGELOG section above the generated list, with the "installed for all
+      users" upgrade warning on top. Tag signed; published 2026-10-26 12:44 UTC
+- [x] **The published release is not marked prerelease.** `UpdateService`
       ignores drafts and prereleases alike, so the tick that looks like caution
-      disables the update banner permanently rather than delaying it
+      disables the update banner permanently rather than delaying it —
+      `releases/latest` answered `v1.0.2` straight after publishing
 - [ ] **WinGet, after publishing** (doc 11 "WinGet"):
       `pwsh tool/winget/submit.ps1 -Version x.y.z` runs clean, then again with
       `-Submit`, and the pull request is linked here. From this point the
