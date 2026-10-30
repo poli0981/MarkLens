@@ -953,7 +953,10 @@ history of this file.
       installer's bytes are pinned — never replace the asset. **Waiting for
       v1.0.2:** the first submission, winget-pkgs#439835 (1.0.1, a new
       package), is still open, and an update cannot be submitted against a
-      package that is not in the repository yet
+      package that is not in the repository yet. On 2026-10-30 the moderators
+      flagged its manifest version, 1.12.0, as deprecated; it was raised to
+      1.28.0 on its branch the same day, and `submit.ps1` now raises Komac's
+      output and submits it without `komac submit` (doc 11)
 - [ ] Listings updated: SoftHarbor entry + poli0981.dev portfolio
 - [ ] Post-release: file association behaves after real install
 - [ ] Post-release: the winget-pkgs pull request is merged, and

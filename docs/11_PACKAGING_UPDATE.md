@@ -301,6 +301,7 @@ step, which is the argument the metainfo's own comment makes.
 | `Dependencies` | `Microsoft.VCRedist.2015+.x64` | the prerequisite this per-user installer can only warn about |
 | `FileExtensions` | `md`, `mdx` | what `associations.iss` registers — not the extension registry |
 | `License` | `GPL-3.0-only` | Komac writes GitHub's detection, `GPL-3.0`; the script corrects it |
+| `ManifestVersion` | `1.28.0` | winget-pkgs deprecated 1.12.0 on 2026-10-30, and every released Komac still writes it; the script raises it |
 
 `Publisher` and `PackageName` are `poli0981` and `MarkLens`, because that is
 what the installed-apps list shows: `AppPublisher`, and `UninstallDisplayName`
@@ -347,16 +348,20 @@ After the draft is published (doc 15's checklist):
 1. `pwsh tool/winget/submit.ps1 -Version x.y.z` is a dry run. It refuses a
    draft or a prerelease; checks the installer against `SHA256SUMS`; refuses a
    version that already has a pull request or a merged manifest; generates the
-   manifests with Komac and corrects the licence; checks every row of the table
-   above in the files it will submit; and runs `winget validate`. Read what it
-   wrote to `build/winget/x.y.z/`.
+   manifests with Komac and corrects the licence and the manifest version;
+   checks every row of the table above in the files it will submit; runs
+   `winget validate`; and writes the pull request's title and body. Read what
+   it wrote to `build/winget/x.y.z/`, `pull-request.md` included.
 2. If `packaging/windows/` changed since the last version on WinGet, run the
    generated folder through `Tools\SandboxTest.ps1` from a checkout of
    winget-pkgs — once as it is, and once with
    `-WinGetOptions '--skip-dependencies'`, which is the machine without the
    runtime.
-3. `pwsh tool/winget/submit.ps1 -Version x.y.z -Submit`, and link the pull
-   request in doc 15.
+3. `pwsh tool/winget/submit.ps1 -Version x.y.z -Submit` opens the pull request
+   itself — a branch on the fork at winget-pkgs' `master`, one commit of
+   exactly the bytes it checked — and prints its URL; link it in doc 15. The
+   body ticks only what the script checked: if step 2 ran, tick "Tested
+   manifest locally" on the pull request by hand.
 4. Review happens on the pull request. Unanswered, `Needs-Author-Feedback`
    closes it after five quiet days and three more. Fix things on the branch in
    the fork; never run `-Submit` again for the same version, which opens a
@@ -383,11 +388,23 @@ broader than the `public_repo` Komac needs; that is acceptable only because
 nothing but a digest-pinned binary ever sees it.
 
 `komac update` carries a version's metadata forward from the previous manifest,
-re-reads the installer for the product code and the scope, and overwrites three
-fields: `License` and `LicenseUrl`, which the script puts back, and
-`ReleaseNotes`, which becomes the GitHub release's body — so write that for the
-people who will read it in `winget show`. `komac submit` reformats what it is
-given, which is why the script checks fields rather than layout.
+re-reads the installer for the product code and the scope, and overwrites four
+fields: `License` and `LicenseUrl`, which the script puts back;
+`ManifestVersion`, which it raises, along with the schema URL in the comment
+above it; and `ReleaseNotes`, which becomes the GitHub release's body — so
+write that for the people who will read it in `winget show`. Komac writes CRLF
+and orders keys its own way, which is why the script checks fields rather than
+layout.
+
+**Komac generates; the script submits.** `komac submit` re-serialises what it
+is given and writes each file's schema comment from a constant: every Komac
+released by 2026-10-30, 2.16.0 through 2.17.1, writes the 1.12.0 schema
+whatever the file says, and 2.17 also resets `ManifestVersion` to 1.12.0 in
+every manifest but the installer. winget-pkgs deprecated 1.12.0 that day — the
+1.0.1 pull request was raised to 1.28.0 by hand on its branch — so the script
+submits through `gh` instead: `createRef` and `createCommitOnBranch`, as Komac
+does, so GitHub signs the commit, then the pull request. What goes up is the
+bytes step 5 checked, and Komac sees the token only while `komac update` runs.
 
 ### Why not in CI
 

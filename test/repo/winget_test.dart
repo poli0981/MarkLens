@@ -164,24 +164,68 @@ void main() {
     },
   );
 
-  test('Komac is verified before it runs', () {
-    final verify = code.indexOf(r'Get-FileHash -Algorithm SHA256 $komac');
-    expect(verify, isNonNegative, reason: 'No hash check of $_script Komac.');
-    for (final use in <String>[r'& $komac update', r'& $komac submit']) {
-      final at = code.indexOf(use);
-      expect(at, isNonNegative, reason: 'No "$use" in $_script.');
-      expect(verify, lessThan(at), reason: 'The hash is checked after "$use".');
-    }
+  test("the manifest version is doc 11's, raised from Komac's and checked", () {
+    // Every Komac released by 2026-10-30 writes 1.12.0, which winget-pkgs
+    // deprecated that day. The script raises what Komac generates, and step 5
+    // refuses any file - generated or hand-written - at another version.
+    final version = _constant(code, 'ManifestVersion');
+    expect(version, matches(RegExp(r'^\d+\.\d+\.\d+$')));
+    expect(_row(doc, 'ManifestVersion'), version);
+    expect(
+      code.indexOf(r'Set-ManifestVersion $_', code.indexOf(r'& $komac update')),
+      isNonNegative,
+      reason: "Komac's output is not raised after it is generated.",
+    );
+    final check = code.indexOf(r'is manifest version $ManifestVersion');
+    expect(
+      check,
+      isNonNegative,
+      reason: 'Step 5 has no manifest version check.',
+    );
+    final rule = code.substring(check, code.indexOf('\n    }', check));
+    expect(rule, contains(r"'(?m)^ManifestVersion:\s*' + $mv"));
+    expect(rule, contains('yaml-language-server'));
   });
 
-  test('generating is a dry run, and submitting is asked for', () {
+  test('Komac is verified before it runs, and runs only to generate', () {
+    final verify = code.indexOf(r'Get-FileHash -Algorithm SHA256 $komac');
+    expect(verify, isNonNegative, reason: 'No hash check of $_script Komac.');
+    final runs = RegExp(r'& \$komac ').allMatches(code).toList();
+    expect(runs, hasLength(1), reason: 'Komac runs in one place: update.');
+    expect(code.substring(runs.single.start), startsWith(r'& $komac update'));
+    expect(verify, lessThan(runs.single.start), reason: 'Hashed after it ran.');
+  });
+
+  test('it submits the bytes it checked, not a re-serialisation', () {
+    // `komac submit` writes each file's schema comment from a constant - the
+    // 1.12.0 schema in every Komac released by 2026-10-30 - so what it sent
+    // would not be what step 5 checked.
+    expect(code, isNot(contains('komac submit')));
+    expect(code, contains(r'$manifests[$_.Name] = [IO.File]::ReadAllBytes'));
+    expect(code, contains(r'ToBase64String($manifests[$name])'));
+  });
+
+  test('generating is a dry run, and only -Submit writes to GitHub', () {
     expect(code, matches(RegExp(r'& \$komac update[^\n]*--dry-run')));
-    expect(
-      RegExp(r'& \$komac submit').allMatches(code),
-      hasLength(1),
-      reason: 'One place submits, and only behind -Submit.',
-    );
-    expect(code, matches(RegExp(r'if \(\$Submit\) \{\s*& \$komac submit')));
+    // The branch, the commit and the pull request: each written in one place,
+    // after the last -Submit gate and before the dry run's way out.
+    final gate = code.lastIndexOf(r'if ($Submit) {');
+    final dryRun = code.indexOf('Dry run. Read');
+    expect(gate, isNonNegative, reason: 'No -Submit gate in $_script.');
+    expect(dryRun, greaterThan(gate), reason: 'The dry run is not its else.');
+    for (final write in <String>[
+      'createRef(',
+      'createCommitOnBranch(',
+      'repos/microsoft/winget-pkgs/pulls',
+    ]) {
+      final at = RegExp(RegExp.escape(write)).allMatches(code).toList();
+      expect(at, hasLength(1), reason: 'One place does "$write".');
+      expect(
+        at.single.start,
+        inExclusiveRange(gate, dryRun),
+        reason: '"$write" runs without -Submit.',
+      );
+    }
   });
 
   test('the token is never a parameter and does not outlive the run', () {
