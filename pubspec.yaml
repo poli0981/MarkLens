@@ -33,7 +33,7 @@ dependencies:
   # wrapper's only other contribution was themes we would rather derive from
   # our own doc 06 tokens. One dependency (collection), no platform code.
   highlight: 0.7.0
-  flutter_svg: 2.3.0
+  flutter_svg: 2.3.2
 
   # ── State ───────────────────────────────────────────────────────────────
   riverpod: 3.4.3
